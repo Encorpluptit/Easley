@@ -68,6 +68,7 @@ class Clients(models.Model):
     name = models.CharField("client name", default="client", max_length=50)
     company = models.ForeignKey(
         Companies,
+        default=None,
         on_delete=models.CASCADE,
         related_name="clients",
         related_query_name="clients",
@@ -102,12 +103,13 @@ class License(models.Model):
         verbose_name="coût de la license",
         help_text="coût de la license (EN EUROS)"
     )
-    start = models.DateTimeField(
+    start_date = models.DateTimeField(
         default=timezone.now,
         verbose_name="date de début",
         help_text="date de début (en mois/jours)."
     )
     duration = models.DurationField(
+        default=0,
         verbose_name="durée de la license",
         help_text="durée de la license (en mois/jours)."
     )
@@ -137,10 +139,12 @@ class Service(models.Model):
     )
     # invoice
     estimated_date = models.DateTimeField(
+        default=timezone.now,
         verbose_name="date prévisionelle ???",
         help_text="date prévisionelle ???(en mois/jours)."
     )
     actual_date = models.DateTimeField(
+        default=timezone.now,
         verbose_name="fin du Service (ACTUEL ???)",
         help_text="fin du Service (ACTUEL)(en mois/jours)."
     )
@@ -178,5 +182,7 @@ class Service(models.Model):
 # - invoices
 # - company_id
 # - client_id
-# - user_id(le
+# - commercial(le
 # commercial)
+# contract_type
+# contract_

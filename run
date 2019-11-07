@@ -1,0 +1,33 @@
+#!/usr/bin/python3
+from os import system, remove, listdir
+from os.path import isfile, join
+from sys import argv
+from time import sleep
+
+
+def migrate():
+    system("./manage.py makemigrations mvp")
+    sleep(0.4)
+    system("./manage.py makemigrations")
+    sleep(0.4)
+    system("./manage.py migrate")
+    sleep(0.4)
+
+
+def launch():
+    migrate()
+    system("./manage.py runserver")
+
+
+def clean():
+    path = "mvp/migrations"
+    file = [f for f in listdir(path) if isfile(join(path, f))]
+    for f in file:
+        print("Removing file: %s" % f)
+        remove(join(path, f))
+
+
+if __name__ == '__main__':
+    if "clean" in argv:
+        clean()
+    launch()

@@ -4,7 +4,6 @@ import sys
 
 if __name__ == '__main__':
     os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'Easley.settings')
-    # os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'Easley_MVP.settings')
     try:
         from django.core.management import execute_from_command_line
     except ImportError as exc:

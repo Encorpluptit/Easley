@@ -34,18 +34,24 @@
 							<p class="text-center text-muted">Lorem ipsum dolor sit amet, <a href= {% url 'mvp-home' %} >Register</a> adipisicing elit. Quo nulla quibusdam cum doloremque incidunt nemo sunt a tenetur omnis odio. </p>
 							<hr>
 
-							<form method="post">
+							<form method="POST">
                                 {% csrf_token %}
-								<div class="top-margin">
-									<label>Username/Email <span class="text-danger">*</span></label>
-									<input type="text" class="form-control">
+                                <div class="top-margin">
+                                    <tr>
+                                        <th><label for="id_username">Username/Email:<span class="text-danger">*</span></label></th>
+                                        <td><input type="text" class="form-control" name="username" maxlength="150" autofocus required id="id_username"></td>
+                                    </tr>
 								</div>
-								<div class="top-margin">
-									<label>Password <span class="text-danger">*</span></label>
-									<input type="password" class="form-control">
-								</div>
+                                <div class="top-margin">
+                                    <tr>
+                                        <th><label for="id_password">Password:<span class="text-danger">*</span></label>
+                                        </th>
+                                        <td><input type="password" class="form-control" name="password" maxlength="150"
+                                                   autofocus required id="id_password"></td>
+                                    </tr>
+                                </div>
 
-								<hr>
+                                <hr>
 
 								<div class="row">
 									<div class="col-lg-8">
@@ -122,7 +128,7 @@
 						</ul>
 					</li>
 					<li><a href="contact.html">Contact</a></li>
-					<li class="active"><a class="btn" href="signin.html">SIGN IN / SIGN UP</a></li>
+					<li class="active"><a class="btn" href="login.html">SIGN IN / SIGN UP</a></li>
 				</ul>
 			</div><!--/.nav-collapse -->
 		</div>
@@ -151,7 +157,7 @@
 					<div class="panel panel-default">
 						<div class="panel-body">
 							<h3 class="thin text-center">Sign in to your account</h3>
-							<p class="text-center text-muted">Lorem ipsum dolor sit amet, <a href="signup.html">Register</a> adipisicing elit. Quo nulla quibusdam cum doloremque incidunt nemo sunt a tenetur omnis odio. </p>
+							<p class="text-center text-muted">Lorem ipsum dolor sit amet, <a href="register.html">Register</a> adipisicing elit. Quo nulla quibusdam cum doloremque incidunt nemo sunt a tenetur omnis odio. </p>
 							<hr>
 							
 							<form>
@@ -239,7 +245,7 @@
 								<a href="about.html">About</a> |
 								<a href="sidebar-right.html">Sidebar</a> |
 								<a href="contact.html">Contact</a> |
-								<b><a href="signup.html">Sign up</a></b>
+								<b><a href="register.html">Sign up</a></b>
 							</p>
 						</div>
 					</div>

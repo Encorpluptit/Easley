@@ -6,6 +6,23 @@ from django.db.models.signals import post_save
 
 
 # Create your models here.
+class Companies(models.Model):
+    name = models.CharField("company name", max_length=150)
+    ceo = models.OneToOneField(
+        User,
+        default=None,
+        on_delete=models.CASCADE,
+        related_query_name="company's ceo",
+        verbose_name="company's ceo"
+    )
+
+    class Meta:
+        verbose_name = "entreprise"
+        verbose_name_plural = "entreprises"
+        ordering = ['ceo__id']
+
+    def __str__(self):
+        return self.name
 
 
 class Profile(models.Model):
@@ -21,6 +38,12 @@ class Profile(models.Model):
             (4, 'Commercial')
         },
     )
+    # company = models.ForeignKey(
+    #     Companies,
+    #     default=None,
+    #     on_delete=models.CASCADE,
+    #     related_name="user company",
+    # )
 
     class Meta:
         verbose_name = "profile"
@@ -45,27 +68,8 @@ def save_user_profile(sender, instance, **kwargs):
     instance.profile.save()
 
 
-class Companies(models.Model):
-    name = models.CharField("company name", max_length=70)
-    ceo = models.OneToOneField(
-        User,
-        default=None,
-        on_delete=models.CASCADE,
-        related_name="company",
-        verbose_name="company's ceo"
-    )
-
-    class Meta:
-        verbose_name = "entreprise"
-        # verbose_name_plural
-        ordering = ['name']
-
-    def __str__(self):
-        return self.name
-
-
 class Clients(models.Model):
-    name = models.CharField("client name", default="client", max_length=50)
+    name = models.CharField("client name", default="client", max_length=150)
     company = models.ForeignKey(
         Companies,
         default=None,
@@ -85,10 +89,9 @@ class Clients(models.Model):
 
 class License(models.Model):
     subject = models.CharField(
-        "",
-        name="subject",
         max_length=300,
-        # verbose_name="subject",
+        name="subject",
+        verbose_name="subject",
         help_text="sujet de la license"
     )
     company = models.ForeignKey(
@@ -115,8 +118,8 @@ class License(models.Model):
     )
 
     class Meta:
-        verbose_name = "License"
-        # verbose_name_plural
+        verbose_name = "license"
+        verbose_name_plural = "licenses"
         ordering = ['cost']
 
     def __str__(self):
@@ -151,14 +154,14 @@ class Service(models.Model):
 
     class Meta:
         verbose_name = "service"
-        # verbose_name_plural
+        verbose_name_plural="services"
         ordering = ['pricing']
 
     def __str__(self):
         return self.description
 
 #
-#
+# @TODO:
 # class Invoice(models.Model):
 #     company = models.ForeignKey(
 #         Companies,

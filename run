@@ -19,15 +19,22 @@ def launch():
     system("./manage.py runserver")
 
 
-def clean():
-    path = "mvp/migrations"
+def clean_directory(path):
     file = [f for f in listdir(path) if isfile(join(path, f))]
     for f in file:
         print("Removing file: %s" % f)
         remove(join(path, f))
 
 
+def clean_directories():
+    paths = [
+        "mvp/migrations",
+        ]
+    for path in paths:
+        clean_directory(path)
+
+
 if __name__ == '__main__':
     if "clean" in argv:
-        clean()
+        clean_directories()
     launch()

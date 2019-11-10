@@ -2,8 +2,10 @@ from django.shortcuts import render, redirect
 from .forms import UserRegisterForm
 from django.contrib.auth.forms import AuthenticationForm
 from django.contrib import messages
+from django.contrib.auth import authenticate, login
 
 from django.contrib.auth.models import User
+
 
 # Create your views here.
 
@@ -35,29 +37,18 @@ def home(request):
 
 def register(request):
     form = UserRegisterForm(request.POST or None)
-    if request.method == "POST":
-        # form = UserRegisterForm(request.POST)
-        # print("request:\n", request.POST)
-        # print(form.cleaned_data.get('username'))
-        # print("form:\n", form)
-        if form.is_valid():
-            # clean_username = form.cleaned_data
-            # print(clean_username.get('username'), None)
-            t = form.cleaned_data
-            print(t['ceo'])
-            print("réussi")
-            # print(form.ceo)
-            clear_ceo = form.cleaned_data.get('ceo', None)
-            user = form.save()
-            # print(type(user))
-            # @ TODO: Login User
-            messages.success(request, f'Account Created')
-            # @ TODO: redirect à create entreprise si ceo
-            if clear_ceo:
-                return redirect('company/register')
-            else:
-                return redirect('mvp-login')
-    # else:
-        # form = UserRegisterForm()
-    return render(request, 'mvp/register.html', locals())
-    # return render(request, 'mvp/register.html', {'form': form})
+    if request.method == "POST" and form.is_valid():
+        user = form.save()
+        messages.success(request, f'Account Created, Welcome {user.first_name + " " + user.last_name} ! Please Login.')
+        # @TODO: redirect à create entreprise si ceo
+        if form.cleaned_data.get('ceo', False):
+            # @TODO: Login User
+            auth = authenticate(request, username=form.cleaned_data['username'], password=form.cleaned_data['password1'])
+            if auth is not None:
+                login(request, auth)
+            return redirect('mvp-company-register', user)
+        else:
+            return redirect('mvp-login')
+    # return render(request, 'mvp/register.html', form)
+    # return render(request, 'mvp/register.html', locals())
+    return render(request, 'mvp/register.html', {'form': form})

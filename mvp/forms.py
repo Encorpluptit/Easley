@@ -12,6 +12,7 @@ class UserRegisterForm(UserCreationForm):
     first_name = forms.CharField(max_length=150)
     last_name = forms.CharField(max_length=150)
     ceo = forms.BooleanField(required=False)
+
     # terms = forms.BooleanField()
 
     class Meta:

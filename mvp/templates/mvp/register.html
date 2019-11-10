@@ -13,7 +13,6 @@
 
 {% block content %}
     <div class="container">
-
         <ol class="breadcrumb">
             <li><a href="{% url 'mvp-home' %}">Home</a></li>
             <li class="active">Registration</li>
@@ -35,23 +34,27 @@
                             <hr>
                             <form method="post">
                                 {% csrf_token %}
-
                                 <div class="top-margin">
                                     <th><label for="id_first_name">First Name:<span class="text-danger">*</span></label>
                                     </th>
                                     <td><input type="text" class="form-control" name="first_name" maxlength="150"
-                                               autofocus required id="id_first_name"></td>
+                                               autofocus required id="id_first_name"
+                                               value="{{ form.cleaned_data.first_name }}"></td>
+                                    <span class="text-danger">{{ form.first_name.errors }}</span>
                                 </div>
                                 <div class="top-margin">
                                     <th><label for="id_last_name">Last Name:<span class="text-danger">*</span></label>
                                     </th>
                                     <td><input type="text" class="form-control" name="last_name" maxlength="150"
-                                               autofocus required id="id_last_name"></td>
+                                               autofocus required id="id_last_name"
+                                               value="{{ form.cleaned_data.last_name }}"></td>
+                                    <span class="text-danger">{{ form.last_name.errors }}</span>
                                 </div>
                                 <div class="top-margin">
                                     <th><label for="id_email">Email:<span class="text-danger">*</span></label></th>
                                     <td><input type="text" class="form-control" name="email" maxlength="150" autofocus
-                                               required id="id_email"></td>
+                                               required id="id_email" value="{{ form.cleaned_data.email }}"></td>
+                                    <span class="text-danger">{{ form.email.errors }}</span>
                                     <br><span
                                         class="help text">Contact Email (can be different than your username).</span>
                                 </div>
@@ -60,7 +63,9 @@
                                     <th><label for="id_username">Username:<span class="text-danger">*</span></label>
                                     </th>
                                     <td><input type="text" class="form-control" name="username" maxlength="150"
-                                               autofocus required id="id_username"></td>
+                                               autofocus required id="id_username"
+                                               value="{{ form.cleaned_data.username }}"></td>
+                                    <span class="text-danger">{{ form.username.errors }}</span>
                                     <br><span class="helptext">Required. 150 characters or fewer. Letters, digits and @/./+/-/_ only.</span>
                                 </div>
                                 <div class="row top-margin">
@@ -75,19 +80,22 @@
                                         <input type="password" class="form-control" name="password2" maxlength="150"
                                                autofocus required id="id_password2">
                                     </div>
+                                    <span class="text-danger">{{ form.password1.errors }}</span>
+                                    <span class="text-danger">{{ form.password2.errors }}</span>
                                 </div>
+                                <span class="text-danger">{{ form.non_field_errors }}</span>
                                 <hr>
                                 <div class="row">
-{#                                    <div class="col-lg-10">#}
-{#                                        <label for="id_ceo" class="checkbox">#}
-{#                                            <input for="id_terms" name="terms" type="checkbox">#}
-{#                                            I've read the <a href="page_terms.html">Terms and Conditions</a>#}
-{#                                        </label>#}
-{#                                    </div>#}
+                                    {#                                    <div class="col-lg-10">#}
+                                    {#                                        <label for="id_ceo" class="checkbox">#}
+                                    {#                                            <input for="id_terms" name="terms" type="checkbox">#}
+                                    {#                                            I've read the <a href="page_terms.html">Terms and Conditions</a>#}
+                                    {#                                        </label>#}
+                                    {#                                    </div>#}
                                     <div class="col-lg-9">
                                         <label for="id_ceo" class="checkbox">
                                             <input for="id_ceo" name="ceo" type="checkbox">
-                                             Je suis CEO et je souhaite créer mon Entreprise.
+                                            Je suis CEO et je souhaite créer mon Entreprise.
                                         </label>
                                     </div>
                                     <div class="col-lg-4 text-right">

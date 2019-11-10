@@ -65,6 +65,9 @@
             </ul>
         </div><!--/.nav-collapse -->
     </div>
+    <div>
+        {% include 'mvp/flash.html' %}
+    </div>
 </div>
 
 <div id="header">
@@ -151,11 +154,12 @@
                 <div class="col-md-6 widget">
                     <div class="widget-body">
                         <p class="simplenav">
-                            <a href="#">Home</a> |
+                            <a href="{% url 'mvp-home' %}">Home</a> |
                             <a href="about.html">About</a> |
                             <a href="sidebar-right.html">Sidebar</a> |
                             <a href="contact.html">Contact</a> |
-                            <b><a href="register.html">Sign up</a></b>
+                            <a href= {% url 'mvp-login' %}>Login</a> |
+                            <b><a href= {% url 'mvp-register' %}>Register</a></b>
                         </p>
                     </div>
                 </div>

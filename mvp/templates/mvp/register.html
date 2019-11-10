@@ -2,7 +2,7 @@
 
 
 {% block title %}
-    Easley - Sign-up
+    Easley - Register
 {% endblock %}
 
 
@@ -31,27 +31,11 @@
                     <div class="panel panel-default">
                         <div class="panel-body">
                             <h3 class="thin text-center">Register a new account</h3>
-                            <p class="text-center text-muted">Lorem ipsum dolor sit amet, <a href="login.html">Login</a>
-                                adipisicing elit. Quo nulla quibusdam cum doloremque incidunt nemo sunt a tenetur omnis
-                                odio. </p>
+                            <p class="text-center text-muted">Déjà Inscrit ? <a href="login.html">Login</a></p>
                             <hr>
-
                             <form method="post">
                                 {% csrf_token %}
-                                <div class="top-margin">
-                                    <th><label for="id_username">Username:<span class="text-danger">*</span></label>
-                                    </th>
-                                    <td><input type="text" class="form-control" name="username" maxlength="150"
-                                               autofocus required id="id_username"></td>
-                                    <br><span class="helptext">Required. 150 characters or fewer. Letters, digits and @/./+/-/_ only.</span>
-                                </div>
-                                <div class="top-margin">
-                                    <th><label for="id_email">Email:<span class="text-danger">*</span></label></th>
-                                    <td><input type="text" class="form-control" name="email" maxlength="150" autofocus
-                                               required id="id_email"></td>
-                                    <br><span
-                                        class="helptext">Contact Email (can be different than your username).</span>
-                                </div>
+
                                 <div class="top-margin">
                                     <th><label for="id_first_name">First Name:<span class="text-danger">*</span></label>
                                     </th>
@@ -64,6 +48,21 @@
                                     <td><input type="text" class="form-control" name="last_name" maxlength="150"
                                                autofocus required id="id_last_name"></td>
                                 </div>
+                                <div class="top-margin">
+                                    <th><label for="id_email">Email:<span class="text-danger">*</span></label></th>
+                                    <td><input type="text" class="form-control" name="email" maxlength="150" autofocus
+                                               required id="id_email"></td>
+                                    <br><span
+                                        class="help text">Contact Email (can be different than your username).</span>
+                                </div>
+                                <hr>
+                                <div class="top-margin">
+                                    <th><label for="id_username">Username:<span class="text-danger">*</span></label>
+                                    </th>
+                                    <td><input type="text" class="form-control" name="username" maxlength="150"
+                                               autofocus required id="id_username"></td>
+                                    <br><span class="helptext">Required. 150 characters or fewer. Letters, digits and @/./+/-/_ only.</span>
+                                </div>
                                 <div class="row top-margin">
                                     <div class="col-sm-6">
                                         <label for="id_password1">Password <span class="text-danger">*</span></label>
@@ -71,39 +70,24 @@
                                                autofocus required id="id_password1">
                                     </div>
                                     <div class="col-sm-6">
-                                        <label for="id_password2">Confirm Password <span class="text-danger">*</span></label>
+                                        <label for="id_password2">Confirm Password <span
+                                                class="text-danger">*</span></label>
                                         <input type="password" class="form-control" name="password2" maxlength="150"
                                                autofocus required id="id_password2">
                                     </div>
                                 </div>
-
-                                {#								<div class="top-margin">#}
-                                {#									<label>Last Name</label>#}
-                                {#									<input type="text" class="form-control">#}
-                                {#								</div>#}
-                                {#								<div class="top-margin">#}
-                                {#									<label>Email Address <span class="text-danger">*</span></label>#}
-                                {#									<input type="text" class="form-control">#}
-                                {#								</div>#}
-
-                                {#								<div class="row top-margin">#}
-                                {#									<div class="col-sm-6">#}
-                                {#										<label>Password <span class="text-danger">*</span></label>#}
-                                {#										<input type="text" class="form-control">#}
-                                {#									</div>#}
-                                {#									<div class="col-sm-6">#}
-                                {#										<label>Confirm Password <span class="text-danger">*</span></label>#}
-                                {#										<input type="text" class="form-control">#}
-                                {#									</div>#}
-                                {#								</div>#}
-
                                 <hr>
-
                                 <div class="row">
-                                    <div class="col-lg-8">
+{#                                    <div class="col-lg-10">#}
+{#                                        <label for="id_ceo" class="checkbox">#}
+{#                                            <input for="id_terms" name="terms" type="checkbox">#}
+{#                                            I've read the <a href="page_terms.html">Terms and Conditions</a>#}
+{#                                        </label>#}
+{#                                    </div>#}
+                                    <div class="col-lg-9">
                                         <label for="id_ceo" class="checkbox">
                                             <input for="id_ceo" name="ceo" type="checkbox">
-                                            I've read the <a href="page_terms.html">Terms and Conditions</a>
+                                             Je suis CEO et je souhaite créer mon Entreprise.
                                         </label>
                                     </div>
                                     <div class="col-lg-4 text-right">
@@ -118,7 +102,6 @@
 
             </article>
             <!-- /Article -->
-
         </div>
     </div>    <!-- /container -->
 {% endblock %}

@@ -34,12 +34,12 @@ def home(request):
 
 
 def register(request):
+    form = UserRegisterForm(request.POST or None)
     if request.method == "POST":
-        form = UserRegisterForm(request.POST)
+        # form = UserRegisterForm(request.POST)
         # print("request:\n", request.POST)
         # print(form.cleaned_data.get('username'))
         # print("form:\n", form)
-        # @ TODO: faire l'appael du fonction create_user juste après ce if
         if form.is_valid():
             # clean_username = form.cleaned_data
             # print(clean_username.get('username'), None)
@@ -48,25 +48,16 @@ def register(request):
             print("réussi")
             # print(form.ceo)
             clear_ceo = form.cleaned_data.get('ceo', None)
-            form.save()
+            user = form.save()
+            # print(type(user))
+            # @ TODO: Login User
+            messages.success(request, f'Account Created')
             # @ TODO: redirect à create entreprise si ceo
-            # if clear_ceo:
-            #     redirect(create_entrepise)
-            # else:
-            #     redirect()
-            clean_username = form.cleaned_data.get('username', None)
-            clear_email = form.cleaned_data.get('email', None)
-            if clean_username is not None and clear_email is not None:
-                # print(clean_username)
-                # print(clear_email)
-                # TO DO: match username et adresse et mail
-                u = User.objects.filter(username=clean_username, email=clear_email).first()
-                # print(u.username, u.email)
-        # del form.['ceo']
-        # if form.is_valid():
-        #     form.save()
-
-    else:
-        form = UserRegisterForm()
-    # print("form:\n", form)
-    return render(request, 'mvp/register.html', {'form': form})
+            if clear_ceo:
+                return redirect('company/register')
+            else:
+                return redirect('mvp-login')
+    # else:
+        # form = UserRegisterForm()
+    return render(request, 'mvp/register.html', locals())
+    # return render(request, 'mvp/register.html', {'form': form})

@@ -120,3 +120,4 @@ STATICFILES_DIRS = (
 )
 
 LOGIN_REDIRECT_URL = 'mvp-home'
+LOGOUT_REDIRECT_URL = 'mvp-home'

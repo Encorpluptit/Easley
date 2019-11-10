@@ -7,13 +7,15 @@ from django.db.models.signals import post_save
 
 # Create your models here.
 class Companies(models.Model):
-    name = models.CharField("company name", max_length=150)
+    name = models.CharField(verbose_name="company's name", max_length=150, help_text="company's name")
     ceo = models.OneToOneField(
         User,
         default=None,
         on_delete=models.CASCADE,
-        related_query_name="company's ceo",
-        verbose_name="company's ceo"
+        # related_query_name="company's ceo",
+        verbose_name="company's ceo",
+        help_text="Indicate company's CEO",
+        # HIDEN
     )
 
     class Meta:
@@ -28,7 +30,7 @@ class Companies(models.Model):
 class Profile(models.Model):
     user = models.OneToOneField(User, null=True, default=None, on_delete=models.CASCADE)
     type = models.PositiveSmallIntegerField(
-        verbose_name="user type",
+        verbose_name="user's type",
         name="type",
         default=4,
         choices={

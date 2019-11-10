@@ -22,6 +22,14 @@ class UserRegisterForm(UserCreationForm):
 
 
 class CompaniesRegisterForm(forms.ModelForm):
+    # required_css_class = 'form-control'
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        for key in self.fields:
+            self.fields[key].widget.attrs.update({'class': 'form-control'})
+
     class Meta:
         model = Companies
-        fields = '__all__'
+        exclude = ('ceo',)
+        # fields = '__all__'

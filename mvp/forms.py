@@ -1,7 +1,7 @@
 from django import forms
 from django.contrib.auth.models import User
 from django.contrib.auth.forms import UserCreationForm
-from .models import Companies
+from .models import Company
 from django.core.validators import validate_email
 
 
@@ -14,13 +14,15 @@ class UserRegisterForm(UserCreationForm):
     # email = forms.EmailField(widget=forms.EmailField.widget(attrs={'placeholder': 'email'}))
     first_name = forms.CharField(max_length=150)
     last_name = forms.CharField(max_length=150)
-    ceo = forms.BooleanField(required=False)
+    # ceo = forms.BooleanField(required=False)
 
     # terms = forms.BooleanField()
 
     class Meta:
         model = User
-        fields = ['first_name', 'last_name', 'email', 'username', 'password1', 'password2', 'ceo']
+        fields = ['first_name', 'last_name', 'email', 'username', 'password1', 'password2']
+        # fields = '__all__'
+        # fields = ['first_name', 'last_name', 'email', 'username', 'password1', 'password2', 'ceo']
         # fields = ['first_name', 'last_name', 'email', 'username', 'password1', 'password2', 'ceo', 'terms']
         # success_url = reverse_lazy('authors')
         # initial = {'date_of_death': '12/10/2016', }
@@ -35,7 +37,7 @@ class CompaniesRegisterForm(forms.ModelForm):
             self.fields[key].widget.attrs.update({'class': 'form-control'})
 
     class Meta:
-        model = Companies
+        model = Company
         exclude = ('ceo',)
         # initial = {'name': 'Company Name', }
         # fields = '__all__'

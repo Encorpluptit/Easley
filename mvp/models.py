@@ -1,16 +1,31 @@
 from django.db import models
 from django.contrib.auth.models import User
 from django.utils import timezone
-from django.dispatch import receiver
-from django.db.models.signals import post_save
 
 
 # Create your models here.
-class Companies(models.Model):
+
+
+class Ceo(models.Model):
+    user = models.OneToOneField(
+        User,
+        # null=True,
+        # default=None,
+        on_delete=models.CASCADE)
+
+    class Meta:
+        verbose_name = "CEO"
+        verbose_name_plural = "CEOs"
+        ordering = ['user__id']
+
+    def __str__(self):
+        return "%s %s" % (self.user.first_name, self.user.last_name)
+
+
+class Company(models.Model):
     name = models.CharField(verbose_name="company's name", max_length=150, help_text="company's name")
     ceo = models.OneToOneField(
         User,
-        default=None,
         on_delete=models.CASCADE,
         # related_query_name="company's ceo",
         verbose_name="company's ceo",
@@ -27,63 +42,51 @@ class Companies(models.Model):
         return self.name
 
 
-class Profile(models.Model):
-    user = models.OneToOneField(User, null=True, default=None, on_delete=models.CASCADE)
-    type = models.PositiveSmallIntegerField(
-        verbose_name="user's type",
-        default=4,
-        choices={
-            (1, 'DEV'),
-            (2, 'STAFF'),
-            (3, 'CEO'),
-            (4, 'Commercial')
-        },
-    )
-    # company2 = models.ManyToOneRel()
-    company = models.ForeignKey(
-        Companies,
+class Commercial(models.Model):
+    user = models.OneToOneField(
+        User,
         default=None,
         on_delete=models.CASCADE,
-        null=True
+        help_text="Indicate User",
+    )
+    company = models.ForeignKey(
+        Company,
+        default=None,
+        on_delete=models.CASCADE,
+        help_text="Indicate Company ID"
     )
 
     class Meta:
-        verbose_name = "profile"
-        # @TODO: faire plural name
-        # verbose_name_plural
-        ordering = ['user_id']
+        verbose_name = "Commercial"
+        verbose_name_plural = "Commercials"
+        ordering = ['company__id']
 
     def __str__(self):
-        if self.user.first_name:
-            return self.user.first_name
-        else:
-            return self.user.username
+        return "%s %s" % (self.user.first_name, self.user.last_name)
 
 
-@receiver(post_save, sender=User)
-def create_user_profile(sender, instance, created, **kwargs):
-    if created:
-        Profile.objects.create(user=instance)
-
-
-@receiver(post_save, sender=User)
-def save_user_profile(sender, instance, **kwargs):
-    instance.profile.save()
-
-
-class Clients(models.Model):
-    name = models.CharField("client name", default="client", max_length=150)
+class Client(models.Model):
+    name = models.CharField(
+        max_length=150,
+        default="client",
+        help_text="Indicated client's name"
+    )
+    email = models.EmailField(
+        max_length=150,
+        default="email",
+        help_text="Indicate client's email",
+    )
     company = models.ForeignKey(
-        Companies,
+        Company,
         default=None,
         on_delete=models.CASCADE,
-        related_name="clients",
-        related_query_name="clients",
+        # related_name="clients",
+        # related_query_name="clients",
     )
 
     class Meta:
         verbose_name = "client"
-        # verbose_name_plural
+        verbose_name_plural = "clients"
         ordering = ['company']
 
     def __str__(self):
@@ -93,16 +96,17 @@ class Clients(models.Model):
 class License(models.Model):
     subject = models.CharField(
         max_length=300,
-        name="subject",
-        verbose_name="subject",
+        # name="subject",
+        verbose_name="license's subject",
         help_text="sujet de la license"
     )
+    # @TODO: Add link client
     company = models.ForeignKey(
-        Companies,
+        Company,
         default=None,
         on_delete=models.CASCADE,
-        related_name="company's licenses+",
-        related_query_name="company's licenses",
+        # related_name="company's licenses+",
+        # related_query_name="company's licenses",
     )
     cost = models.PositiveIntegerField(
         default=0,
@@ -131,8 +135,9 @@ class License(models.Model):
 
 class Service(models.Model):
     description = models.CharField("description", max_length=300)
+    # @TODO: Add link client
     company = models.ForeignKey(
-        Companies,
+        Company,
         default=None,
         on_delete=models.CASCADE,
         related_name="company's services+",
@@ -157,7 +162,7 @@ class Service(models.Model):
 
     class Meta:
         verbose_name = "service"
-        verbose_name_plural="services"
+        verbose_name_plural = "services"
         ordering = ['pricing']
 
     def __str__(self):
@@ -190,5 +195,53 @@ class Service(models.Model):
 # - client_id
 # - commercial(le
 # commercial)
+# manytomany Service
+# manytomany or OneToOne or Foreignkey(peut être pas ici la foreign key)
 # contract_type
 # contract_
+
+# class Profile(models.Model):
+#     user = models.OneToOneField(User, null=True, default=None, on_delete=models.CASCADE)
+#     type = models.PositiveSmallIntegerField(
+#         verbose_name="user's type",
+#         default=4,
+#         choices={
+#             (1, 'DEV'),
+#             (2, 'STAFF'),
+#             (3, 'CEO'),
+#             (4, 'Commercial')
+#         },
+#     )
+#     # company2 = models.ManyToOneRel()
+#     company = models.ForeignKey(
+#         Companies,
+#         default=None,
+#         on_delete=models.CASCADE,
+#         null=True
+#     )
+#
+#     class Meta:
+#         verbose_name = "profile"
+#         # @TODO: faire plural name
+#         # verbose_name_plural
+#         ordering = ['user_id']
+#
+#     def __str__(self):
+#         if self.user.first_name:
+#             return self.user.first_name
+#         else:
+#             return self.user.username
+
+# from django.dispatch import receiver
+# from django.db.models.signals import post_save
+#
+# @receiver(post_save, sender=User)
+# def create_user_profile(sender, instance, created, **kwargs):
+#     if created:
+#         Profile.objects.create(user=instance)
+#
+#
+# @receiver(post_save, sender=User)
+# def save_user_profile(sender, instance, **kwargs):
+#     instance.profile.save()
+#

@@ -47,8 +47,8 @@ def company_creation(request):
         user_var = request.user
         clean_form.ceo = user_var
         form.save()
-        user_var.profile.type = 3
-        user_var.profile.save()
+        # user_var.profile.type = 3
+        # user_var.profile.save()
         # request.user
         return redirect('mvp-home')
     return render(request, 'mvp/company_creation.html', {'form': form})

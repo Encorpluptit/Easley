@@ -31,7 +31,6 @@ class Profile(models.Model):
     user = models.OneToOneField(User, null=True, default=None, on_delete=models.CASCADE)
     type = models.PositiveSmallIntegerField(
         verbose_name="user's type",
-        name="type",
         default=4,
         choices={
             (1, 'DEV'),
@@ -40,15 +39,17 @@ class Profile(models.Model):
             (4, 'Commercial')
         },
     )
-    # company = models.ForeignKey(
-    #     Companies,
-    #     default=None,
-    #     on_delete=models.CASCADE,
-    #     related_name="user company",
-    # )
+    # company2 = models.ManyToOneRel()
+    company = models.ForeignKey(
+        Companies,
+        default=None,
+        on_delete=models.CASCADE,
+        null=True
+    )
 
     class Meta:
         verbose_name = "profile"
+        # @TODO: faire plural name
         # verbose_name_plural
         ordering = ['user_id']
 

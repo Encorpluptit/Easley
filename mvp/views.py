@@ -18,29 +18,37 @@ def register(request):
     form = UserRegisterForm(request.POST or None)
     if request.method == "POST" and form.is_valid():
         user = form.save()
-        messages.success(request, f'Account Created, Welcome {user.first_name + " " + user.last_name} ! Please Login.')
-        # @TODO: redirect à create entreprise si ceo
         if form.cleaned_data.get('ceo', False):
-            # @TODO: Login User
             auth = authenticate(request, username=form.cleaned_data['username'],
                                 password=form.cleaned_data['password1'])
             if auth is not None:
                 login(request, auth)
-            return redirect('mvp-company-register')
+                messages.success(request,
+                                 f'Account Created, Welcome {user.first_name + " " + user.last_name} ! '
+                                 f'Please create your Company.')
+
+                return redirect('mvp-company-register')
         else:
+            messages.success(request,
+                             f'Account Created, Welcome {user.first_name + " " + user.last_name} ! Please Login.')
             return redirect('mvp-login')
     # return render(request, 'mvp/register.html', locals())
     return render(request, 'mvp/register.html', {'form': form})
 
 
+# @TODO: Add CEO CREATION, remove PROFILE refs
 def company_creation(request):
-    form = CompaniesRegisterForm(request.POST or None, instance=request.user)
-    form.ceo = request.user
-    u = request.user
-    print(form)
-    print(form.ceo)
-    if request.method == "POST":
-        print("Post réussi", request.POST)
-        if form.is_valid():
-            print("VALID")
+    form = CompaniesRegisterForm(request.POST or None)
+    if request.method == "POST" and form.is_valid():
+        # @TODO: Add try except for unique ceo per company
+        # @TODO: Add company to ceo Profile
+        # raise forms.ValidationError("On ne veut pas entendre parler de pizza !")
+        clean_form = form.save(commit=False)
+        user_var = request.user
+        clean_form.ceo = user_var
+        form.save()
+        user_var.profile.type = 3
+        user_var.profile.save()
+        # request.user
+        return redirect('mvp-home')
     return render(request, 'mvp/company_creation.html', {'form': form})

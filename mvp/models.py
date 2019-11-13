@@ -46,11 +46,6 @@ class Company(models.Model):
         return self.name
 
 
-@receiver(post_delete, sender=Company)
-def auto_delete_ceo_with_company(sender, instance, **kwargs):
-    instance.ceo.delete()
-
-
 class Commercial(models.Model):
     user = models.OneToOneField(
         User,

@@ -1,5 +1,4 @@
 from django.contrib import admin
-# from .models import Companies, Clients, Service, License, Profile
 from .models import Company, Client, License, Service, Ceo, Commercial
 
 # Register your models here.

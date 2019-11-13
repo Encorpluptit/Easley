@@ -30,7 +30,7 @@ def register(request):
         else:
             return redirect(request, 'mvp-home')
     # return render(request, 'mvp/register.html', locals())
-    return render(request, 'mvp/login_register/register.html', {'form': form})
+    return render(request, 'mvp/login_register/register2.html', {'form': form})
 
 
 @login_required
@@ -60,7 +60,7 @@ def clientCreation(request):
         if commercial_var:
             clean_form.company = commercial_var.company
         form.save()
-        return redirect('mvp-home')
+        return redirect('mvp-workspace')
     return render(request, 'mvp/forms/client_form.html', {'form': form})
 
 

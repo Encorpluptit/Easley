@@ -1,14 +1,15 @@
 {#{% load crispy-forms %}#}
 
-<form method="post">
-    {% csrf_token %}
-    {# Include the hidden fields #}
+
+{# Include the hidden fields #}
+<div class="top-margin">
     {% for hidden in form.hidden_fields %}
         {{ hidden }}
     {% endfor %}
     {# Include the visible fields #}
     {% for field in form.visible_fields %}
-        {{ field.non_field_errors }}
+        <span class="text-danger">{{ field.non_field_errors }}</span>
+        {#    {{ field.non_field_errors }}#}
         <div class="fieldWrapper">
             <div class="top-margin">
                 {{ field.label_tag }}
@@ -19,9 +20,6 @@
         {% if field.help_text %}
             <p class="help">{{ field.help_text|safe }}</p>
         {% endif %}
-        {{ field.errors }}
+        <span class="text-danger">{{ field.errors }}</span>
     {% endfor %}
-    <div class="col-lg-4 text-right">
-        <button class="btn btn-action" type="submit">Register</button>
-    </div>
-</form>
+</div>

@@ -13,6 +13,12 @@ class UserRegisterForm(UserCreationForm):
     last_name = forms.CharField(max_length=150)
     # terms = forms.BooleanField()
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        for key in self.fields:
+            self.fields[key].widget.attrs.update({'class': 'form-control'})
+            self.fields[key].widget.attrs.update({'placeholder': key})
+
     class Meta:
         model = User
         fields = ['first_name', 'last_name', 'email', 'username', 'password1', 'password2']

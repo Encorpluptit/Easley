@@ -30,7 +30,7 @@
                     <div class="panel panel-default">
                         <div class="panel-body">
                             <h3 class="thin text-center">Register a new account</h3>
-                            <p class="text-center text-muted">Déjà Inscrit ? <a href="login.html">Login</a></p>
+                            <p class="text-center text-muted">Déjà Inscrit ? <a href= {% url 'mvp-login' %}>Login</a></p>
                             <hr>
                             <form method="post">
                                 {% csrf_token %}

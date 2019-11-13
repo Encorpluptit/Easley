@@ -1,32 +1,26 @@
 {#{% load crispy-forms %}#}
 
-<div class="col-md-6 col-md-offset-3 col-sm-8 col-sm-offset-2">
-    <div class="panel panel-default">
-        <div class="panel-body">
-            <form method="post">
-                {% csrf_token %}
-                {# Include the hidden fields #}
-                {% for hidden in form.hidden_fields %}
-                    {{ hidden }}
-                {% endfor %}
-                {# Include the visible fields #}
-                {% for field in form.visible_fields %}
-                    <div class="fieldWrapper">
-                        <div class="top-margin">
-                            {{ field.label_tag }}
-                            {{ field }}
-                        </div>
-                    </div>
-                    <br>
-                    {% if field.help_text %}
-                        <p class="help">{{ field.help_text|safe }}</p>
-                    {% endif %}
-                    {{ field.errors }}
-                {% endfor %}
-                <div class="col-lg-4 text-right">
-                    <button class="btn btn-action" type="submit">Register</button>
-                </div>
-            </form>
+<form method="post">
+    {% csrf_token %}
+    {# Include the hidden fields #}
+    {% for hidden in form.hidden_fields %}
+        {{ hidden }}
+    {% endfor %}
+    {# Include the visible fields #}
+    {% for field in form.visible_fields %}
+        <div class="fieldWrapper">
+            <div class="top-margin">
+                {{ field.label_tag }}
+                {{ field }}
+            </div>
         </div>
+        <br>
+        {% if field.help_text %}
+            <p class="help">{{ field.help_text|safe }}</p>
+        {% endif %}
+        {{ field.errors }}
+    {% endfor %}
+    <div class="col-lg-4 text-right">
+        <button class="btn btn-action" type="submit">Register</button>
     </div>
-</div>
+</form>

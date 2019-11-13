@@ -1,6 +1,6 @@
 from django.shortcuts import render, redirect
-from .forms import UserRegisterForm, CompaniesRegisterForm
-from django.contrib.auth.forms import AuthenticationForm
+from .forms import UserRegisterForm, CompanyRegisterForm, ClientRegisterForm
+from .models import Ceo, Commercial
 from django.contrib import messages
 from django.contrib.auth import authenticate, login
 
@@ -11,7 +11,16 @@ from django.contrib.auth.models import User
 
 
 def home(request):
+    # @TODO: rajouter context pour boutton vers espace perso (ceo ou commercial ou rejoindre)
     return render(request, 'mvp/home.html')
+
+
+def about(request):
+    return render(request, 'mvp/about.html')
+
+
+def contact(request):
+    return render(request, 'mvp/contact.html')
 
 
 def register(request):
@@ -29,6 +38,7 @@ def register(request):
 
                 return redirect('mvp-company-register')
         else:
+            # @ TODO : remove CEO management and login redirect to choice page
             messages.success(request,
                              f'Account Created, Welcome {user.first_name + " " + user.last_name} ! Please Login.')
             return redirect('mvp-login')
@@ -38,17 +48,32 @@ def register(request):
 
 # @TODO: Add CEO CREATION, remove PROFILE refs
 def company_creation(request):
-    form = CompaniesRegisterForm(request.POST or None)
+    form = CompanyRegisterForm(request.POST or None)
     if request.method == "POST" and form.is_valid():
         # @TODO: Add try except for unique ceo per company
-        # @TODO: Add company to ceo Profile
         # raise forms.ValidationError("On ne veut pas entendre parler de pizza !")
         clean_form = form.save(commit=False)
-        user_var = request.user
-        clean_form.ceo = user_var
+        ceo = Ceo.objects.create(user=request.user)
+        ceo.save()
+        clean_form.ceo = ceo
+        # clean_form.ceo = request.user
+        company = form.save()
+        messages.success(request, f'Company { company.name } Created, Welcome { ceo } !')
+        return redirect('mvp-home')
+    return render(request, 'mvp/company_creation.html', {'form': form})
+
+
+def client_creation(request):
+    print(request)
+    form = ClientRegisterForm(request.POST or None)
+    if request.method == "POST" and form.is_valid():
+        # @TODO différencier CEO et Commercial si liés aux clients ?
+        # raise forms.ValidationError("On ne veut pas entendre parler de pizza !")
+        clean_form = form.save(commit=False)
+        commercial_var = Commercial.objects.get(user=request.user)
+        print(commercial_var.company)
+        if commercial_var:
+            clean_form.company = commercial_var.company
         form.save()
-        # user_var.profile.type = 3
-        # user_var.profile.save()
-        # request.user
         return redirect('mvp-home')
     return render(request, 'mvp/company_creation.html', {'form': form})

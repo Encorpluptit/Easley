@@ -12,9 +12,33 @@
 
 
 {% block content %}
-    {% include 'mvp/base_form.html' %}
+    <div class="container">
+        <ol class="breadcrumb">
+            <li><a href="{% url 'mvp-home' %}">Home</a></li>
+            <li class="active">Company Register</li>
+        </ol>
+
+        <div class="row">
+            <!-- Article main content -->
+            <article class="col-xs-12 maincontent">
+                <header class="page-header">
+                    <h1 class="page-title">Company Register</h1>
+                </header>
+                <div class="col-md-6 col-md-offset-3 col-sm-8 col-sm-offset-2">
+                    <div class="panel panel-default">
+                        <div class="panel-body">
+                            {% include 'mvp/base_form.html' %}
+                        </div>
+                    </div>
+                </div>
+            </article>
+            <!-- /Article -->
+        </div>
+    </div>    <!-- /container -->
 {% endblock %}
 
 {% block footer %}
-    <footer id="footer" class="secondary"></footer>
+    <section class="container-full top-space">
+        <div id="map"></div>
+    </section>
 {% endblock %}

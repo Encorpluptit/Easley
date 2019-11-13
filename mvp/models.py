@@ -1,6 +1,8 @@
 from django.db import models
 from django.contrib.auth.models import User
 from django.utils import timezone
+from django.dispatch import receiver
+from django.db.models.signals import post_delete
 
 
 # Create your models here.
@@ -9,8 +11,6 @@ from django.utils import timezone
 class Ceo(models.Model):
     user = models.OneToOneField(
         User,
-        # null=True,
-        # default=None,
         on_delete=models.CASCADE)
 
     class Meta:
@@ -23,9 +23,13 @@ class Ceo(models.Model):
 
 
 class Company(models.Model):
-    name = models.CharField(verbose_name="company's name", max_length=150, help_text="company's name")
+    name = models.CharField(
+        max_length=150,
+        verbose_name="company's name",
+        help_text="company's name",
+    )
     ceo = models.OneToOneField(
-        User,
+        Ceo,
         on_delete=models.CASCADE,
         # related_query_name="company's ceo",
         verbose_name="company's ceo",
@@ -40,6 +44,11 @@ class Company(models.Model):
 
     def __str__(self):
         return self.name
+
+
+@receiver(post_delete, sender=Company)
+def auto_delete_ceo_with_company(sender, instance, **kwargs):
+    instance.ceo.delete()
 
 
 class Commercial(models.Model):
@@ -68,14 +77,17 @@ class Commercial(models.Model):
 class Client(models.Model):
     name = models.CharField(
         max_length=150,
-        default="client",
+        default=None,
+        verbose_name="client's name",
         help_text="Indicated client's name"
     )
     email = models.EmailField(
         max_length=150,
-        default="email",
+        default=None,
+        verbose_name="client's email",
         help_text="Indicate client's email",
     )
+    # @ TODO: add link to commercial instead of company ?
     company = models.ForeignKey(
         Company,
         default=None,
@@ -100,13 +112,19 @@ class License(models.Model):
         verbose_name="license's subject",
         help_text="sujet de la license"
     )
-    # @TODO: Add link client
     company = models.ForeignKey(
         Company,
         default=None,
         on_delete=models.CASCADE,
         # related_name="company's licenses+",
         # related_query_name="company's licenses",
+    )
+    # @TODO: Add link client
+    client = models.ForeignKey(
+        Client,
+        default=None,
+        on_delete=models.CASCADE,
+        # verbose_name="",
     )
     cost = models.PositiveIntegerField(
         default=0,
@@ -119,7 +137,7 @@ class License(models.Model):
         help_text="date de début (en mois/jours)."
     )
     duration = models.DurationField(
-        default=0,
+        default='21 days',
         verbose_name="durée de la license",
         help_text="durée de la license (en mois/jours)."
     )
@@ -135,13 +153,19 @@ class License(models.Model):
 
 class Service(models.Model):
     description = models.CharField("description", max_length=300)
-    # @TODO: Add link client
+    client = models.ForeignKey(
+        Client,
+        default=None,
+        on_delete=models.CASCADE,
+        # verbose_name="",
+    )
     company = models.ForeignKey(
         Company,
         default=None,
         on_delete=models.CASCADE,
-        related_name="company's services+",
-        related_query_name="company's services",
+        # verbose_name="",
+        # related_name="company's services+",
+        # related_query_name="company's services",
     )
     pricing = models.PositiveIntegerField(
         default=0,
@@ -169,7 +193,7 @@ class Service(models.Model):
         return self.description
 
 #
-# @TODO:
+# @TODO: Invoice model
 # class Invoice(models.Model):
 #     company = models.ForeignKey(
 #         Companies,
@@ -222,8 +246,7 @@ class Service(models.Model):
 #
 #     class Meta:
 #         verbose_name = "profile"
-#         # @TODO: faire plural name
-#         # verbose_name_plural
+#         verbose_name_plural = "profiles"
 #         ordering = ['user_id']
 #
 #     def __str__(self):

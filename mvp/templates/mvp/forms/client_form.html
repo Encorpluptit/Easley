@@ -1,0 +1,45 @@
+{% extends "mvp/base/base.html" %}
+
+
+{% block title %}
+    Easley - Client Creation
+{% endblock %}
+
+
+{% block header %}
+    <header id="head" class="secondary"></header>
+{% endblock %}
+
+
+{% block content %}
+    <div class="container">
+        <ol class="breadcrumb">
+            <li><a href="{% url 'mvp-home' %}">Home</a></li>
+            <li><a href="{% url 'mvp-workspace' %}">Workspace</a></li>
+            <li class="active">Client Creation</li>
+        </ol>
+
+        <div class="row">
+            <!-- Article main content -->
+            <article class="col-xs-12 maincontent">
+                <header class="page-header">
+                    <h1 class="page-title">Add a client</h1>
+                </header>
+                <div class="col-md-6 col-md-offset-3 col-sm-8 col-sm-offset-2">
+                    <div class="panel panel-default">
+                        <div class="panel-body">
+                            {% include 'mvp/forms/base_form.html' %}
+                        </div>
+                    </div>
+                </div>
+            </article>
+            <!-- /Article -->
+        </div>
+    </div>    <!-- /container -->
+{% endblock %}
+
+{% block footer %}
+    <section class="container-full top-space">
+        <div id="map"></div>
+    </section>
+{% endblock %}

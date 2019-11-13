@@ -1,5 +1,6 @@
 from django.contrib import admin
 from .models import Company, Client, License, Service, Ceo, Commercial
+# from
 
 # Register your models here.
 admin.site.register(Company)

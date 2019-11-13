@@ -8,6 +8,7 @@
     {% endfor %}
     {# Include the visible fields #}
     {% for field in form.visible_fields %}
+        {{ field.non_field_errors }}
         <div class="fieldWrapper">
             <div class="top-margin">
                 {{ field.label_tag }}

@@ -1,27 +1,24 @@
 from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
-from .forms import UserRegisterForm, CompanyRegisterForm, ClientRegisterForm
-from .models import Ceo, Commercial
+from .forms import UserRegisterForm, CompanyRegisterForm, ClientRegisterForm, UserUpdateForm
+from .models import Commercial, Company
 from .controllers import customRegisterUser, customCompanyRegister
-from django.contrib.auth import authenticate, login
-
-from django.contrib.auth.models import User
 
 
 # Create your views here.
 
 
 def home(request):
-    return render(request, 'mvp/home.html')
+    return render(request, 'mvp/base/home.html')
 
 
 def about(request):
-    return render(request, 'mvp/about.html')
+    return render(request, 'mvp/base/about.html')
 
 
 def contact(request):
-    return render(request, 'mvp/contact.html')
+    return render(request, 'mvp/base/contact.html')
 
 
 def register(request):
@@ -31,25 +28,31 @@ def register(request):
             return redirect('mvp-login')
             # return redirect('mvp-join-company')
         else:
-            messages.error(request, f'An Error occured ! Please try again later')
             return redirect(request, 'mvp-home')
     # return render(request, 'mvp/register.html', locals())
-    return render(request, 'mvp/register.html', {'form': form})
+    return render(request, 'mvp/login_register/register.html', {'form': form})
 
 
 @login_required
-def company_creation(request):
+def updateUser(request):
+    form = UserUpdateForm(instance=request.user)
+    if request.method == "POST":
+        print("post")
+    return render(request, 'mvp/login_register/register.html',  {'form': form})
+
+
+@login_required
+def companyCreation(request):
     form = CompanyRegisterForm(request.POST or None)
     if request.method == "POST" and form.is_valid():
-        ceo, company = customCompanyRegister(request, form)
-        messages.success(request, f'Company { company.name } Created, Welcome { ceo } !')
+        customCompanyRegister(request, form)
         return redirect('mvp-home')
-    return render(request, 'mvp/company_creation.html', {'form': form})
+    return render(request, 'mvp/forms/company_form.html', {'form': form})
 
 
 @login_required
-def client_creation(request):
-    print(request)
+def clientCreation(request):
+    # print(request)
     form = ClientRegisterForm(request.POST or None)
     if request.method == "POST" and form.is_valid():
         clean_form = form.save(commit=False)
@@ -58,4 +61,36 @@ def client_creation(request):
             clean_form.company = commercial_var.company
         form.save()
         return redirect('mvp-home')
-    return render(request, 'mvp/company_creation.html', {'form': form})
+    return render(request, 'mvp/forms/client_form.html', {'form': form})
+
+
+@login_required
+def join_company(request):
+    if request.method == "POST":
+        company = Company.objects.filter(pk=int(request.POST['company_id'])).first()
+        if company:
+            Commercial.objects.create(user=request.user, company=company)
+            redirect('mvp-commercial-workspace')
+        else:
+            messages.warning(request, f'Wrong company ID')
+    return render(request, 'mvp/base/join_company.html')
+
+
+@login_required
+def commercialWorkspace(request):
+    return render(request, 'mvp/commercial/commercial_workspace.html')
+
+
+@login_required
+def ceoWorkspace(request):
+    return render(request, 'mvp/ceo/ceo_workspace.html')
+
+
+@login_required
+def workspace(request):
+    if hasattr(request.user, 'commercial'):
+        return redirect('mvp-commercial-workspace')
+    elif hasattr(request.user, 'ceo'):
+        return redirect('mvp-ceo-workspace')
+    else:
+        return redirect('mvp-join-company')

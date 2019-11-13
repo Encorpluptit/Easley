@@ -11,8 +11,23 @@ class UserRegisterForm(UserCreationForm):
     email = forms.EmailField()
     first_name = forms.CharField(max_length=150)
     last_name = forms.CharField(max_length=150)
-    # ceo = forms.BooleanField(required=False)
     # terms = forms.BooleanField()
+
+    class Meta:
+        model = User
+        fields = ['first_name', 'last_name', 'email', 'username', 'password1', 'password2']
+
+
+class UserUpdateForm(UserCreationForm):
+    email = forms.EmailField()
+    first_name = forms.CharField(max_length=150)
+    last_name = forms.CharField(max_length=150)
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        for key in self.fields:
+            self.fields[key].widget.attrs.update({'class': 'form-control'})
+            self.fields[key].widget.attrs.update({'placeholder': key})
 
     class Meta:
         model = User

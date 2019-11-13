@@ -57,7 +57,7 @@
                 </li>
                 <li><a href= {% url 'mvp-contact' %}>Contact</a></li>
                 {% if user.is_authenticated %}
-                    <li><a class="btn" href= {% url 'mvp-home' %}>Mon Espace</a></li>
+                    <li><a class="btn" href= {% url 'mvp-workspace' %}>Mon Espace</a></li>
                     <li><a class="btn" href= {% url 'mvp-logout' %}>Se déconnecter</a></li>
                 {% else %}
                     <li><a class="btn" href= {% url 'mvp-login' %}>Se Connecter</a></li>
@@ -68,7 +68,7 @@
         <!--/.nav-collapse -->
     </div>
     <div>
-        {% include 'mvp/flash.html' %}
+        {% include 'mvp/base/flash.html' %}
     </div>
 </div>
 

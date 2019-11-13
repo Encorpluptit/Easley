@@ -1,0 +1,63 @@
+{% extends "mvp/base/base.html" %}
+
+
+{% block title %}
+    Easley - Company Register
+{% endblock %}
+
+
+{% block header %}
+    <header id="head" class="secondary"></header>
+{% endblock %}
+
+
+{% block content %}
+    <div class="container">
+        <ol class="breadcrumb">
+            <li><a href="{% url 'mvp-home' %}">Home</a></li>
+            <li class="active">Join Company</li>
+        </ol>
+
+        <div class="row">
+            <!-- Article main content -->
+            <article class="col-xs-12 maincontent">
+                <header class="page-header">
+                    <h1 class="page-title">Company Register</h1>
+                </header>
+                <div class="col-md-6 col-md-offset-3 col-sm-8 col-sm-offset-2">
+                    <div class="panel panel-default">
+                        <div class="panel-body">
+                            <form method="post">
+                                {% csrf_token %}
+                                <th><label for="id_company">Please Enter your company code.<span
+                                        class="text-danger">*</span></label>
+                                </th>
+                                <td><input type="number" class="form-control" name="company_id" maxlength="150"
+                                           placeholder="Company Code"
+                                           autofocus required id="id_company"></td>
+                                <hr>
+                                <div class="row">
+                                    <div class="col-lg-8">
+                                    </div>
+                                    <div class="col-lg-4 text-right">
+                                        <button class="btn btn-action" type="submit">Sign in</button>
+                                    </div>
+                                </div>
+                                <hr>
+                                <a class="btn" href= {% url 'mvp-company-register' %}>Je suis CEO et je souhaite créer
+                                    mon Entreprise</a>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </article>
+            <!-- /Article -->
+        </div>
+    </div>    <!-- /container -->
+{% endblock %}
+
+{% block footer %}
+    <section class="container-full top-space">
+        <div id="map"></div>
+    </section>
+{% endblock %}

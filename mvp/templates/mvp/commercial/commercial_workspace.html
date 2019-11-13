@@ -1,0 +1,52 @@
+{% extends "mvp/base/base.html" %}
+
+
+{% block title %}
+    Easley - Commercial Workspace
+{% endblock %}
+
+
+{% block header %}
+    <header id="head" class="secondary"></header>
+{% endblock %}
+
+
+{% block content %}
+    <div class="container">
+        <ol class="breadcrumb">
+            <li><a href="{% url 'mvp-home' %}">Home</a></li>
+            <li class="active">Workspace</li>
+        </ol>
+
+        <div class="row">
+            <!-- Article main content -->
+            <article class="col-xs-12 maincontent">
+                <header class="page-header">
+                    <h1 class="page-title">Your Workspace</h1>
+                </header>
+                <div class="col-md-12 ">
+                    <div class="panel panel-default">
+                        <div class="panel-body">
+                            <hr>
+                            <hr>
+                            <hr>
+                            <hr>
+                            <hr>
+                            <hr>
+                            <hr>
+                            <hr>
+                            <hr>
+                        </div>
+                    </div>
+                </div>
+            </article>
+            <!-- /Article -->
+        </div>
+    </div>    <!-- /container -->
+{% endblock %}
+
+{% block footer %}
+    <section class="container-full top-space">
+        <div id="map"></div>
+    </section>
+{% endblock %}

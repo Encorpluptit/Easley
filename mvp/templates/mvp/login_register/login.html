@@ -36,23 +36,21 @@
                             <hr>
                             <form method="POST">
                                 {% csrf_token %}
+                                <span class="text-danger">{{ form.non_field_errors }}</span>
                                 <div class="top-margin">
-                                    <tr>
-                                        <th><label for="id_username">Username/Email:<span
-                                                class="text-danger">*</span></label></th>
-                                        <td><input type="text" class="form-control" name="username" maxlength="150"
-                                                   placeholder="Username"
-                                                   autofocus required id="id_username"></td>
-                                    </tr>
+                                    <label for="id_username">Username/Email:<span
+                                            class="text-danger">*</span></label>
+                                    <input type="text" class="form-control" name="username" maxlength="150"
+                                           placeholder="Username"
+                                           autofocus required id="id_username">
+                                    <span class="text-danger">{{ form.username.errors }}</span>
                                 </div>
                                 <div class="top-margin">
-                                    <tr>
-                                        <th><label for="id_password">Password:<span class="text-danger">*</span></label>
-                                        </th>
-                                        <td><input type="password" class="form-control" name="password" maxlength="150"
-                                                   placeholder="Password"
-                                                   autofocus required id="id_password"></td>
-                                    </tr>
+                                    <label for="id_password">Password:<span class="text-danger">*</span></label>
+                                    <input type="password" class="form-control" name="password" maxlength="150"
+                                           placeholder="Password"
+                                           autofocus required id="id_password">
+                                    <span class="text-danger">{{ form.password.errors }}</span>
                                 </div>
 
                                 <hr>

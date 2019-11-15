@@ -119,5 +119,5 @@ STATICFILES_DIRS = (
     os.path.join(BASE_DIR, "static"),
 )
 
-LOGIN_REDIRECT_URL = 'mvp-home'
+LOGIN_REDIRECT_URL = 'mvp-workspace'
 LOGOUT_REDIRECT_URL = 'mvp-home'

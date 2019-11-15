@@ -15,7 +15,7 @@ def customRegisterUser(request, form):
                          f'Please make a choice.')
         return True
     else:
-        messages.error(request, f'An Error occurred ! Please try again later')
+        messages.warning(request, f'An Error occurred ! Please try again later')
         return False
 
 
@@ -28,4 +28,4 @@ def customCompanyRegister(request, form):
         company = form.save()
         messages.success(request, f'Company {company.name} Created, Welcome {ceo} !')
     except Exception:
-        messages.error(request, f'An Error occurred ! Please try again later')
+        messages.warning(request, f'An Error occurred ! Please try again later')

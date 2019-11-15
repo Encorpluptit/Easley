@@ -65,6 +65,9 @@ class ClientRegisterForm(forms.ModelForm):
 
 
 class ServiceRegisterForm(forms.ModelForm):
+    description = forms.CharField(widget=forms.Textarea)
+    # @ TODO: Add good choices for clients
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         for key in self.fields:
@@ -73,7 +76,22 @@ class ServiceRegisterForm(forms.ModelForm):
 
     class Meta:
         model = Service
-        exclude = ('company',)
+        exclude = ('company', 'commercial',)
+
+
+class LicenseRegisterForm(forms.ModelForm):
+    description = forms.CharField(widget=forms.Textarea)
+    # @ TODO: Add good choices for clients
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        for key in self.fields:
+            self.fields[key].widget.attrs.update({'class': 'form-control'})
+            self.fields[key].widget.attrs.update({'placeholder': key})
+
+    class Meta:
+        model = License
+        exclude = ('company', 'commercial',)
 
 # from django.core.validators import validate_email
 # class Exemple(forms.BaseModelForm):

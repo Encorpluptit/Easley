@@ -1,9 +1,18 @@
 from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
-from .forms import UserRegisterForm, CompanyRegisterForm, ClientRegisterForm, UserUpdateForm
 from .models import Commercial, Company
 from .controllers import customRegisterUser, customCompanyRegister
+from .forms import (
+    UserRegisterForm,
+    CompanyRegisterForm,
+    ClientRegisterForm,
+    UserUpdateForm,
+    ServiceRegisterForm,
+    LicenseRegisterForm,
+)
+from django.urls import reverse
+from .models import Client
 
 
 # Create your views here.
@@ -25,8 +34,7 @@ def register(request):
     form = UserRegisterForm(request.POST or None)
     if request.method == "POST" and form.is_valid():
         if customRegisterUser(request, form):
-            return redirect('mvp-login')
-            # return redirect('mvp-join-company')
+            return redirect('mvp-join-company')
         else:
             return redirect(request, 'mvp-home')
     # return render(request, 'mvp/register.html', locals())
@@ -38,7 +46,7 @@ def updateUser(request):
     form = UserUpdateForm(instance=request.user)
     if request.method == "POST":
         print("post")
-    return render(request, 'mvp/login_register/register.html',  {'form': form})
+    return render(request, 'mvp/login_register/register2.html', {'form': form})
 
 
 @login_required
@@ -59,7 +67,11 @@ def clientCreation(request):
         commercial_var = Commercial.objects.get(user=request.user)
         if commercial_var:
             clean_form.company = commercial_var.company
-        form.save()
+            form.save()
+            messages.success(request, f'client created!')
+            # return Client.get_absolute_url()
+        else:
+            messages.warning(request, f'An Error occurred ! Please try again later')
         return redirect('mvp-workspace')
     return render(request, 'mvp/forms/client_form.html', {'form': form})
 
@@ -70,7 +82,7 @@ def join_company(request):
         company = Company.objects.filter(pk=int(request.POST['company_id'])).first()
         if company:
             Commercial.objects.create(user=request.user, company=company)
-            redirect('mvp-commercial-workspace')
+            return redirect('mvp-commercial-workspace')
         else:
             messages.warning(request, f'Wrong company ID')
     return render(request, 'mvp/base/join_company.html')
@@ -94,3 +106,33 @@ def workspace(request):
         return redirect('mvp-ceo-workspace')
     else:
         return redirect('mvp-join-company')
+
+
+@login_required
+def serviceCreation(request):
+    form = ServiceRegisterForm(request.POST or None)
+    if request.method == "POST" and form.is_valid():
+        if hasattr(request.user, 'commercial'):
+            clean_form = form.save(commit=False)
+            clean_form.company = request.user.commercial.company
+            clean_form.commercial = request.user.commercial
+            print("POST")
+            form.save()
+            messages.success(request, f'service created!')
+            return redirect('mvp-workspace')
+    return render(request, 'mvp/forms/service_form.html', {'form': form})
+
+
+@login_required
+def licenseCreation(request):
+    form = LicenseRegisterForm(request.POST or None)
+    if request.method == "POST" and form.is_valid():
+        if hasattr(request.user, 'commercial'):
+            clean_form = form.save(commit=False)
+            clean_form.company = request.user.commercial.company
+            clean_form.commercial = request.user.commercial
+            print("POST")
+            form.save()
+            messages.success(request, f'license created!')
+            return redirect('mvp-workspace')
+    return render(request, 'mvp/forms/license_form.html', {'form': form})

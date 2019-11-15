@@ -1,6 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import User
 from django.utils import timezone
+from django.urls import reverse
 
 
 # Create your models here.
@@ -9,7 +10,8 @@ from django.utils import timezone
 class Ceo(models.Model):
     user = models.OneToOneField(
         User,
-        on_delete=models.CASCADE)
+        on_delete=models.CASCADE,
+    )
 
     class Meta:
         verbose_name = "CEO"
@@ -97,27 +99,36 @@ class Client(models.Model):
     def __str__(self):
         return self.name
 
+    def get_absolute_url(self):
+        return reverse('mvp-client-details', kwargs={'pk': self.pk})
+
 
 class License(models.Model):
-    subject = models.CharField(
+    description = models.CharField(
         max_length=300,
         # name="subject",
-        verbose_name="license's subject",
-        help_text="sujet de la license"
+        verbose_name="license's description",
+        help_text="description de la license"
     )
     company = models.ForeignKey(
         Company,
         default=None,
         on_delete=models.CASCADE,
+        verbose_name="license's company",
         # related_name="company's licenses+",
         # related_query_name="company's licenses",
     )
-    # @TODO: Add link client
+    commercial = models.ForeignKey(
+        Commercial,
+        default=None,
+        on_delete=models.CASCADE,
+        verbose_name="license's commercial",
+    )
     client = models.ForeignKey(
         Client,
         default=None,
         on_delete=models.CASCADE,
-        # verbose_name="",
+        verbose_name="license's client",
     )
     cost = models.PositiveIntegerField(
         default=0,
@@ -141,24 +152,33 @@ class License(models.Model):
         ordering = ['cost']
 
     def __str__(self):
-        return self.subject
+        return self.description
 
 
 class Service(models.Model):
-    description = models.CharField("description", max_length=300)
+    description = models.CharField(
+        max_length=300,
+        verbose_name="service's description",
+    )
     client = models.ForeignKey(
         Client,
         default=None,
         on_delete=models.CASCADE,
-        # verbose_name="",
+        verbose_name="service's client",
     )
     company = models.ForeignKey(
         Company,
         default=None,
         on_delete=models.CASCADE,
-        # verbose_name="",
+        verbose_name="service's company",
         # related_name="company's services+",
         # related_query_name="company's services",
+    )
+    commercial = models.ForeignKey(
+        Commercial,
+        default=None,
+        on_delete=models.CASCADE,
+        verbose_name="service's commercial",
     )
     pricing = models.PositiveIntegerField(
         default=0,

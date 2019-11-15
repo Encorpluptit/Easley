@@ -2,7 +2,7 @@
 
 
 {% block title %}
-    Easley - Client Creation
+    Easley - Service Details
 {% endblock %}
 
 
@@ -16,25 +16,25 @@
         <ol class="breadcrumb">
             <li><a href="{% url 'mvp-home' %}">Home</a></li>
             <li><a href="{% url 'mvp-workspace' %}">Workspace</a></li>
-            <li class="active">Client Creation</li>
+            <li class="active">Service details</li>
         </ol>
 
         <div class="row">
             <!-- Article main content -->
             <article class="col-xs-12 maincontent">
                 <header class="page-header">
-                    <h1 class="page-title">Add a client</h1>
+                    <h1 class="page-title">Service details</h1>
                 </header>
                 <div class="col-md-6 col-md-offset-3 col-sm-8 col-sm-offset-2">
                     <div class="panel panel-default">
                         <div class="panel-body">
-                            <form method="post">
-                                {% csrf_token %}
-                                {% include 'mvp/forms/base_form.html' %}
-                                <div class="col-lg-4 text-right">
-                                    <button class="btn btn-action" type="submit">Add Client</button>
+                                <div class="top-margin">
+                                <h2 class="name">{{ object.description }}</h2>
+                                    <a class="btn btn-action" href={% url 'mvp-service-update' object.id %}>Update</a>
+                                <h4>{{ object.pricing }}</h4>
+                                <h4>{{ object.estimated_date }}</h4>
+                                <h4>{{ object.actual_date }}</h4>
                                 </div>
-                            </form>
                         </div>
                     </div>
                 </div>

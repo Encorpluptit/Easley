@@ -3,7 +3,7 @@ from django.shortcuts import get_object_or_404
 from django.contrib.auth.models import User
 from .models import Client, Service, Commercial, License
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
-from .forms import ServiceRegisterForm
+from .forms import ServiceRegisterForm, ClientRegisterForm
 
 
 # class ClientListView(ListView):
@@ -35,6 +35,9 @@ class ServiceListView(LoginRequiredMixin, UserPassesTestMixin, ListView):
 
     def get_queryset(self):
         commercial = get_object_or_404(Commercial, pk=self.kwargs.get('com_pk'))
+        # if commercial.type ==
+        # Service.objects.filter(company=commercial.company)
+        # else:
         return Service.objects.filter(commercial=commercial)
 
     def test_func(self):
@@ -55,7 +58,8 @@ class ServiceDetailView(DetailView):
 # @TODO: A modifier
 class ServiceUpdateView(UpdateView):
     model = Service
-    fields = '__all__'
+    form_class = ServiceRegisterForm
+    # fields = '__all__'
     template_name = 'mvp/forms/service_form.html'
 
     def get_queryset(self):
@@ -88,9 +92,10 @@ class LicenseDetailView(DetailView):
 
 
 class ClientCreateView(CreateView):
-    # @TODO: Changer class form directement dans le HTML pour utiliser ça.
+    # @TODO: Change class form in Form in file form.py.
     model = Client
-    fields = ['name', 'email', ]
+    # fields = ['name', 'email', ]
+    form_class = ClientRegisterForm
     template_name = 'mvp/forms/client_form.html'
 
     def form_valid(self, form):

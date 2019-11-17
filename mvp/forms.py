@@ -9,8 +9,8 @@ from .models import Company, Client, License, Service
 
 class UserRegisterForm(UserCreationForm):
     email = forms.EmailField()
-    first_name = forms.CharField(max_length=150)
-    last_name = forms.CharField(max_length=150)
+    first_name = forms.CharField(max_length=150,)
+    last_name = forms.CharField(max_length=150,)
     # terms = forms.BooleanField()
 
     def __init__(self, *args, **kwargs):
@@ -66,10 +66,12 @@ class ClientRegisterForm(forms.ModelForm):
 
 class ServiceRegisterForm(forms.ModelForm):
     description = forms.CharField(widget=forms.Textarea)
-    # @ TODO: Add good choices for clients
+    # client = forms.ModelChoiceField(queryset=Client.objects.filter(self.request.user.commercial.company))
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, user=None, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        # print(kwargs)
+        # print(kwargs.get('pk'))
         for key in self.fields:
             self.fields[key].widget.attrs.update({'class': 'form-control'})
             self.fields[key].widget.attrs.update({'placeholder': key})

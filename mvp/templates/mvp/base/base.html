@@ -54,8 +54,8 @@
                         <li><a href="sidebar-left.html">Left Sidebar</a></li>
                         <li class="active"><a href="sidebar-right.html">Right Sidebar</a></li>
                     </ul>
-                </li>
                 <li><a href= {% url 'mvp-contact' %}>Contact</a></li>
+                </li>
                 {% if user.is_authenticated %}
                     <li><a class="btn" href= {% url 'mvp-workspace' %}>Mon Espace</a></li>
                     <li><a class="btn" href= {% url 'mvp-logout' %}>Se déconnecter</a></li>

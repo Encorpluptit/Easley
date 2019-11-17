@@ -111,6 +111,9 @@ def workspace(request):
 @login_required
 def serviceCreation(request):
     form = ServiceRegisterForm(request.POST or None)
+    # print(form.fields['client'])
+    # form.fields['client'] = choice = forms.ChoiceField(choices=[
+    # (choice.pk, choice) for choice in Commercial.objects.filter(request.user.commercial.company)])
     if request.method == "POST" and form.is_valid():
         if hasattr(request.user, 'commercial'):
             clean_form = form.save(commit=False)

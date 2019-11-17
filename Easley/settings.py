@@ -24,7 +24,7 @@ SECRET_KEY = '3blpq49h($g8x79c1djta$v=daj@jrhdy%hn47%!q$z#(1e_)c'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = [easleymvp.herokuapp.com]
 
 # Application definition
 INSTALLED_APPS = [

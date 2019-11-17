@@ -1,1 +1,1 @@
-web: gunicorn Easley.wgsi
+web: gunicorn Easley.wsgi

@@ -24,6 +24,7 @@ class ClientListView(LoginRequiredMixin, UserPassesTestMixin, ListView):
         # @TODO: RAISE ERROR 404
 
     def test_func(self):
+        # @TODO Fiare try except Permission denied ?
         return routeListPermissions(self, self.pk_url_kwarg)
 
 
@@ -56,7 +57,7 @@ class ServiceListView(LoginRequiredMixin, UserPassesTestMixin, ListView):
         return routeListPermissions(self, self.pk_url_kwarg)
 
 
-class ServiceDetailView(DetailView):
+class ServiceDetailView(LoginRequiredMixin, UserPassesTestMixin, DetailView):
     model = Service
     template_name = 'mvp/service/service_details.html'
     pk_url_kwarg = 'service_pk'
@@ -82,7 +83,7 @@ class LicenseListView(LoginRequiredMixin, UserPassesTestMixin, ListView):
         # @TODO: RAISE ERROR 404
 
     def test_func(self):
-        return routeDetailsPermissions(self, self.pk_url_kwarg, self.model)
+        return routeListPermissions(self, self.pk_url_kwarg)
 
 
 class LicenseDetailView(DetailView):
@@ -128,6 +129,7 @@ class ClientCreateView(CreateView):
             self.object.company = self.request.user.manager.company
         self.object.save()
         return redirect(self.get_success_url())
+
     # @TODO: To Add for permissions
     # def test_func(self):
 

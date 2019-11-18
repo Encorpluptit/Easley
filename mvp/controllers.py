@@ -1,6 +1,6 @@
 from django.contrib import messages
 from django.contrib.auth import authenticate, login
-from .models import Manager, Commercial, Client
+from .models import Manager, Commercial, Client, Service
 from django.core.exceptions import ObjectDoesNotExist, ValidationError
 from django.shortcuts import get_object_or_404
 
@@ -35,7 +35,9 @@ def customCompanyRegister(request, form):
 
 def routeDetailsPermissions(self, key_pk, base_class):
     try:
-        if Manager.objects.get(user=self.request.user).company.id == self.kwargs.get('cpny_pk'):
+        manager = Manager.objects.get(user=self.request.user)
+        print(manager)
+        if manager.company.id == self.kwargs.get('cpny_pk') and manager.company == base_class.objects.get(pk=self.kwargs.get(key_pk)).company:
             return True
     except ObjectDoesNotExist:
         base_class = get_object_or_404(base_class, pk=self.kwargs.get(key_pk))
@@ -43,6 +45,7 @@ def routeDetailsPermissions(self, key_pk, base_class):
             return True
         else:
             return False
+    print("ici")
 
 # @TODO à retravailler
 def routeCreatePermissions(self, base_class):

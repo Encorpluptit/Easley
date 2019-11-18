@@ -128,22 +128,8 @@ class ClientCreateView(CreateView):
             self.object.company = self.request.user.manager.company
         self.object.save()
         return redirect(self.get_success_url())
-
-    def test_func(self):
-
-
-    # def get(self, request, *args, **kwargs):
-    #     print('ee')
-    #     self.user = request.user
-    #     return super(ClientCreateView, self).get(request, *args, **kwargs)
-    #
-    # def post(self, request, *args, **kwargs):
-    #     print('post')
-    #     return super(ClientCreateView, self).post(request, *args, user=request.user, **kwargs)
-    #
-    # def form_invalid(self, form):
-    #     print('invalid')
-    #     return super(ClientCreateView, self).form_invalid(form)
+    # @TODO: To Add for permissions
+    # def test_func(self):
 
     def get_success_url(self):
         return self.object.get_absolute_url(self.object.company.id)

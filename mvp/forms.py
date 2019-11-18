@@ -3,6 +3,8 @@ from django.contrib.auth.models import User
 from django.contrib.auth.forms import UserCreationForm
 from .models import Company, Commercial, Manager, Client, Service, License
 from django.core.exceptions import ValidationError
+
+
 # Create your forms here.
 
 
@@ -87,6 +89,8 @@ class ServiceForm(forms.ModelForm):
 
 
 class LicenseForm(forms.ModelForm):
+    # @ TODO: peut-être changer le widget dans init avec
+    # widget = forms.Texarea(Et opts comme max_lenght=300 ????????)
     description = forms.CharField(widget=forms.Textarea)
 
     def __init__(self, *args, user=None, **kwargs):

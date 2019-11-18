@@ -10,8 +10,8 @@ from .genericsViews import (
     ServiceDetailView,
     ServiceUpdateView,
     ClientCreateView,
+    ClientUpdateView,
 )
-# from . import genericsViews
 
 urlpatterns = [
     path('', views.home, name='mvp-home'),
@@ -23,12 +23,13 @@ urlpatterns = [
     path('workspace/', views.workspace, name="mvp-workspace"),
     path('workspace/commercial/', views.commercialWorkspace, name="mvp-commercial-workspace"),
     path('workspace/manager/', views.ceoWorkspace, name="mvp-manager-workspace"),
-    path('client/new/', ClientCreateView.as_view(), name='mvp-client-new'),
-    # path('<int:cpny_pk>/client/new/', ClientCreateView.as_view(), name='mvp-client-new'),
+    # path('client/new/', ClientCreateView.as_view(), name='mvp-client-new'),
+    path('<int:cpny_pk>/client/new/', ClientCreateView.as_view(), name='mvp-client-new'),
     # path('<int:cpny_pk>/client/new', views.clientCreation, name='mvp-client-new'),
     # path('client/new/', views.clientCreation, name='mvp-client-new'),
     path('<int:cpny_pk>/client/list/<int:com_pk>/', ClientListView.as_view(), name='mvp-client-list'),
     path('<int:cpny_pk>/client/details/<int:client_pk>/', ClientDetailView.as_view(), name='mvp-client-details'),
+    path('<int:cpny_pk>/client/update/<int:client_pk>/', ClientUpdateView.as_view(), name='mvp-client-update'),
     path('service/new/', views.serviceCreation, name='mvp-service-new'),
     path('<int:cpny_pk>/service/list/<int:com_pk>/', ServiceListView.as_view(), name='mvp-service-list'),
     path('<int:cpny_pk>/service/details/<int:service_pk>/', ServiceDetailView.as_view(), name='mvp-service-details'),

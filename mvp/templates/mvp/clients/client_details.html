@@ -28,11 +28,26 @@
                 <div class="col-md-6 col-md-offset-3 col-sm-8 col-sm-offset-2">
                     <div class="panel panel-default">
                         <div class="panel-body">
-                                <div class="top-margin">
+                            <div class="top-margin">
                                 <h2 class="name">{{ object.name }}</h2>
                                 <h4>{{ object.email }}</h4>
                                 <h4>{{ object.company }}</h4>
-                                </div>
+                            </div>
+                            {% if user.commercial and object.commercial == user.commercial %}
+                                <a class="btn btn-action"
+                                   href= {% url 'mvp-client-update' user.commercial.company.id object.id %}>
+                                    {{ button }}
+                                </a>
+                            {% endif %}
+                            {% if user.manager %}
+                                button update à Afficher
+                                {% if user.manager.type == 1 or user.manager.type == 2 %}
+                                <a class="btn btn-action"
+                                   href= {% url 'mvp-client-update' user.manager.company.id object.id %}>
+                                    {{ button }}
+                                </a>
+                                {% endif %}
+                            {% endif %}
                         </div>
                     </div>
                 </div>

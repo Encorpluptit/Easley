@@ -1,27 +1,10 @@
 from django.db import models
 from django.contrib.auth.models import User
-from django.utils import timezone
 from django.urls import reverse
+from django.utils import timezone
 
 
 # Create your models here.
-
-
-class Ceo(models.Model):
-    user = models.OneToOneField(
-        User,
-        on_delete=models.CASCADE,
-    )
-
-    class Meta:
-        verbose_name = "CEO"
-        verbose_name_plural = "CEOs"
-        ordering = ['user__id']
-
-    def __str__(self):
-        return "%s %s" % (self.user.first_name, self.user.last_name)
-
-
 class Company(models.Model):
     name = models.CharField(
         max_length=150,
@@ -29,12 +12,10 @@ class Company(models.Model):
         help_text="company's name",
     )
     ceo = models.OneToOneField(
-        Ceo,
+        User,
         on_delete=models.CASCADE,
-        # related_query_name="company's ceo",
-        verbose_name="company's ceo",
-        help_text="Indicate company's CEO",
-        # HIDEN
+        verbose_name="company's manager",
+        help_text="Indicate company's manager",
     )
 
     class Meta:
@@ -44,6 +25,26 @@ class Company(models.Model):
 
     def __str__(self):
         return self.name
+
+
+class Manager(models.Model):
+    user = models.OneToOneField(
+        User,
+        on_delete=models.CASCADE,
+    )
+    company = models.ForeignKey(
+        Company,
+        default=None,
+        on_delete=models.CASCADE,
+    )
+
+    class Meta:
+        verbose_name = "manager"
+        verbose_name_plural = "managers"
+        ordering = ['company__id']
+
+    def __str__(self):
+        return "%s %s" % (self.user.first_name, self.user.last_name)
 
 
 class Commercial(models.Model):
@@ -63,7 +64,7 @@ class Commercial(models.Model):
     class Meta:
         verbose_name = "Commercial"
         verbose_name_plural = "Commercials"
-        ordering = ['company__id']
+        ordering = ['company__id', 'user__first_name', 'user__last_name']
 
     def __str__(self):
         return "%s %s" % (self.user.first_name, self.user.last_name)
@@ -82,25 +83,81 @@ class Client(models.Model):
         verbose_name="client's email",
         help_text="Indicate client's email",
     )
-    # @ TODO: add link to commercial instead of company ?
+    commercial = models.ForeignKey(
+        Commercial,
+        default=None,
+        on_delete=models.CASCADE,
+        verbose_name="client's commercial",
+        help_text="Indicate client's commercial",
+    )
     company = models.ForeignKey(
         Company,
         default=None,
         on_delete=models.CASCADE,
-        # related_name="clients",
-        # related_query_name="clients",
+        verbose_name="client's company",
+        help_text="Indicate client's company",
     )
 
     class Meta:
         verbose_name = "client"
         verbose_name_plural = "clients"
-        ordering = ['company']
+        ordering = ['company', 'name']
 
     def __str__(self):
         return self.name
 
-    def get_absolute_url(self):
-        return reverse('mvp-client-details', kwargs={'pk': self.pk})
+    def get_absolute_url(self, comp_id):
+        print(reverse('mvp-client-details', args=[comp_id, str(self.id)]))
+        return reverse('mvp-client-details', args=[comp_id, str(self.id)])
+
+
+class Service(models.Model):
+    description = models.CharField(
+        max_length=300,
+        verbose_name="service's description",
+    )
+    client = models.ForeignKey(
+        Client,
+        default=None,
+        on_delete=models.CASCADE,
+        verbose_name="service's client",
+    )
+    company = models.ForeignKey(
+        Company,
+        default=None,
+        on_delete=models.CASCADE,
+        verbose_name="service's company",
+    )
+    commercial = models.ForeignKey(
+        Commercial,
+        default=None,
+        on_delete=models.CASCADE,
+        verbose_name="service's commercial",
+    )
+    pricing = models.PositiveIntegerField(
+        default=0,
+        verbose_name="pricing du service",
+        help_text="pricing du service (EN EUROS)"
+    )
+    # invoice
+    estimated_date = models.DateTimeField(
+        default=timezone.now,
+        verbose_name="date prévisionelle ???",
+        help_text="date prévisionelle ???(en mois/jours)."
+    )
+    actual_date = models.DateTimeField(
+        default=timezone.now,
+        verbose_name="fin du Service (ACTUEL ???)",
+        help_text="fin du Service (ACTUEL)(en mois/jours)."
+    )
+
+    class Meta:
+        verbose_name = "service"
+        verbose_name_plural = "services"
+        ordering = ['pricing', 'company__id', 'description']
+
+    def __str__(self):
+        return self.description
 
 
 class License(models.Model):
@@ -149,63 +206,12 @@ class License(models.Model):
     class Meta:
         verbose_name = "license"
         verbose_name_plural = "licenses"
-        ordering = ['cost']
+        ordering = ['cost', 'company__id', 'description']
 
     def __str__(self):
         return self.description
 
 
-class Service(models.Model):
-    description = models.CharField(
-        max_length=300,
-        verbose_name="service's description",
-    )
-    client = models.ForeignKey(
-        Client,
-        default=None,
-        on_delete=models.CASCADE,
-        verbose_name="service's client",
-    )
-    company = models.ForeignKey(
-        Company,
-        default=None,
-        on_delete=models.CASCADE,
-        verbose_name="service's company",
-        # related_name="company's services+",
-        # related_query_name="company's services",
-    )
-    commercial = models.ForeignKey(
-        Commercial,
-        default=None,
-        on_delete=models.CASCADE,
-        verbose_name="service's commercial",
-    )
-    pricing = models.PositiveIntegerField(
-        default=0,
-        verbose_name="pricing du service",
-        help_text="pricing du service (EN EUROS)"
-    )
-    # invoice
-    estimated_date = models.DateTimeField(
-        default=timezone.now,
-        verbose_name="date prévisionelle ???",
-        help_text="date prévisionelle ???(en mois/jours)."
-    )
-    actual_date = models.DateTimeField(
-        default=timezone.now,
-        verbose_name="fin du Service (ACTUEL ???)",
-        help_text="fin du Service (ACTUEL)(en mois/jours)."
-    )
-
-    class Meta:
-        verbose_name = "service"
-        verbose_name_plural = "services"
-        ordering = ['pricing']
-
-    def __str__(self):
-        return self.description
-
-#
 # @TODO: Invoice model
 # class Invoice(models.Model):
 #     company = models.ForeignKey(
@@ -236,6 +242,10 @@ class Service(models.Model):
 # manytomany or OneToOne or Foreignkey(peut être pas ici la foreign key)
 # contract_type
 # contract_
+
+
+
+
 
 # class Profile(models.Model):
 #     user = models.OneToOneField(User, null=True, default=None, on_delete=models.CASCADE)

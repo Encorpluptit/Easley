@@ -1,0 +1,12 @@
+<span class="text-danger">{{ field.non_field_errors }}</span>
+<div class="fieldWrapper">
+    <div class="top-margin">
+        {{ field.label_tag }}
+        {{ field }}
+    </div>
+</div>
+<br>
+{% if field.help_text %}
+    <p class="help">{{ field.help_text|safe }}</p>
+{% endif %}
+<span class="text-danger">{{ field.errors }}</span>

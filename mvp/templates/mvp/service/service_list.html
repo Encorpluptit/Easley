@@ -30,9 +30,15 @@
                         <div class="panel-body">
                             {% for service in service_list %}
                                 <div class="top-margin">
-                                    <h4>
-                                        <a href= {% url 'mvp-service-details' service.id %}>{{ service.description }}</a>
-                                    </h4>
+                                    {% if user.commercial %}
+                                        <h2>
+                                            <a href= {% url 'mvp-service-details' user.commercial.company.id service.id %}>{{ service.description }}</a>
+                                        </h2>
+                                    {% else %}
+                                        <h2>
+                                            <a href= {% url 'mvp-service-details' user.manager.company.id service.id %}>{{ service.description }}</a>
+                                        </h2>
+                                    {% endif %}
                                 </div>
                             {% endfor %}
                         </div>

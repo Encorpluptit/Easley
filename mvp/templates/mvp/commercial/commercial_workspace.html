@@ -27,19 +27,19 @@
                 <div class="col-md-12 ">
                     <div class="panel panel-default">
                         <div class="panel-body">
-                            <a class="btn btn-action" href={% url 'mvp-client-list' user.commercial.id %}>Liste des
+                            <a class="btn btn-action" href={% url 'mvp-client-list' user.commercial.company.id user.commercial.id %}>Liste des
                                 Clients
                             </a>
-                            <a class="btn btn-action" href={% url 'mvp-service-list' user.commercial.id %}>Liste
+                            <a class="btn btn-action" href={% url 'mvp-service-list' user.commercial.company.id user.commercial.id %}>Liste
                                 des Services
                             </a>
-                            <a class="btn btn-action" href={% url 'mvp-license-list' user.commercial.id %}>Liste
+                            <a class="btn btn-action" href={% url 'mvp-license-list' user.commercial.company.id user.commercial.id %}>Liste
                                 des Licenses
                             </a>
                             <hr>
                             <div class="navbar-collapse collapse">
                                 <ul class="nav navbar-nav ">
-                                    <li><a class="btn" href= {% url 'mvp-client-new' %}>Ajouter un Client</a></li>
+                                    <li><a class="btn" href= {% url 'mvp-client-new'  %}>Ajouter un Client</a></li>
                                     <li><a class="btn" href= {% url 'mvp-service-new' %}>Ajouter un Service</a></li>
                                     <li><a class="btn" href= {% url 'mvp-license-new' %}>Ajouter une License</a></li>
                                 </ul>

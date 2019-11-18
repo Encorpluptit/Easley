@@ -30,7 +30,15 @@
                         <div class="panel-body">
                             {% for license in license_list %}
                                 <div class="top-margin">
-                                    <h4><a href= {% url 'mvp-license-details' license.id %}>{{license.description}}</a></h4>
+                                    {% if user.commercial %}
+                                        <h2>
+                                            <a href= {% url 'mvp-license-details' user.commercial.company.id license.id %}>{{ license.description }}</a>
+                                        </h2>
+                                    {% else %}
+                                        <h2>
+                                            <a href= {% url 'mvp-license-details' user.manager.company.id license.id %}>{{ license.description }}</a>
+                                        </h2>
+                                    {% endif %}
                                 </div>
                             {% endfor %}
                         </div>

@@ -30,7 +30,11 @@
                         <div class="panel-body">
                             {% for client in client_list %}
                                 <div class="top-margin">
-                                    <h2><a href= {% url 'mvp-client-details' client.id %}>{{ client.name }}</a></h2>
+                                    {% if user.commercial %}
+                                        <h2><a href= {% url 'mvp-client-details' user.commercial.company.id client.id %}>{{ client.name }}</a></h2>
+                                    {% else %}
+                                        <h2><a href= {% url 'mvp-client-details' user.manager.company.id client.id %}>{{ client.name }}</a></h2>
+                                    {% endif %}
                                 </div>
                             {% endfor %}
                         </div>

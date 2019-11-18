@@ -24,9 +24,26 @@
                 <header class="page-header">
                     <h1 class="page-title">Your Workspace</h1>
                 </header>
-                <div class="col-md-6 col-md-offset-3 col-sm-8 col-sm-offset-2">
+                <div class="col-md-12 ">
                     <div class="panel panel-default">
                         <div class="panel-body">
+                            <a class="btn btn-action" href={% url 'mvp-client-list' user.manager.company.id 0 %}>Liste des
+                                Clients
+                            </a>
+                            <a class="btn btn-action" href={% url 'mvp-service-list' user.manager.company.id user.manager.id %}>Liste
+                                des Services
+                            </a>
+                            <a class="btn btn-action" href={% url 'mvp-license-list' user.manager.company.id user.manager.id %}>Liste
+                                des Licenses
+                            </a>
+                            <hr>
+                            <div class="navbar-collapse collapse">
+                                <ul class="nav navbar-nav ">
+                                    <li><a class="btn" href= {% url 'mvp-client-new' %}>Ajouter un Client</a></li>
+                                    <li><a class="btn" href= {% url 'mvp-service-new' %}>Ajouter un Service</a></li>
+                                    <li><a class="btn" href= {% url 'mvp-license-new' %}>Ajouter une License</a></li>
+                                </ul>
+                            </div>
                             <hr>
                             <hr>
                             <hr>

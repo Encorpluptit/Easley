@@ -1,104 +1,126 @@
 from django.views.generic import ListView, DetailView, CreateView, UpdateView
-from django.shortcuts import get_object_or_404
-from django.contrib.auth.models import User
-from .models import Client, Service, Commercial, License
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
-from .forms import ServiceRegisterForm, ClientRegisterForm
+from django.core.exceptions import ObjectDoesNotExist
+from django.shortcuts import get_object_or_404
+from .models import Company, Commercial, Manager, Client, Service, License
+from .forms import ServiceForm, ClientForm
+from .controllers import routeListPermissions, routeDetailsPermissions
 
 
-# class ClientListView(ListView):
-class ClientListView(ListView):
+class ClientListView(LoginRequiredMixin, UserPassesTestMixin, ListView):
     model = Client
     template_name = 'mvp/clients/client_list.html'
-    # context_object_name = 'client_list'
     ordering = ['id']
+    pk_url_kwarg = 'com_pk'
 
     def get_queryset(self):
-        # if hasattr(self.request.user, 'commercial'):
-        #     return Client.objects.filter(commercial=self.request.user.commercial)
-        # if hasattr(self.request.user, 'ceo'):
-        #     return Client.objects.filter(company=self.request.user.ceo.company)
-        return Client.objects.filter(company=self.request.user.commercial.company)
+        try:
+            return Client.objects.filter(commercial=self.request.user.commercial)
+        except ObjectDoesNotExist:
+            return Client.objects.filter(company=self.request.user.manager.company)
+        # @TODO: RAISE ERROR 404
+
+    def test_func(self):
+        return routeListPermissions(self, self.pk_url_kwarg)
 
 
-class ClientDetailView(DetailView):
+class ClientDetailView(LoginRequiredMixin, UserPassesTestMixin, DetailView):
     model = Client
     template_name = 'mvp/clients/client_details.html'
+    pk_url_kwarg = 'client_pk'
+
+    def get_queryset(self):
+        return Client.objects.filter(id=self.kwargs.get(self.pk_url_kwarg))
+
+    def test_func(self):
+        return routeDetailsPermissions(self, self.pk_url_kwarg, self.model)
 
 
-# class ServiceListView(LoginRequiredMixin, UserPassesTestMixin, ListView):
 class ServiceListView(LoginRequiredMixin, UserPassesTestMixin, ListView):
     model = Service
     template_name = 'mvp/service/service_list.html'
-    # context_object_name = 'service_list'
     ordering = ['id']
+    pk_url_kwarg = 'com_pk'
 
     def get_queryset(self):
-        commercial = get_object_or_404(Commercial, pk=self.kwargs.get('com_pk'))
-        # if commercial.type ==
-        # Service.objects.filter(company=commercial.company)
-        # else:
-        return Service.objects.filter(commercial=commercial)
+        try:
+            return Service.objects.filter(commercial=self.request.user.commercial)
+        except ObjectDoesNotExist:
+            return Service.objects.filter(company=self.request.user.manager.company)
+        # @TODO: RAISE ERROR 404
 
     def test_func(self):
-        commercial = get_object_or_404(Commercial, user=self.request.user)
-        if commercial.id == self.kwargs.get('com_pk'):
-            return True
-        return False
+        return routeListPermissions(self, self.pk_url_kwarg)
 
 
 class ServiceDetailView(DetailView):
     model = Service
     template_name = 'mvp/service/service_details.html'
+    pk_url_kwarg = 'service_pk'
 
     def get_queryset(self):
-        return Service.objects.filter(pk=self.kwargs.get('pk'))
+        return Service.objects.filter(id=self.kwargs.get(self.pk_url_kwarg))
 
-
-# @TODO: A modifier
-class ServiceUpdateView(UpdateView):
-    model = Service
-    form_class = ServiceRegisterForm
-    # fields = '__all__'
-    template_name = 'mvp/forms/service_form.html'
-
-    def get_queryset(self):
-        return Service.objects.filter(pk=self.kwargs.get('pk'))
+    def test_func(self):
+        return routeDetailsPermissions(self, self.pk_url_kwarg, self.model)
 
 
 class LicenseListView(LoginRequiredMixin, UserPassesTestMixin, ListView):
     model = License
     template_name = 'mvp/license/license_list.html'
-    # context_object_name = 'service_list'
+    pk_url_kwarg = 'com_pk'
     ordering = ['id']
 
     def get_queryset(self):
-        commercial = get_object_or_404(Commercial, pk=self.kwargs.get('com_pk'))
-        return License.objects.filter(commercial=commercial)
+        try:
+            return License.objects.filter(commercial=self.request.user.commercial)
+        except ObjectDoesNotExist:
+            return License.objects.filter(company=self.request.user.manager.company)
+        # @TODO: RAISE ERROR 404
 
     def test_func(self):
-        commercial = get_object_or_404(Commercial, user=self.request.user)
-        if commercial.id == self.kwargs.get('com_pk'):
-            return True
-        return False
+        return routeDetailsPermissions(self, self.pk_url_kwarg, self.model)
 
 
 class LicenseDetailView(DetailView):
     model = License
     template_name = 'mvp/license/license_details.html'
+    pk_url_kwarg = 'license_pk'
 
     def get_queryset(self):
-        return License.objects.filter(pk=self.kwargs.get('pk'))
+        return License.objects.filter(pk=self.kwargs.get(self.pk_url_kwarg))
+
+    def test_func(self):
+        return routeDetailsPermissions(self, self.pk_url_kwarg, self.model)
+
+
+# @TODO: A modifier
+class ServiceUpdateView(UpdateView):
+    model = Service
+    form_class = ServiceForm
+    template_name = 'mvp/forms/service_form.html'
+
+    # def post(self, request, *args, **kwargs):
+    #     form = self.form_class(request.POST, request.user)
+    #     form.save()
+
+    def get_queryset(self):
+        return Service.objects.filter(pk=self.kwargs.get('pk'))
 
 
 class ClientCreateView(CreateView):
-    # @TODO: Change class form in Form in file form.py.
     model = Client
-    # fields = ['name', 'email', ]
-    form_class = ClientRegisterForm
+    form_class = ClientForm
     template_name = 'mvp/forms/client_form.html'
 
+    def post(self, request, *args, **kwargs):
+        form = self.form_class(request.POST, request.user)
+        form.save()
+
     def form_valid(self, form):
-        form.instance.commercial = self.request.user.commercial or self.request.user.ceo
-        form.instance.company = self.request.user.commercial.company or self.request.user.ceo.company
+        # print(self.request)
+        # form.instance.commercial = self.request.user.commercial or self.request.user.manager
+        # form.instance.company = self.request.user.commercial.company or self.request.user.manager.company
         return super().form_valid(form)
+
+

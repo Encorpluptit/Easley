@@ -1,9 +1,7 @@
 from django import forms
 from django.contrib.auth.models import User
 from django.contrib.auth.forms import UserCreationForm
-from .models import Company, Client, License, Service
-
-
+from .models import Company, Commercial, Manager, Client, Service, License
 # Create your forms here.
 
 
@@ -24,6 +22,75 @@ class UserRegisterForm(UserCreationForm):
         fields = ['first_name', 'last_name', 'email', 'username', 'password1', 'password2']
 
 
+class CompanyForm(forms.ModelForm):
+    def __init__(self, *args, ceo=None, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.instance.ceo = ceo
+        for key in self.fields:
+            self.fields[key].widget.attrs.update({'class': 'form-control'})
+            self.fields[key].widget.attrs.update({'placeholder': key})
+
+    class Meta:
+        model = Company
+        exclude = ('ceo',)
+
+
+class ClientForm(forms.ModelForm):
+    def __init__(self, *args, user=None, **kwargs):
+        super().__init__(*args, **kwargs)
+        if hasattr(user, 'commercial'):
+            self.fields['commercial'].widget = forms.HiddenInput()
+        if hasattr(user, 'manager'):
+            self.fields['commercial'].queryset = Commercial.objects.filter(company=user.manager.company)
+        for key in self.fields:
+            self.fields[key].widget.attrs.update({'class': 'form-control'})
+            self.fields[key].widget.attrs.update({'placeholder': key})
+
+    class Meta:
+        model = Client
+        exclude = ('company',)
+
+
+class ServiceForm(forms.ModelForm):
+    description = forms.CharField(widget=forms.Textarea)
+
+    def __init__(self, *args, user=None, **kwargs):
+        super().__init__(*args, **kwargs)
+        if hasattr(user, 'commercial'):
+            self.fields['commercial'].widget = forms.HiddenInput()
+            self.fields['client'].queryset = Client.objects.filter(commercial=user.commercial)
+        if hasattr(user, 'manager'):
+            self.fields['commercial'].queryset = Commercial.objects.filter(company=user.manager.company)
+            self.fields['client'].queryset = Client.objects.filter(company=user.manager.company)
+        for key in self.fields:
+            self.fields[key].widget.attrs.update({'class': 'form-control'})
+            self.fields[key].widget.attrs.update({'placeholder': key})
+
+    class Meta:
+        model = Service
+        exclude = ('company',)
+
+
+class LicenseForm(forms.ModelForm):
+    description = forms.CharField(widget=forms.Textarea)
+
+    def __init__(self, *args, user=None, **kwargs):
+        super().__init__(*args, **kwargs)
+        if hasattr(user, 'commercial'):
+            self.fields['commercial'].widget = forms.HiddenInput()
+            self.fields['client'].queryset = Client.objects.filter(commercial=user.commercial)
+        if hasattr(user, 'manager'):
+            self.fields['commercial'].queryset = Commercial.objects.filter(company=user.manager.company)
+            self.fields['client'].queryset = Client.objects.filter(company=user.manager.company)
+        for key in self.fields:
+            self.fields[key].widget.attrs.update({'class': 'form-control'})
+            self.fields[key].widget.attrs.update({'placeholder': key})
+
+    class Meta:
+        model = License
+        exclude = ('company',)
+
+
 class UserUpdateForm(UserCreationForm):
     email = forms.EmailField()
     first_name = forms.CharField(max_length=150)
@@ -40,60 +107,7 @@ class UserUpdateForm(UserCreationForm):
         fields = ['first_name', 'last_name', 'email', 'username', 'password1', 'password2']
 
 
-class CompanyRegisterForm(forms.ModelForm):
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        for key in self.fields:
-            self.fields[key].widget.attrs.update({'class': 'form-control'})
-            self.fields[key].widget.attrs.update({'placeholder': key})
 
-    class Meta:
-        model = Company
-        exclude = ('ceo',)
-
-
-class ClientRegisterForm(forms.ModelForm):
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        for key in self.fields:
-            self.fields[key].widget.attrs.update({'class': 'form-control'})
-            self.fields[key].widget.attrs.update({'placeholder': key})
-
-    class Meta:
-        model = Client
-        exclude = ('company',)
-
-
-class ServiceRegisterForm(forms.ModelForm):
-    description = forms.CharField(widget=forms.Textarea)
-    # client = forms.ModelChoiceField(queryset=Client.objects.filter(self.request.user.commercial.company))
-
-    def __init__(self, user=None, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        # print(kwargs)
-        # print(kwargs.get('pk'))
-        for key in self.fields:
-            self.fields[key].widget.attrs.update({'class': 'form-control'})
-            self.fields[key].widget.attrs.update({'placeholder': key})
-
-    class Meta:
-        model = Service
-        exclude = ('company', 'commercial',)
-
-
-class LicenseRegisterForm(forms.ModelForm):
-    description = forms.CharField(widget=forms.Textarea)
-    # @ TODO: Add good choices for clients
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        for key in self.fields:
-            self.fields[key].widget.attrs.update({'class': 'form-control'})
-            self.fields[key].widget.attrs.update({'placeholder': key})
-
-    class Meta:
-        model = License
-        exclude = ('company', 'commercial',)
 
 # from django.core.validators import validate_email
 # class Exemple(forms.BaseModelForm):

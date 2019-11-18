@@ -36,7 +36,6 @@ def customCompanyRegister(request, form):
 def routeDetailsPermissions(self, key_pk, base_class):
     try:
         manager = Manager.objects.get(user=self.request.user)
-        print(manager)
         if manager.company.id == self.kwargs.get('cpny_pk') and manager.company == base_class.objects.get(pk=self.kwargs.get(key_pk)).company:
             return True
     except ObjectDoesNotExist:
@@ -45,7 +44,6 @@ def routeDetailsPermissions(self, key_pk, base_class):
             return True
         else:
             return False
-    print("ici")
 
 # @TODO à retravailler
 def routeCreatePermissions(self, base_class):

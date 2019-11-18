@@ -86,7 +86,7 @@ class LicenseListView(LoginRequiredMixin, UserPassesTestMixin, ListView):
         return routeListPermissions(self, self.pk_url_kwarg)
 
 
-class LicenseDetailView(DetailView):
+class LicenseDetailView(LoginRequiredMixin, UserPassesTestMixin, DetailView):
     model = License
     template_name = 'mvp/license/license_details.html'
     pk_url_kwarg = 'license_pk'

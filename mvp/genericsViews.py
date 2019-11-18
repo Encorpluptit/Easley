@@ -1,7 +1,8 @@
 from django.views.generic import ListView, DetailView, CreateView, UpdateView
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
-from django.core.exceptions import ObjectDoesNotExist
-from django.shortcuts import get_object_or_404
+from django.core.exceptions import ObjectDoesNotExist, EmptyResultSet
+from django.shortcuts import redirect, get_object_or_404
+from django.http import Http404
 from .models import Company, Commercial, Manager, Client, Service, License
 from .forms import ServiceForm, ClientForm
 from .controllers import routeListPermissions, routeDetailsPermissions
@@ -18,6 +19,8 @@ class ClientListView(LoginRequiredMixin, UserPassesTestMixin, ListView):
             return Client.objects.filter(commercial=self.request.user.commercial)
         except ObjectDoesNotExist:
             return Client.objects.filter(company=self.request.user.manager.company)
+        # finally: (pas ça)
+        #     return Http404
         # @TODO: RAISE ERROR 404
 
     def test_func(self):
@@ -108,19 +111,45 @@ class ServiceUpdateView(UpdateView):
         return Service.objects.filter(pk=self.kwargs.get('pk'))
 
 
+# @login required
+# class ClientCreateView(LoginRequiredMixin, UserPassesTestMixin,CreateView):
 class ClientCreateView(CreateView):
     model = Client
     form_class = ClientForm
     template_name = 'mvp/forms/client_form.html'
-
-    def post(self, request, *args, **kwargs):
-        form = self.form_class(request.POST, request.user)
-        form.save()
+    # @TODO peut etre a remove
+    object = None
 
     def form_valid(self, form):
-        # print(self.request)
-        # form.instance.commercial = self.request.user.commercial or self.request.user.manager
-        # form.instance.company = self.request.user.commercial.company or self.request.user.manager.company
-        return super().form_valid(form)
+        self.object = form.save(commit=False, user=self.request.user)
+        if hasattr(self.request.user, 'commercial'):
+            self.object.company = self.request.user.commercial.company
+        else:
+            self.object.company = self.request.user.manager.company
+        self.object.save()
+        return redirect(self.get_success_url())
+
+    def test_func(self):
 
 
+    # def get(self, request, *args, **kwargs):
+    #     print('ee')
+    #     self.user = request.user
+    #     return super(ClientCreateView, self).get(request, *args, **kwargs)
+    #
+    # def post(self, request, *args, **kwargs):
+    #     print('post')
+    #     return super(ClientCreateView, self).post(request, *args, user=request.user, **kwargs)
+    #
+    # def form_invalid(self, form):
+    #     print('invalid')
+    #     return super(ClientCreateView, self).form_invalid(form)
+
+    def get_success_url(self):
+        return self.object.get_absolute_url(self.object.company.id)
+
+    def get_form_kwargs(self, *args, **kwargs):
+        kwargs = super(ClientCreateView, self).get_form_kwargs(*args, **kwargs)
+        # kwargs = super(ClientCreateView, self).get_form_kwargs()
+        kwargs['user'] = self.request.user
+        return kwargs

@@ -30,22 +30,7 @@
                         <div class="panel-body">
                             <form method="post">
                                 {% csrf_token %}
-                                {#                                {% include 'mvp/forms/base_form.html' %}#}
-                                <div class="top-margin">
-                                    {% for hidden in form.hidden_fields %}
-                                        {{ hidden }}
-                                    {% endfor %}
-                                    {# Include the visible fields #}
-                                    {% for field in form.visible_fields %}
-                                        {% if user.manager %}
-                                                {% include 'mvp/forms/base_field.html' %}
-                                        {% else %}
-                                            {% if field.label_tag != "Client's commercial:" %}
-                                                {% include 'mvp/forms/base_field.html' %}
-                                            {% endif %}
-                                        {% endif %}
-                                    {% endfor %}
-                                </div>
+                                {% include 'mvp/forms/base_form.html' %}
                                 <div class="col-lg-4 text-right">
                                     <button class="btn btn-action" type="submit">Add Client</button>
                                 </div>

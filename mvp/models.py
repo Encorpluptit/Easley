@@ -107,7 +107,6 @@ class Client(models.Model):
         return self.name
 
     def get_absolute_url(self, comp_id):
-        print(reverse('mvp-client-details', args=[comp_id, str(self.id)]))
         return reverse('mvp-client-details', args=[comp_id, str(self.id)])
 
 

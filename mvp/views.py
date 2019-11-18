@@ -29,6 +29,7 @@ def contact(request):
     return render(request, 'mvp/base/contact.html')
 
 
+# @ TODO: A Refaire avec CreateView ?
 def register(request):
     form = UserRegisterForm(request.POST or None)
     if request.method == "POST" and form.is_valid():
@@ -39,6 +40,7 @@ def register(request):
     return render(request, 'mvp/login_register/register.html', {'form': form})
 
 
+# @ TODO: A Refaire avec CreateView ?
 @login_required
 def companyCreation(request):
     form = CompanyForm(request.POST or None, ceo=request.user)
@@ -47,7 +49,7 @@ def companyCreation(request):
         return redirect('mvp-home')
     return render(request, 'mvp/forms/company_form.html', {'form': form})
 
-
+# @ TODO: A remove
 @login_required
 def clientCreation(request):
     form = ClientForm(request.POST or None, user=request.user)
@@ -63,7 +65,7 @@ def clientCreation(request):
             return redirect(clean_form.get_absolute_url(clean_form.company.id))
     return render(request, 'mvp/forms/client_form.html', {'form': form})
 
-
+# @ TODO: A Retravailler
 @login_required
 def join_company(request):
     if request.method == "POST":

@@ -32,16 +32,6 @@ def customCompanyRegister(request, form):
     except ValidationError:
         messages.warning(request, f'An Error occurred ! Please try again later')
 
-    # try:
-    #     clean_form = form.save(commit=False)
-    #     ceo = Manager.objects.create(user=request.user)
-    #     ceo.save()
-    #     clean_form.ceo = request.user
-    #     company = form.save()
-    #     messages.success(request, f'Company {company.name} Created, Welcome {ceo} !')
-    # except ValidationError:
-    #     messages.warning(request, f'An Error occurred ! Please try again later')
-
 
 def routeDetailsPermissions(self, key_pk, base_class):
     try:
@@ -50,6 +40,18 @@ def routeDetailsPermissions(self, key_pk, base_class):
     except ObjectDoesNotExist:
         base_class = get_object_or_404(base_class, pk=self.kwargs.get(key_pk))
         if base_class.commercial == self.request.user.commercial:
+            return True
+        else:
+            return False
+
+# @TODO à retravailler
+def routeCreatePermissions(self, base_class):
+    try:
+        if Manager.objects.get(user=self.request.user).company.id == self.kwargs.get('cpny_pk'):
+            return True
+    except ObjectDoesNotExist:
+        base_class = get_object_or_404(base_class, pk=self.kwargs.get(key_pk))
+        if base_class.company == self.request.user.commercial:
             return True
         else:
             return False

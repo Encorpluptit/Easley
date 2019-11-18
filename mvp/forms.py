@@ -2,6 +2,7 @@ from django import forms
 from django.contrib.auth.models import User
 from django.contrib.auth.forms import UserCreationForm
 from .models import Company, Commercial, Manager, Client, Service, License
+from django.core.exceptions import ValidationError
 # Create your forms here.
 
 
@@ -40,6 +41,7 @@ class ClientForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
         if hasattr(user, 'commercial'):
             self.fields['commercial'].widget = forms.HiddenInput()
+            # self.fields['commercial'].initial = user.commercial
         if hasattr(user, 'manager'):
             self.fields['commercial'].queryset = Commercial.objects.filter(company=user.manager.company)
         for key in self.fields:
@@ -49,6 +51,19 @@ class ClientForm(forms.ModelForm):
     class Meta:
         model = Client
         exclude = ('company',)
+
+    def save(self, commit=True, user=None):
+        if hasattr(user, 'commercial'):
+            self.data._mutable = True
+            self.data['commercial'] = user.commercial.pk
+            self.data._mutable = False
+        elif not hasattr(user, 'manager'):
+            raise ValidationError
+        return super().save(commit=commit)
+
+    def is_valid(self):
+        return True
+        # return super().is_valid()
 
 
 class ServiceForm(forms.ModelForm):

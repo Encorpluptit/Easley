@@ -2,7 +2,7 @@ from django.contrib import messages
 from django.contrib.auth import authenticate, login
 from .models import Manager, Commercial, Client, Service
 from django.core.exceptions import ObjectDoesNotExist, ValidationError
-from django.shortcuts import get_object_or_404
+from django.shortcuts import get_object_or_404, redirect
 
 
 def customRegisterUser(request, form):
@@ -31,6 +31,28 @@ def customCompanyRegister(request, form):
         messages.success(request, f'Company {company.name} Created, Welcome {ceo} !')
     except ValidationError:
         messages.warning(request, f'An Error occurred ! Please try again later')
+
+
+def validateCompanyInFormCreateUpdateView(self, form):
+    try:
+        # self.object = form.save(commit=False, user=self.request.user)
+        # print(form.instance)
+        # self.object = form.save(commit=False)
+        if hasattr(self.request.user, 'commercial'):
+            # self.object.company = self.request.user.commercial.company
+            form.instance.company = self.request.user.commercial.company
+        elif hasattr(self.request.user, 'manager'):
+            # self.object.company = self.request.user.manager.company
+            form.instance.company = self.request.user.manager.company
+    except ObjectDoesNotExist:
+        return redirectWorkspaceFail(self.request)
+    try:
+        self.object = form.save()
+        # self.object.save()
+    except ValidationError:
+        return redirectWorkspaceFail(self.request)
+    else:
+        return redirect(self.get_success_url())
 
 
 def routeCreatePermissions(self, cpny_pk):
@@ -82,3 +104,8 @@ def routeUpdatePermissions(self, key_pk, base_class):
             return True
         else:
             return False
+
+
+def redirectWorkspaceFail(request):
+    messages.warning(request, f'An Error occurred ! Please try again later')
+    return redirect('mvp-workspace')

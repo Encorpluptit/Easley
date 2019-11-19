@@ -37,7 +37,7 @@ class Manager(models.Model):
         default=None,
         on_delete=models.CASCADE,
     )
-    # type = models.PositiveSmallIntegerField(
+    # role = models.PositiveSmallIntegerField(
     #         verbose_name="manager's type",
     #         default=None,
     #         choices={
@@ -110,13 +110,14 @@ class Client(models.Model):
     class Meta:
         verbose_name = "client"
         verbose_name_plural = "clients"
-        ordering = ['company', 'name']
+        ordering = ['company', 'commercial__id', 'name']
 
     def __str__(self):
         return self.name
 
     def get_absolute_url(self, comp_id):
         return reverse('mvp-client-details', args=[comp_id, str(self.id)])
+
 
 # @TODO: faire help_text dans Service et license
 class Service(models.Model):

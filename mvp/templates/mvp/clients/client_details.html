@@ -36,16 +36,24 @@
                             {% if user.commercial and object.commercial == user.commercial %}
                                 <a class="btn btn-action"
                                    href= {% url 'mvp-client-update' user.commercial.company.id object.id %}>
-                                    {{ button }}
+                                    {% if button %}
+                                        {{ button }}
+                                    {% else %}
+                                        Confirmer
+                                    {% endif %}
                                 </a>
                             {% endif %}
                             {% if user.manager %}
                                 button update à Afficher
-                                {% if user.manager.type == 1 or user.manager.type == 2 %}
-                                <a class="btn btn-action"
-                                   href= {% url 'mvp-client-update' user.manager.company.id object.id %}>
-                                    {{ button }}
-                                </a>
+                                {% if user.manager.role == 1 or user.manager.role == 2 %}
+                                    <a class="btn btn-action"
+                                       href= {% url 'mvp-client-update' user.manager.company.id object.id %}>
+                                        {% if button %}
+                                            {{ button }}
+                                        {% else %}
+                                            Confirmer
+                                        {% endif %}
+                                    </a>
                                 {% endif %}
                             {% endif %}
                         </div>

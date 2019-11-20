@@ -11,6 +11,7 @@ from .genericsViews import (
     ServiceUpdateView,
     ClientCreateView,
     ClientUpdateView,
+    ClientDeleteView
 )
 
 urlpatterns = [
@@ -30,6 +31,7 @@ urlpatterns = [
     path('<int:cpny_pk>/client/list/<int:com_pk>/', ClientListView.as_view(), name='mvp-client-list'),
     path('<int:cpny_pk>/client/details/<int:client_pk>/', ClientDetailView.as_view(), name='mvp-client-details'),
     path('<int:cpny_pk>/client/update/<int:client_pk>/', ClientUpdateView.as_view(), name='mvp-client-update'),
+    path('<int:cpny_pk>/client/delete/<int:client_pk>/', ClientDeleteView.as_view(), name='mvp-client-delete'),
     path('service/new/', views.serviceCreation, name='mvp-service-new'),
     path('<int:cpny_pk>/service/list/<int:com_pk>/', ServiceListView.as_view(), name='mvp-service-list'),
     path('<int:cpny_pk>/service/details/<int:service_pk>/', ServiceDetailView.as_view(), name='mvp-service-details'),

@@ -1,4 +1,4 @@
-from django.views.generic import ListView, DetailView, CreateView, UpdateView
+from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.core.exceptions import ObjectDoesNotExist, EmptyResultSet, ValidationError
 from django.shortcuts import redirect, get_object_or_404
@@ -11,6 +11,7 @@ from .controllers import (
     routeDetailsPermissions,
     routeCreatePermissions,
     routeUpdatePermissions,
+    routeDeletePermissions,
     validateCompanyInFormCreateUpdateView,
 )
 
@@ -18,7 +19,7 @@ from .controllers import (
 class ClientCreateView(LoginRequiredMixin, UserPassesTestMixin, CreateView):
     model = Client
     form_class = ClientForm
-    template_name = 'mvp/forms/client_form.html'
+    template_name = 'mvp/clients/client_form.html'
     object = None
     pk_url_kwarg = 'cpny_pk'
     extra_context = {"button": "Ajouter un client"}
@@ -42,12 +43,9 @@ class ClientUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
     model = Client
     form_class = ClientForm
     object = None
-    template_name = 'mvp/forms/client_form.html'
+    template_name = 'mvp/clients/client_form.html'
     pk_url_kwarg = 'client_pk'
-    extra_context = {"button": "Confirmer"}
-
-    # def form_valid(self, form):
-    # return validateCompanyInFormCreateUpdateView(self, form)
+    extra_context = {"update": True, "button": "Confirmer"}
 
     def test_func(self):
         return routeUpdatePermissions(self, self.pk_url_kwarg, Client)
@@ -59,6 +57,31 @@ class ClientUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
         kwargs = super(ClientUpdateView, self).get_form_kwargs()
         kwargs['user'] = self.request.user
         return kwargs
+
+
+class ClientDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
+    model = Client
+    template_name = 'mvp/clients/client_details.html'
+    object = None
+    pk_url_kwarg = 'client_pk'
+    extra_context = {"delete": True, "button": "Delete"}
+
+    def test_func(self):
+        return routeDeletePermissions(self, self.pk_url_kwarg, Client)
+
+    def get_success_url(self):
+        if hasattr(self.request.user, 'commercial'):
+            return reverse('mvp-client-list', args=[self.object.company.id, self.request.user.commercial.id])
+        elif hasattr(self.request.user, 'manager'):
+            return reverse('mvp-client-list', args=[self.object.company.id, self.request.user.manager.id])
+        else:
+            return redirect('mvp-workspace')
+
+
+    # def get_form_kwargs(self, *args, **kwargs):
+    #     kwargs = super(ClientDeleteView, self).get_form_kwargs()
+    #     kwargs['user'] = self.request.user
+    #     return kwargs
 
 
 class ClientListView(LoginRequiredMixin, UserPassesTestMixin, ListView):
@@ -90,6 +113,7 @@ class ClientDetailView(LoginRequiredMixin, UserPassesTestMixin, DetailView):
     model = Client
     template_name = 'mvp/clients/client_details.html'
     pk_url_kwarg = 'client_pk'
+    extra_context = {"button": "Modifier"}
 
     def get_queryset(self):
         return Client.objects.filter(id=self.kwargs.get(self.pk_url_kwarg))

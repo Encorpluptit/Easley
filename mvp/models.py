@@ -121,10 +121,15 @@ class Client(models.Model):
 
 # @TODO: faire help_text dans Service et license
 class Service(models.Model):
-    description = models.CharField(
+    description = models.TextField(
         max_length=300,
         verbose_name="service's description",
+        help_text="description du service"
     )
+    # description = models.CharField(
+    #     max_length=300,
+    #     verbose_name="service's description",
+    # )
     client = models.ForeignKey(
         Client,
         default=None,
@@ -170,12 +175,17 @@ class Service(models.Model):
 
 
 class License(models.Model):
-    description = models.CharField(
+    description = models.TextField(
         max_length=300,
-        # name="subject",
         verbose_name="license's description",
         help_text="description de la license"
     )
+    # description = models.CharField(
+    #     max_length=300,
+    #     # name="subject",
+    #     verbose_name="license's description",
+    #     help_text="description de la license"
+    # )
     company = models.ForeignKey(
         Company,
         default=None,

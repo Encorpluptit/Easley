@@ -35,20 +35,14 @@ def customCompanyRegister(request, form):
 
 def validateCompanyInFormCreateUpdateView(self, form):
     try:
-        # self.object = form.save(commit=False, user=self.request.user)
-        # print(form.instance)
-        # self.object = form.save(commit=False)
         if hasattr(self.request.user, 'commercial'):
-            # self.object.company = self.request.user.commercial.company
             form.instance.company = self.request.user.commercial.company
         elif hasattr(self.request.user, 'manager'):
-            # self.object.company = self.request.user.manager.company
             form.instance.company = self.request.user.manager.company
     except ObjectDoesNotExist:
         return redirectWorkspaceFail(self.request)
     try:
         self.object = form.save()
-        # self.object.save()
     except ValidationError:
         return redirectWorkspaceFail(self.request)
     else:
@@ -62,6 +56,34 @@ def routeCreatePermissions(self, cpny_pk):
     except ObjectDoesNotExist:
         commercial = get_object_or_404(Commercial, user=self.request.user)
         if commercial.company.id == cpny_pk:
+            return True
+        else:
+            return False
+
+
+def routeUpdatePermissions(self, key_pk, base_class):
+    try:
+        manager = Manager.objects.get(user=self.request.user)
+        if manager.company.id == self.kwargs.get('cpny_pk') and manager.company == base_class.objects.get(pk=self.kwargs.get(key_pk)).company:
+            # @TODO : mettre la foret de if ici
+            return True
+    except ObjectDoesNotExist:
+        base_class = get_object_or_404(base_class, pk=self.kwargs.get(key_pk))
+        if base_class.commercial == self.request.user.commercial:
+            return True
+        else:
+            return False
+
+
+def routeDeletePermissions(self, key_pk, base_class):
+    try:
+        manager = Manager.objects.get(user=self.request.user)
+        if manager.company.id == self.kwargs.get('cpny_pk') and manager.company == base_class.objects.get(pk=self.kwargs.get(key_pk)).company:
+            # @TODO : mettre la foret de if ici
+            return True
+    except ObjectDoesNotExist:
+        base_class = get_object_or_404(base_class, pk=self.kwargs.get(key_pk))
+        if base_class.commercial == self.request.user.commercial:
             return True
         else:
             return False
@@ -87,20 +109,6 @@ def routeListPermissions(self, key_pk):
     except ObjectDoesNotExist:
         commercial = get_object_or_404(Commercial, user=self.request.user)
         if commercial.id == self.kwargs.get(key_pk):
-            return True
-        else:
-            return False
-
-
-def routeUpdatePermissions(self, key_pk, base_class):
-    try:
-        manager = Manager.objects.get(user=self.request.user)
-        if manager.company.id == self.kwargs.get('cpny_pk') and manager.company == base_class.objects.get(pk=self.kwargs.get(key_pk)).company:
-            # @TODO : mettre la foret de if ici
-            return True
-    except ObjectDoesNotExist:
-        base_class = get_object_or_404(base_class, pk=self.kwargs.get(key_pk))
-        if base_class.commercial == self.request.user.commercial:
             return True
         else:
             return False

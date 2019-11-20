@@ -28,12 +28,19 @@
                 <div class="col-md-6 col-md-offset-3 col-sm-8 col-sm-offset-2">
                     <div class="panel panel-default">
                         <div class="panel-body">
+                            {% if delete %}
+                                <form method="POST">
+                                    {% csrf_token %}
+                                        <button class="btn btn-outline-danger" type="submit">Delete</button>
+                                </form>
+                                <hr>
+                            {% endif %}
                             <div class="top-margin">
                                 <h2 class="name">{{ object.name }}</h2>
                                 <h4>{{ object.email }}</h4>
                                 <h4>{{ object.company }}</h4>
                             </div>
-                            {% if user.commercial and object.commercial == user.commercial %}
+                            {% if update and user.commercial and object.commercial == user.commercial %}
                                 <a class="btn btn-action"
                                    href= {% url 'mvp-client-update' user.commercial.company.id object.id %}>
                                     {% if button %}
@@ -43,7 +50,7 @@
                                     {% endif %}
                                 </a>
                             {% endif %}
-                            {% if user.manager %}
+                            {% if update and user.manager %}
                                 button update à Afficher
                                 {% if user.manager.role == 1 or user.manager.role == 2 %}
                                     <a class="btn btn-action"

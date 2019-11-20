@@ -40,7 +40,6 @@ class CompanyForm(forms.ModelForm):
 
 class ClientForm(forms.ModelForm):
     def __init__(self, *args, user=None, **kwargs):
-        # print(args, kwargs)
         super().__init__(*args, **kwargs)
         if hasattr(user, 'commercial'):
             self.fields['commercial'].widget = forms.HiddenInput()
@@ -55,48 +54,15 @@ class ClientForm(forms.ModelForm):
         model = Client
         exclude = ('company',)
 
-    def save(self, commit=True, user=None):
-        # if hasattr(user, 'commercial'):
-        #     self.data._mutable = True
-        #     self.data['commercial'] = user.commercial.pk
-        #     self.data._mutable = False
-        # elif not hasattr(user, 'manager'):
-        #     raise ValidationError
-        return super().save(commit=commit)
-
     def is_valid(self):
-        self.data._mutable = True
         if hasattr(self.user, 'commercial'):
-            # self.company = self.user.commercial.company
+            self.data._mutable = True
             self.data['commercial'] = self.user.commercial.pk
-            self.data['company'] = self.user.commercial.company
-        elif hasattr(self.user, 'manager'):
-            # self.company = self.user.manager.company
-            self.data['company'] = self.user.manager.company
-        self.data._mutable = False
+            self.data._mutable = False
         return super().is_valid()
-
-        # self.data._mutable = True
-        # if hasattr(self.user, 'commercial'):
-        #     self.company = self.user.commercial.company
-        #     self.data['commercial'] = self.user.commercial.pk
-        # elif hasattr(self.user, 'manager'):
-        #     self.company = self.request.user.manager.company
-        # self.data._mutable = False
-
-        # print("lol")
-        # print(self)
-        # print(self.data)
-        # print(super().is_valid())
-        # print(self.user)
-        # print(type(self))
-        # return True
-        # return super().is_valid()
 
 
 class ServiceForm(forms.ModelForm):
-    description = forms.CharField(widget=forms.Textarea)
-
     def __init__(self, *args, user=None, **kwargs):
         super().__init__(*args, **kwargs)
         if hasattr(user, 'commercial'):
@@ -113,12 +79,15 @@ class ServiceForm(forms.ModelForm):
         model = Service
         exclude = ('company',)
 
+    # def is_valid(self):
+    #     if hasattr(self.user, 'commercial'):
+    #         self.data._mutable = True
+    #         self.data['commercial'] = self.user.commercial.pk
+    #         self.data._mutable = False
+    #     return super().is_valid()
+
 
 class LicenseForm(forms.ModelForm):
-    # @ TODO: peut-être changer le widget dans init avec
-    # widget = forms.Texarea(Et opts comme max_lenght=300 ????????)
-    description = forms.CharField(widget=forms.Textarea)
-
     def __init__(self, *args, user=None, **kwargs):
         super().__init__(*args, **kwargs)
         if hasattr(user, 'commercial'):

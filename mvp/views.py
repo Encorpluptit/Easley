@@ -49,21 +49,6 @@ def companyCreation(request):
         return redirect('mvp-home')
     return render(request, 'mvp/forms/company_form.html', {'form': form})
 
-# @ TODO: A remove
-@login_required
-def clientCreation(request):
-    form = ClientForm(request.POST or None, user=request.user)
-    if request.method == "POST":
-        if hasattr(request.user, 'commercial'):
-            form.data._mutable = True
-            form.data['commercial'] = request.user.commercial.pk
-        if form.is_valid():
-            clean_form = form.save(commit=False)
-            clean_form.company = clean_form.commercial.company
-            messages.success(request, f'client %s created!' % clean_form.name)
-            clean_form = form.save()
-            return redirect(clean_form.get_absolute_url(clean_form.company.id))
-    return render(request, 'mvp/forms/client_form.html', {'form': form})
 
 # @ TODO: A Retravailler
 @login_required
@@ -101,11 +86,18 @@ def workspace(request):
 @login_required
 def serviceCreation(request):
     form = ServiceForm(request.POST or None, user=request.user)
+    # print(request.POST)
     if request.method == "POST" and form.is_valid():
         if hasattr(request.user, 'commercial'):
-            clean_form = form.save(commit=False)
-            clean_form.company = request.user.commercial.company
-            clean_form.commercial = request.user.commercial
+            # clean_form = form.save(commit=False)
+            # clean_form.company = request.user.commercial.company
+            # clean_form.commercial = request.user.commercial
+            form.save()
+            messages.success(request, f'service created!')
+            return redirect('mvp-workspace')
+        elif hasattr(request.user, 'manager'):
+            # clean_form = form.save(commit=False)
+            # clean_form.company = request.user.manager.company
             form.save()
             messages.success(request, f'service created!')
             return redirect('mvp-workspace')

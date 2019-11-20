@@ -67,17 +67,22 @@ class ClientListView(LoginRequiredMixin, UserPassesTestMixin, ListView):
 
     def get_queryset(self):
         if hasattr(self.request.user, 'commercial'):
-            client = Client.objects.filter(commercial=self.request.user.commercial)
-            if client.exists():
-                return client
+            # @TODO: a remplacer  pour Service et client ??
+            return self.request.user.commercial.client_set.all()
+            # client = Client.objects.filter(commercial=self.request.user.commercial)
+            # if client.exists():
+            #     return client
         try:
-            client = Client.objects.filter(company=self.request.user.manager.company)
-            if client.exists():
-                return client
+            # @TODO: a remplacer  pour Service et client ??
+            return self.request.user.manager.company.client_set.all()
+            # client = Client.objects.filter(company=self.request.user.manager.company)
+            # if client.exists():
+            #     return client
         except ObjectDoesNotExist:
-            return HttpResponseForbidden
-        else:
             return HttpResponseNotFound
+            # return HttpResponseForbidden
+        # else:
+        #     return HttpResponseNotFound
 
     def test_func(self):
         # @TODO Faire try except Permission denied ?
@@ -169,17 +174,22 @@ class ServiceListView(LoginRequiredMixin, UserPassesTestMixin, ListView):
 
     def get_queryset(self):
         if hasattr(self.request.user, 'commercial'):
-            service = Service.objects.filter(commercial=self.request.user.commercial)
-            if service.exists():
-                return service
+            # @TODO: a remplacer  pour Service et client ??
+            return self.request.user.commercial.service_set.all()
+            # service = Service.objects.filter(commercial=self.request.user.commercial)
+            # if service.exists():
+            #     return service
         try:
-            service = Service.objects.filter(company=self.request.user.manager.company)
-            if service.exists():
-                return service
+            # @TODO: a remplacer  pour Service et client ??
+            return self.request.user.manager.company.service_set.all()
+            # service = Service.objects.filter(company=self.request.user.manager.company)
+            # if service.exists():
+            #     return service
         except ObjectDoesNotExist:
-            return HttpResponseForbidden
-        else:
             return HttpResponseNotFound
+            # return HttpResponseForbidden
+        # else:
+        #     return HttpResponseNotFound
 
     def test_func(self):
         return routeListPermissions(self, self.pk_url_kwarg)
@@ -270,17 +280,22 @@ class LicenseListView(LoginRequiredMixin, UserPassesTestMixin, ListView):
 
     def get_queryset(self):
         if hasattr(self.request.user, 'commercial'):
-            licenses_found = License.objects.filter(commercial=self.request.user.commercial)
-            if licenses_found.exists():
-                return licenses_found
+            # @TODO: a remplacer  pour Service et client ??
+            return self.request.user.commercial.license_set.all()
+            # licenses_found = License.objects.filter(commercial=self.request.user.commercial)
+            # if licenses_found.exists():
+            #     return licenses_found
         try:
-            licenses_found = License.objects.filter(company=self.request.user.manager.company)
-            if licenses_found.exists():
-                return licenses_found
+            # @TODO: a remplacer  pour Service et client ??
+            return self.request.user.manager.company.license_set.all()
+            # licenses_found = License.objects.filter(company=self.request.user.manager.company)
+            # if licenses_found.exists():
+            #     return licenses_found
         except ObjectDoesNotExist:
-            return HttpResponseForbidden
-        else:
             return HttpResponseNotFound
+            # return HttpResponseForbidden
+        # else:
+        #     return HttpResponseNotFound
 
     def test_func(self):
         return routeListPermissions(self, self.pk_url_kwarg)

@@ -23,10 +23,8 @@ def customRegisterUser(request, form):
 
 def customCompanyRegister(request, form):
     try:
-        # clean_form = form.save(commit=False)
-        # clean_form.ceo = request.user
         company = form.save()
-        ceo = Manager.objects.create(user=request.user, company=company)
+        ceo = Manager.objects.create(user=request.user, company=company, role=1)
         ceo.save()
         messages.success(request, f'Company {company.name} Created, Welcome {ceo} !')
     except ValidationError:
@@ -51,8 +49,12 @@ def validateCompanyInFormCreateUpdateView(self, form):
 
 def routeCreatePermissions(self, cpny_pk, base_class):
     try:
-        if Manager.objects.get(user=self.request.user).company.id == cpny_pk:
-            # @TODO if manager.type == fact return False
+        manager = Manager.objects.get(user=self.request.user)
+        if manager.company.id == cpny_pk:
+            # @TODO if manager.role == fact return False
+            # if manager.role == 3 and base_class != Invoice:
+            #     print("Manager Class != Invoice")
+            #     return True
             return True
     except ObjectDoesNotExist:
         commercial = get_object_or_404(Commercial, user=self.request.user)
@@ -96,6 +98,7 @@ def routeDetailsPermissions(self, key_pk, base_class):
         if manager.company.id == self.kwargs.get('cpny_pk') and manager.company == base_class.objects.get(pk=self.kwargs.get(key_pk)).company:
             return True
     except ObjectDoesNotExist:
+        # @ TODO refactor après except for all permissions au dessus
         base_class = get_object_or_404(base_class, pk=self.kwargs.get(key_pk))
         if base_class.commercial == self.request.user.commercial:
             return True

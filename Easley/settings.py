@@ -123,6 +123,7 @@ STATICFILES_DIRS = (
 )
 
 LOGIN_REDIRECT_URL = 'mvp-workspace'
+# REGISTER_REDIRECT_URL = 'mvp-workplace'
 LOGOUT_REDIRECT_URL = 'mvp-home'
 
 django_heroku.settings(locals())

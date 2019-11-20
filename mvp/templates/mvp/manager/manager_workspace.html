@@ -39,10 +39,9 @@
                             <hr>
                             <div class="navbar-collapse collapse">
                                 <ul class="nav navbar-nav ">
-{#                                    <li><a class="btn" href= {% url 'mvp-client-new' %}>Ajouter un Client</a></li>#}
                                     <li><a class="btn" href= {% url 'mvp-client-new' user.manager.company.id %}>Ajouter un Client</a></li>
-                                    <li><a class="btn" href= {% url 'mvp-service-new' %}>Ajouter un Service</a></li>
-                                    <li><a class="btn" href= {% url 'mvp-license-new' %}>Ajouter une License</a></li>
+                                    <li><a class="btn" href= {% url 'mvp-service-new' user.manager.company.id %}>Ajouter un Service</a></li>
+                                    <li><a class="btn" href= {% url 'mvp-license-new' user.manager.company.id %}>Ajouter une License</a></li>
                                 </ul>
                             </div>
                             <hr>

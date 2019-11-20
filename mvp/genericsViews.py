@@ -5,7 +5,7 @@ from django.shortcuts import redirect, get_object_or_404
 from django.http import HttpResponseForbidden, HttpResponseNotFound
 from django.urls import reverse
 from .models import Company, Commercial, Manager, Client, Service, License
-from .forms import ServiceForm, ClientForm
+from .forms import ClientForm, ServiceForm, LicenseForm
 from .controllers import (
     routeListPermissions,
     routeDetailsPermissions,
@@ -28,7 +28,7 @@ class ClientCreateView(LoginRequiredMixin, UserPassesTestMixin, CreateView):
         return validateCompanyInFormCreateUpdateView(self, form)
 
     def test_func(self):
-        return routeCreatePermissions(self, self.kwargs.get(self.pk_url_kwarg), Client)
+        return routeCreatePermissions(self, self.kwargs.get(self.pk_url_kwarg), self.model)
 
     def get_success_url(self):
         return self.object.get_absolute_url(self.object.company.id)
@@ -45,10 +45,10 @@ class ClientUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
     object = None
     template_name = 'mvp/clients/client_form.html'
     pk_url_kwarg = 'client_pk'
-    extra_context = {"update": True, "button": "Confirmer"}
+    extra_context = {"update": True, "button": "Update"}
 
     def test_func(self):
-        return routeUpdatePermissions(self, self.pk_url_kwarg, Client)
+        return routeUpdatePermissions(self, self.pk_url_kwarg, self.model)
 
     def get_success_url(self):
         return self.object.get_absolute_url(self.object.company.id)
@@ -57,25 +57,6 @@ class ClientUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
         kwargs = super(ClientUpdateView, self).get_form_kwargs()
         kwargs['user'] = self.request.user
         return kwargs
-
-
-class ClientDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
-    model = Client
-    template_name = 'mvp/clients/client_details.html'
-    object = None
-    pk_url_kwarg = 'client_pk'
-    extra_context = {"delete": True, "button": "Delete"}
-
-    def test_func(self):
-        return routeDeletePermissions(self, self.pk_url_kwarg, Client)
-
-    def get_success_url(self):
-        if hasattr(self.request.user, 'commercial'):
-            return reverse('mvp-client-list', args=[self.object.company.id, self.request.user.commercial.id])
-        elif hasattr(self.request.user, 'manager'):
-            return reverse('mvp-client-list', args=[self.object.company.id, self.request.user.manager.id])
-        else:
-            return redirect('mvp-workspace')
 
 
 class ClientListView(LoginRequiredMixin, UserPassesTestMixin, ListView):
@@ -107,14 +88,77 @@ class ClientDetailView(LoginRequiredMixin, UserPassesTestMixin, DetailView):
     model = Client
     template_name = 'mvp/clients/client_details.html'
     pk_url_kwarg = 'client_pk'
-    extra_context = {"button": "Modifier"}
+    extra_context = {"button_update": "Update", "button_delete": "Delete"}
 
     def get_queryset(self):
+        # @TODO: Faire try except empty querryset ?
         return Client.objects.filter(id=self.kwargs.get(self.pk_url_kwarg))
 
     def test_func(self):
         # @TODO Faire try except Permission denied ?
         return routeDetailsPermissions(self, self.pk_url_kwarg, self.model)
+
+
+class ClientDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
+    model = Client
+    template_name = 'mvp/clients/client_details.html'
+    object = None
+    pk_url_kwarg = 'client_pk'
+    extra_context = {"delete": True, "button": "Delete"}
+
+    def test_func(self):
+        return routeDeletePermissions(self, self.pk_url_kwarg, self.model)
+
+    def get_success_url(self):
+        if hasattr(self.request.user, 'commercial'):
+            return reverse('mvp-client-list', args=[self.object.company.id, self.request.user.commercial.id])
+        elif hasattr(self.request.user, 'manager'):
+            return reverse('mvp-client-list', args=[self.object.company.id, self.request.user.manager.id])
+        else:
+            return redirect('mvp-workspace')
+
+
+class ServiceCreateView(LoginRequiredMixin, UserPassesTestMixin, CreateView):
+    model = Service
+    form_class = ServiceForm
+    template_name = 'mvp/service/service_form.html'
+    object = None
+    pk_url_kwarg = 'cpny_pk'
+    extra_context = {"button": "Ajouter un Service"}
+
+    def form_valid(self, form):
+        return validateCompanyInFormCreateUpdateView(self, form)
+
+    def test_func(self):
+        return routeCreatePermissions(self, self.kwargs.get(self.pk_url_kwarg), self.model)
+
+    def get_success_url(self):
+        return self.object.get_absolute_url(self.object.company.id)
+
+    def get_form_kwargs(self, *args, **kwargs):
+        kwargs = super(ServiceCreateView, self).get_form_kwargs()
+        kwargs['user'] = self.request.user
+        return kwargs
+
+
+class ServiceUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
+    model = Service
+    form_class = ServiceForm
+    object = None
+    template_name = 'mvp/service/service_form.html'
+    pk_url_kwarg = 'service_pk'
+    extra_context = {"update": True, "button": "Update"}
+
+    def test_func(self):
+        return routeUpdatePermissions(self, self.pk_url_kwarg, self.model)
+
+    def get_success_url(self):
+        return self.object.get_absolute_url(self.object.company.id)
+
+    def get_form_kwargs(self, *args, **kwargs):
+        kwargs = super(ServiceUpdateView, self).get_form_kwargs()
+        kwargs['user'] = self.request.user
+        return kwargs
 
 
 class ServiceListView(LoginRequiredMixin, UserPassesTestMixin, ListView):
@@ -124,11 +168,18 @@ class ServiceListView(LoginRequiredMixin, UserPassesTestMixin, ListView):
     pk_url_kwarg = 'com_pk'
 
     def get_queryset(self):
+        if hasattr(self.request.user, 'commercial'):
+            service = Service.objects.filter(commercial=self.request.user.commercial)
+            if service.exists():
+                return service
         try:
-            return Service.objects.filter(commercial=self.request.user.commercial)
+            service = Service.objects.filter(company=self.request.user.manager.company)
+            if service.exists():
+                return service
         except ObjectDoesNotExist:
-            return Service.objects.filter(company=self.request.user.manager.company)
-        # @TODO: RAISE ERROR 404
+            return HttpResponseForbidden
+        else:
+            return HttpResponseNotFound
 
     def test_func(self):
         return routeListPermissions(self, self.pk_url_kwarg)
@@ -138,12 +189,77 @@ class ServiceDetailView(LoginRequiredMixin, UserPassesTestMixin, DetailView):
     model = Service
     template_name = 'mvp/service/service_details.html'
     pk_url_kwarg = 'service_pk'
+    extra_context = {"button_update": "Update", "button_delete": "Delete"}
 
     def get_queryset(self):
+        # @TODO: Faire try except empty querryset ?
         return Service.objects.filter(id=self.kwargs.get(self.pk_url_kwarg))
 
     def test_func(self):
+        # @TODO Faire try except Permission denied ?
         return routeDetailsPermissions(self, self.pk_url_kwarg, self.model)
+
+
+class ServiceDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
+    model = Service
+    template_name = 'mvp/service/service_details.html'
+    object = None
+    pk_url_kwarg = 'service_pk'
+    extra_context = {"delete": True, "button": "Delete"}
+
+    def test_func(self):
+        return routeDeletePermissions(self, self.pk_url_kwarg, self.model)
+
+    def get_success_url(self):
+        if hasattr(self.request.user, 'commercial'):
+            return reverse('mvp-service-list', args=[self.object.company.id, self.request.user.commercial.id])
+        elif hasattr(self.request.user, 'manager'):
+            return reverse('mvp-service-list', args=[self.object.company.id, self.request.user.manager.id])
+        else:
+            return redirect('mvp-workspace')
+
+
+class LicenseCreateView(LoginRequiredMixin, UserPassesTestMixin, CreateView):
+    model = License
+    form_class = LicenseForm
+    template_name = 'mvp/license/license_form.html'
+    object = None
+    pk_url_kwarg = 'cpny_pk'
+    extra_context = {"button": "Ajouter une License"}
+
+    def form_valid(self, form):
+        return validateCompanyInFormCreateUpdateView(self, form)
+
+    def test_func(self):
+        return routeCreatePermissions(self, self.kwargs.get(self.pk_url_kwarg), self.model)
+
+    def get_success_url(self):
+        return self.object.get_absolute_url(self.object.company.id)
+
+    def get_form_kwargs(self, *args, **kwargs):
+        kwargs = super(LicenseCreateView, self).get_form_kwargs()
+        kwargs['user'] = self.request.user
+        return kwargs
+
+
+class LicenseUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
+    model = License
+    form_class = LicenseForm
+    object = None
+    template_name = 'mvp/license/license_form.html'
+    pk_url_kwarg = 'license_pk'
+    extra_context = {"update": True, "button": "Update"}
+
+    def test_func(self):
+        return routeUpdatePermissions(self, self.pk_url_kwarg, self.model)
+
+    def get_success_url(self):
+        return self.object.get_absolute_url(self.object.company.id)
+
+    def get_form_kwargs(self, *args, **kwargs):
+        kwargs = super(LicenseUpdateView, self).get_form_kwargs()
+        kwargs['user'] = self.request.user
+        return kwargs
 
 
 class LicenseListView(LoginRequiredMixin, UserPassesTestMixin, ListView):
@@ -167,6 +283,7 @@ class LicenseDetailView(LoginRequiredMixin, UserPassesTestMixin, DetailView):
     model = License
     template_name = 'mvp/license/license_details.html'
     pk_url_kwarg = 'license_pk'
+    extra_context = {"button_update": "Update", "button_delete": "Delete"}
 
     def get_queryset(self):
         return License.objects.filter(pk=self.kwargs.get(self.pk_url_kwarg))
@@ -175,11 +292,32 @@ class LicenseDetailView(LoginRequiredMixin, UserPassesTestMixin, DetailView):
         return routeDetailsPermissions(self, self.pk_url_kwarg, self.model)
 
 
-# @TODO: A modifier
-class ServiceUpdateView(UpdateView):
-    model = Service
-    form_class = ServiceForm
-    template_name = 'mvp/forms/service_form.html'
+class LicenseDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
+    model = License
+    template_name = 'mvp/license/license_details.html'
+    object = None
+    pk_url_kwarg = 'license_pk'
+    extra_context = {"delete": True, "button": "Delete"}
 
-    def get_queryset(self):
-        return Service.objects.filter(pk=self.kwargs.get('pk'))
+    def test_func(self):
+        return routeDeletePermissions(self, self.pk_url_kwarg, self.model)
+
+    def get_success_url(self):
+        if hasattr(self.request.user, 'commercial'):
+            return reverse('mvp-license-list', args=[self.object.company.id, self.request.user.commercial.id])
+        elif hasattr(self.request.user, 'manager'):
+            return reverse('mvp-license-list', args=[self.object.company.id, self.request.user.manager.id])
+        else:
+            return redirect('mvp-workspace')
+
+
+# # @TODO: A modifier
+# class ServiceUpdateView(UpdateView):
+#     model = Service
+#     form_class = ServiceForm
+#     template_name = 'mvp/service/service_form.html'
+#
+#     def get_queryset(self):
+#         return Service.objects.filter(pk=self.kwargs.get('pk'))
+#
+

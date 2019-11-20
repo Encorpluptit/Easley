@@ -23,18 +23,59 @@
             <!-- Article main content -->
             <article class="col-xs-12 maincontent">
                 <header class="page-header">
-                    <h1 class="page-title">Service details</h1>
+                    {% if delete %}
+                        <h1 class="page-title">Delete Service</h1>
+                    {% else %}
+                        <h1 class="page-title">Service details</h1>
+                    {% endif %}
                 </header>
                 <div class="col-md-6 col-md-offset-3 col-sm-8 col-sm-offset-2">
                     <div class="panel panel-default">
                         <div class="panel-body">
-                                <div class="top-margin">
+                            {% if delete %}
+                                <form method="POST">
+                                    {% csrf_token %}
+                                    <button class="btn btn-outline-danger" type="submit">Delete</button>
+                                </form>
+                                <hr>
+                            {% endif %}
+                            <div class="top-margin">
                                 <h2 class="name">{{ object.description }}</h2>
-                                    <a class="btn btn-action" href={% url 'mvp-service-update' object.id %}>Update</a>
+                                <h4>{{ object.client }}</h4>
                                 <h4>{{ object.pricing }}</h4>
                                 <h4>{{ object.estimated_date }}</h4>
                                 <h4>{{ object.actual_date }}</h4>
-                                </div>
+                            </div>
+                            {% if user.commercial and object.commercial == user.commercial %}
+                                {% if button_update %}
+                                    <a class="btn btn-action"
+                                       href= {% url 'mvp-service-update' user.commercial.company.id object.id %}>
+                                        {{ button_update }}
+                                    </a>
+                                {% endif %}
+                                {% if button_delete %}
+                                    <a class="btn btn-action"
+                                       href= {% url 'mvp-service-delete' user.commercial.company.id object.id %}>
+                                        {{ button_delete }}
+                                    </a>
+                                {% endif %}
+                            {% endif %}
+                            {% if user.manager %}
+                                {% if user.manager.role == 1 or user.manager.role == 2 %}
+                                    {% if button_update %}
+                                        <a class="btn btn-action"
+                                           href= {% url 'mvp-service-update' user.manager.company.id object.id %}>
+                                            {{ button_update }}
+                                        </a>
+                                    {% endif %}
+                                    {% if button_delete %}
+                                        <a class="btn btn-action"
+                                           href= {% url 'mvp-service-delete' user.manager.company.id object.id %}>
+                                            {{ button_delete }}
+                                        </a>
+                                    {% endif %}
+                                {% endif %}
+                            {% endif %}
                         </div>
                     </div>
                 </div>

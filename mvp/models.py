@@ -169,6 +169,9 @@ class Service(models.Model):
     def __str__(self):
         return self.description
 
+    def get_absolute_url(self, comp_id):
+        return reverse('mvp-service-details', args=[comp_id, str(self.id)])
+
 
 class License(models.Model):
     description = models.TextField(
@@ -219,6 +222,10 @@ class License(models.Model):
 
     def __str__(self):
         return self.description
+
+    def get_absolute_url(self, comp_id):
+        return reverse('mvp-license-details', args=[comp_id, str(self.id)])
+
 
 
 # @TODO: Invoice model

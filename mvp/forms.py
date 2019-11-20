@@ -74,17 +74,19 @@ class ServiceForm(forms.ModelForm):
         for key in self.fields:
             self.fields[key].widget.attrs.update({'class': 'form-control'})
             self.fields[key].widget.attrs.update({'placeholder': key})
+        self.user = user
 
     class Meta:
         model = Service
         exclude = ('company',)
 
-    # def is_valid(self):
-    #     if hasattr(self.user, 'commercial'):
-    #         self.data._mutable = True
-    #         self.data['commercial'] = self.user.commercial.pk
-    #         self.data._mutable = False
-    #     return super().is_valid()
+    def is_valid(self):
+        if hasattr(self.user, 'commercial'):
+            self.data._mutable = True
+            self.data['commercial'] = self.user.commercial.pk
+            self.data._mutable = False
+        # @ TODO: Add check on client.commercial and commercial ?
+        return super().is_valid()
 
 
 class LicenseForm(forms.ModelForm):
@@ -99,10 +101,19 @@ class LicenseForm(forms.ModelForm):
         for key in self.fields:
             self.fields[key].widget.attrs.update({'class': 'form-control'})
             self.fields[key].widget.attrs.update({'placeholder': key})
+        self.user = user
 
     class Meta:
         model = License
         exclude = ('company',)
+
+    def is_valid(self):
+        if hasattr(self.user, 'commercial'):
+            self.data._mutable = True
+            self.data['commercial'] = self.user.commercial.pk
+            self.data._mutable = False
+        # @ TODO: Add check on client.commercial and commercial ?
+        return super().is_valid()
 
 
 class UserUpdateForm(UserCreationForm):

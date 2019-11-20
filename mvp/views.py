@@ -101,7 +101,7 @@ def serviceCreation(request):
             form.save()
             messages.success(request, f'service created!')
             return redirect('mvp-workspace')
-    return render(request, 'mvp/forms/service_form.html', {'form': form})
+    return render(request, 'mvp/service/service_form.html', {'form': form})
 
 
 @login_required

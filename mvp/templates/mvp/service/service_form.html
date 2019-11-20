@@ -23,7 +23,11 @@
             <!-- Article main content -->
             <article class="col-xs-12 maincontent">
                 <header class="page-header">
-                    <h1 class="page-title">Add a service</h1>
+                    {% if update %}
+                        <h1 class="page-title">Update service</h1>
+                    {% else %}
+                        <h1 class="page-title">Add a service</h1>
+                    {% endif %}
                 </header>
                 <div class="col-md-6 col-md-offset-3 col-sm-8 col-sm-offset-2">
                     <div class="panel panel-default">
@@ -32,7 +36,7 @@
                                 {% csrf_token %}
                                 {% include 'mvp/forms/base_form.html' %}
                                 <div class="col-lg-4 text-right">
-                                    <button class="btn btn-action" type="submit">Add Service</button>
+                                    <button class="btn btn-action" type="submit">{{ button }}</button>
                                 </div>
                             </form>
                         </div>

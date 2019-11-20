@@ -28,7 +28,7 @@ class ClientCreateView(LoginRequiredMixin, UserPassesTestMixin, CreateView):
         return validateCompanyInFormCreateUpdateView(self, form)
 
     def test_func(self):
-        return routeCreatePermissions(self, self.kwargs.get(self.pk_url_kwarg))
+        return routeCreatePermissions(self, self.kwargs.get(self.pk_url_kwarg), Client)
 
     def get_success_url(self):
         return self.object.get_absolute_url(self.object.company.id)
@@ -76,12 +76,6 @@ class ClientDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
             return reverse('mvp-client-list', args=[self.object.company.id, self.request.user.manager.id])
         else:
             return redirect('mvp-workspace')
-
-
-    # def get_form_kwargs(self, *args, **kwargs):
-    #     kwargs = super(ClientDeleteView, self).get_form_kwargs()
-    #     kwargs['user'] = self.request.user
-    #     return kwargs
 
 
 class ClientListView(LoginRequiredMixin, UserPassesTestMixin, ListView):
@@ -186,10 +180,6 @@ class ServiceUpdateView(UpdateView):
     model = Service
     form_class = ServiceForm
     template_name = 'mvp/forms/service_form.html'
-
-    # def post(self, request, *args, **kwargs):
-    #     form = self.form_class(request.POST, request.user)
-    #     form.save()
 
     def get_queryset(self):
         return Service.objects.filter(pk=self.kwargs.get('pk'))

@@ -115,4 +115,4 @@ def licenseCreation(request):
             form.save()
             messages.success(request, f'license created!')
             return redirect('mvp-workspace')
-    return render(request, 'mvp/forms/license_form.html', {'form': form})
+    return render(request, 'mvp/license/license_form.html', {'form': form})

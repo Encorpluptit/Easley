@@ -37,20 +37,20 @@ class Manager(models.Model):
         default=None,
         on_delete=models.CASCADE,
     )
-    # role = models.PositiveSmallIntegerField(
-    #         verbose_name="manager's type",
-    #         default=None,
-    #         choices={
-    #             (1, 'Manager'),
-    #             (2, 'Account Manager'),
-    #             (3, 'Factu Manager'),
-    #         },
-    #     )
+    role = models.PositiveSmallIntegerField(
+            verbose_name="manager's type",
+            default=None,
+            choices={
+                (1, 'Manager'),
+                (2, 'Account'),
+                (3, 'Factu'),
+            },
+        )
 
     class Meta:
         verbose_name = "manager"
         verbose_name_plural = "managers"
-        ordering = ['company__id']
+        ordering = ['company__id', 'user']
 
     def __str__(self):
         return "%s %s" % (self.user.first_name, self.user.last_name)
@@ -126,10 +126,6 @@ class Service(models.Model):
         verbose_name="service's description",
         help_text="description du service"
     )
-    # description = models.CharField(
-    #     max_length=300,
-    #     verbose_name="service's description",
-    # )
     client = models.ForeignKey(
         Client,
         default=None,
@@ -180,12 +176,6 @@ class License(models.Model):
         verbose_name="license's description",
         help_text="description de la license"
     )
-    # description = models.CharField(
-    #     max_length=300,
-    #     # name="subject",
-    #     verbose_name="license's description",
-    #     help_text="description de la license"
-    # )
     company = models.ForeignKey(
         Company,
         default=None,

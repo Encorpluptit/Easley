@@ -49,9 +49,10 @@ def validateCompanyInFormCreateUpdateView(self, form):
         return redirect(self.get_success_url())
 
 
-def routeCreatePermissions(self, cpny_pk):
+def routeCreatePermissions(self, cpny_pk, base_class):
     try:
         if Manager.objects.get(user=self.request.user).company.id == cpny_pk:
+            # @TODO if manager.type == fact return False
             return True
     except ObjectDoesNotExist:
         commercial = get_object_or_404(Commercial, user=self.request.user)

@@ -269,11 +269,18 @@ class LicenseListView(LoginRequiredMixin, UserPassesTestMixin, ListView):
     ordering = ['id']
 
     def get_queryset(self):
+        if hasattr(self.request.user, 'commercial'):
+            licenses_found = License.objects.filter(commercial=self.request.user.commercial)
+            if licenses_found.exists():
+                return licenses_found
         try:
-            return License.objects.filter(commercial=self.request.user.commercial)
+            licenses_found = License.objects.filter(company=self.request.user.manager.company)
+            if licenses_found.exists():
+                return licenses_found
         except ObjectDoesNotExist:
-            return License.objects.filter(company=self.request.user.manager.company)
-        # @TODO: RAISE ERROR 404
+            return HttpResponseForbidden
+        else:
+            return HttpResponseNotFound
 
     def test_func(self):
         return routeListPermissions(self, self.pk_url_kwarg)
@@ -286,9 +293,11 @@ class LicenseDetailView(LoginRequiredMixin, UserPassesTestMixin, DetailView):
     extra_context = {"button_update": "Update", "button_delete": "Delete"}
 
     def get_queryset(self):
+        # @TODO: Faire try except empty querryset ?
         return License.objects.filter(pk=self.kwargs.get(self.pk_url_kwarg))
 
     def test_func(self):
+        # @TODO Faire try except Permission denied ?
         return routeDetailsPermissions(self, self.pk_url_kwarg, self.model)
 
 
@@ -310,14 +319,4 @@ class LicenseDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
         else:
             return redirect('mvp-workspace')
 
-
-# # @TODO: A modifier
-# class ServiceUpdateView(UpdateView):
-#     model = Service
-#     form_class = ServiceForm
-#     template_name = 'mvp/service/service_form.html'
-#
-#     def get_queryset(self):
-#         return Service.objects.filter(pk=self.kwargs.get('pk'))
-#
 

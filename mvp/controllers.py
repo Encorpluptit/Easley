@@ -100,10 +100,14 @@ def routeDetailsPermissions(self, key_pk, base_class):
     except ObjectDoesNotExist:
         # @ TODO refactor après except for all permissions au dessus
         base_class = get_object_or_404(base_class, pk=self.kwargs.get(key_pk))
-        if base_class.commercial == self.request.user.commercial:
+        if self.kwargs.get('cpny_pk') != self.request.user.commercial.company.id:
+            return False
+        elif base_class.commercial == self.request.user.commercial:
             return True
         else:
             return False
+    else:
+        return False
 
 
 def routeListPermissions(self, key_pk):

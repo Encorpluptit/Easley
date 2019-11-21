@@ -2,7 +2,7 @@
 
 
 {% block title %}
-    Easley - License List
+    Easley - Client List
 {% endblock %}
 
 
@@ -16,15 +16,16 @@
         <ol class="breadcrumb">
             <li><a href="{% url 'mvp-home' %}">Home</a></li>
             <li><a href="{% url 'mvp-workspace' %}">Workspace</a></li>
-            <li class="active">License List</li>
+            <li class="active">Client List</li>
         </ol>
 
         <div class="row">
             <!-- Article main content -->
             <article class="maincontent">
                 <header class="page-header">
-                    <h1 class="page-title">License List</h1>
+                    <h1 class="page-title">Client List</h1>
                 </header>
+                {#                <div class="col-md-6 col-md-offset-3 col-sm-8 col-sm-offset-2">#}
                 <div class="col-md-12">
                     <div class="panel panel-default">
                         <div class="panel-body">
@@ -32,41 +33,32 @@
                                 <thead class="thead-dark">
                                 <tr>
                                     <th scope="col">#</th>
-                                    <th scope="col">License</th>
-                                    <th scope="col">Client</th>
-                                    <th scope="col">Price</th>
-                                    <th scope="col">Start Date</th>
-                                    <th scope="col">Duration</th>
+                                    <th scope="col">Name</th>
+                                    <th scope="col">Email</th>
                                     <th scope="col">Commercial</th>
                                 </tr>
                                 </thead>
                                 <tbody>
-                                {% for license in license_list %}
+                                {% for client in client_list %}
                                     <tr>
                                     <th scope="row">{{forloop.counter}}</th>
-                                    <td>
-                                        <a href= {% url 'mvp-license-details' license.company.id license.id %}>{{ license.description }}</a>
-                                    </td>
-                                    <td>{{ license.client|truncatechars:30 }}</td>
-                                    <td>{{ license.cost|safe }}</td>
-                                    <td>{{ license.start_date|safe }}</td>
-                                    <td>{{ license.duration|safe }}</td>
-                                    <td>{{ license.commercial|safe }}</td>
+                                    <td><a href= {% url 'mvp-client-details' client.company.id client.id %}>{{ client.name }}</a></td>
+                                    <td>{{ client.email }}</td>
+                                    <td>{{ client.commercial }}</td>
                                 {% endfor %}
                                 </tr>
                                 </tbody>
                             </table>
-
                         </div>
                     </div>
                 </div>
-            </article>
-            <!-- /Article -->
+            </article><!-- /Article -->
         </div>
-    </div>    <!-- /container -->
+    </div><!-- /container -->
 {% endblock %}
 
 {% block footer %}
+
     <section class="container-full top-space">
         <div id="map"></div>
     </section>

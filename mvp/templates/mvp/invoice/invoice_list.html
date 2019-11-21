@@ -16,14 +16,14 @@
         <ol class="breadcrumb">
             <li><a href="{% url 'mvp-home' %}">Home</a></li>
             <li><a href="{% url 'mvp-workspace' %}">Workspace</a></li>
-            <li class="active">License List</li>
+            <li class="active">Invoice List</li>
         </ol>
 
         <div class="row">
             <!-- Article main content -->
             <article class="maincontent">
                 <header class="page-header">
-                    <h1 class="page-title">License List</h1>
+                    <h1 class="page-title">Invoice List</h1>
                 </header>
                 <div class="col-md-12">
                     <div class="panel panel-default">
@@ -32,31 +32,40 @@
                                 <thead class="thead-dark">
                                 <tr>
                                     <th scope="col">#</th>
-                                    <th scope="col">License</th>
+                                    <th scope="col">Invoice</th>
                                     <th scope="col">Client</th>
                                     <th scope="col">Price</th>
-                                    <th scope="col">Start Date</th>
-                                    <th scope="col">Duration</th>
+                                    <th scope="col">Services</th>
+                                    <th scope="col">Licenses</th>
                                     <th scope="col">Commercial</th>
                                 </tr>
                                 </thead>
                                 <tbody>
-                                {% for license in license_list %}
+                                {% for invoice in invoice_list %}
                                     <tr>
                                     <th scope="row">{{forloop.counter}}</th>
                                     <td>
-                                        <a href= {% url 'mvp-license-details' license.company.id license.id %}>{{ license.description }}</a>
+                                        <a href= {% url 'mvp-invoice-details' invoice.company.id invoice.id %}>{{ invoice.description }}</a>
                                     </td>
-                                    <td>{{ license.client|truncatechars:30 }}</td>
-                                    <td>{{ license.cost|safe }}</td>
-                                    <td>{{ license.start_date|safe }}</td>
-                                    <td>{{ license.duration|safe }}</td>
-                                    <td>{{ license.commercial|safe }}</td>
+                                    <td>{{ invoice.client|truncatechars:30 }}</td>
+                                    <td>{{ invoice.pricing|safe }}</td>
+{#                                    <td>{{ invoice.services }}</td>#}
+                                    <td>
+                                    {% for service in  invoice.services.all %}
+                                        <a href= {% url 'mvp-service-details' invoice.company.id service.id %}>{{ service.description }}</a><br>
+{#                                        <p>{{ service }}</p>#}
+                                    {% endfor %}
+                                    </td>
+                                    <td>
+                                    {% for license in  invoice.licenses.all %}
+                                        <p>{{ license }}</p>
+                                    {% endfor %}
+                                    </td>
+                                    <td>{{ invoice.commercial|safe }}</td>
                                 {% endfor %}
                                 </tr>
                                 </tbody>
                             </table>
-
                         </div>
                     </div>
                 </div>

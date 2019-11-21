@@ -1,7 +1,8 @@
 from django import forms
+from django.contrib import messages
 from django.contrib.auth.models import User
 from django.contrib.auth.forms import UserCreationForm
-from .models import Company, Commercial, Manager, Client, Service, License
+from .models import Company, Commercial, Manager, Client, Service, License, Invoice
 from django.core.exceptions import ValidationError
 
 
@@ -48,6 +49,7 @@ class ClientForm(forms.ModelForm):
         for key in self.fields:
             self.fields[key].widget.attrs.update({'class': 'form-control'})
             self.fields[key].widget.attrs.update({'placeholder': key})
+            self.fields[key].widget.attrs.update({'title': self.fields[key].help_text})
         self.user = user
 
     class Meta:
@@ -74,6 +76,7 @@ class ServiceForm(forms.ModelForm):
         for key in self.fields:
             self.fields[key].widget.attrs.update({'class': 'form-control'})
             self.fields[key].widget.attrs.update({'placeholder': key})
+            self.fields[key].widget.attrs.update({'title': self.fields[key].help_text})
         self.user = user
 
     class Meta:
@@ -85,7 +88,12 @@ class ServiceForm(forms.ModelForm):
             self.data._mutable = True
             self.data['commercial'] = self.user.commercial.pk
             self.data._mutable = False
-        # @ TODO: Add check on client.commercial and commercial ?
+        # elif hasattr(self.user, 'manager'):
+        #     client = Client.objects.get(pk=self.data['client'])
+        #     if not client or client.commercial.pk != int(self.data['commercial']):
+        #         self.add_error('client', "Ce client n'est pas lié à ce commercial")
+        #         self.add_error('commercial', "Ce commercial n'est pas lié à ce client")
+        #         return False
         return super().is_valid()
 
 
@@ -101,6 +109,7 @@ class LicenseForm(forms.ModelForm):
         for key in self.fields:
             self.fields[key].widget.attrs.update({'class': 'form-control'})
             self.fields[key].widget.attrs.update({'placeholder': key})
+            self.fields[key].widget.attrs.update({'title': self.fields[key].help_text})
         self.user = user
 
     class Meta:
@@ -112,7 +121,12 @@ class LicenseForm(forms.ModelForm):
             self.data._mutable = True
             self.data['commercial'] = self.user.commercial.pk
             self.data._mutable = False
-        # @ TODO: Add check on client.commercial and commercial ?
+        # elif hasattr(self.user, 'manager'):
+        #     client = Client.objects.get(pk=self.data['client'])
+        #     if not client or client.commercial.pk != int(self.data['commercial']):
+        #         self.add_error('client', "Ce client n'est pas lié à ce commercial")
+        #         self.add_error('commercial', "Ce commercial n'est pas lié à ce client")
+        #         return False
         return super().is_valid()
 
 
@@ -126,12 +140,44 @@ class UserUpdateForm(UserCreationForm):
         for key in self.fields:
             self.fields[key].widget.attrs.update({'class': 'form-control'})
             self.fields[key].widget.attrs.update({'placeholder': key})
+            self.fields[key].widget.attrs.update({'title': self.fields[key].help_text})
 
     class Meta:
         model = User
         fields = ['first_name', 'last_name', 'email', 'username', 'password1', 'password2']
 
 
+class InvoiceFrom(forms.ModelForm):
+    def __init__(self, *args, user=None, **kwargs):
+        super().__init__(*args, **kwargs)
+        if hasattr(user, 'commercial'):
+            self.fields['commercial'].widget = forms.HiddenInput()
+            self.fields['client'].queryset = Client.objects.filter(commercial=user.commercial)
+        if hasattr(user, 'manager'):
+            self.fields['commercial'].queryset = Commercial.objects.filter(company=user.manager.company)
+            self.fields['client'].queryset = Client.objects.filter(company=user.manager.company)
+        for key in self.fields:
+            self.fields[key].widget.attrs.update({'class': 'form-control'})
+            self.fields[key].widget.attrs.update({'placeholder': key})
+            self.fields[key].widget.attrs.update({'title': self.fields[key].help_text})
+        self.user = user
+
+    class Meta:
+        model = Invoice
+        exclude = ('company',)
+
+    def is_valid(self):
+        if hasattr(self.user, 'commercial'):
+            self.data._mutable = True
+            self.data['commercial'] = self.user.commercial.pk
+            self.data._mutable = False
+        # elif hasattr(self.user, 'manager'):
+        #     client = Client.objects.get(pk=self.data['client'])
+        #     if not client or client.commercial.pk != int(self.data['commercial']):
+        #         self.add_error('client', "Ce client n'est pas lié à ce commercial")
+        #         self.add_error('commercial', "Ce commercial n'est pas lié à ce client")
+        #         return False
+        return super().is_valid()
 
 
 # from django.core.validators import validate_email

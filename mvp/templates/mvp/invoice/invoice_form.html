@@ -2,7 +2,7 @@
 
 
 {% block title %}
-    Easley - Client Creation
+    Easley - Service Creation
 {% endblock %}
 
 
@@ -16,17 +16,20 @@
         <ol class="breadcrumb">
             <li><a href="{% url 'mvp-home' %}">Home</a></li>
             <li><a href="{% url 'mvp-workspace' %}">Workspace</a></li>
-            <li class="active">Client Creation</li>
+            {% if update %}
+                <li class="active">Invoice Update</li>
+            {% else %}
+                <li class="active">Invoice Creation</li>
+            {% endif %}
         </ol>
-
         <div class="row">
             <!-- Article main content -->
             <article class="col-xs-12 maincontent">
                 <header class="page-header">
                     {% if update %}
-                        <h1 class="page-title">Update client</h1>
+                        <h1 class="page-title">Update Invoice</h1>
                     {% else %}
-                        <h1 class="page-title">Add a client</h1>
+                        <h1 class="page-title">Add a Invoice</h1>
                     {% endif %}
                 </header>
                 <div class="col-md-6 col-md-offset-3 col-sm-8 col-sm-offset-2">

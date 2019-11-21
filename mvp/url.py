@@ -17,6 +17,11 @@ from .genericsViews import (
     LicenseListView,
     LicenseDetailView,
     LicenseDeleteView,
+    InvoiceCreateView,
+    InvoiceUpdateView,
+    InvoiceListView,
+    InvoiceDetailView,
+    InvoiceDeleteView,
 )
 
 urlpatterns = [
@@ -50,6 +55,11 @@ urlpatterns = [
     path('<int:cpny_pk>/license/list/<int:com_pk>/', LicenseListView.as_view(), name='mvp-license-list'),
     path('<int:cpny_pk>/license/details/<int:license_pk>/', LicenseDetailView.as_view(), name='mvp-license-details'),
     path('<int:cpny_pk>/license/delete/<int:license_pk>/', LicenseDeleteView.as_view(), name='mvp-license-delete'),
+    path('<int:cpny_pk>/invoice/new/', InvoiceCreateView.as_view(), name='mvp-invoice-new'),
+    path('<int:cpny_pk>/invoice/update/<int:invoice_pk>', InvoiceUpdateView.as_view(), name='mvp-invoice-update'),
+    path('<int:cpny_pk>/invoice/list/', InvoiceListView.as_view(), name='mvp-invoice-list'),
+    path('<int:cpny_pk>/invoice/details/<int:invoice_pk>/', InvoiceDetailView.as_view(), name='mvp-invoice-details'),
+    path('<int:cpny_pk>/invoice/delete/<int:invoice_pk>/', InvoiceDeleteView.as_view(), name='mvp-invoice-delete'),
     path('register/', views.register, name='mvp-register'),
     # path('register/', .register, name='mvp-register'),
     path('company/join', views.join_company, name='mvp-join-company'),

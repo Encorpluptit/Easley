@@ -38,11 +38,11 @@ def validateCompanyInFormCreateUpdateView(self, form):
         elif hasattr(self.request.user, 'manager'):
             form.instance.company = self.request.user.manager.company
     except ObjectDoesNotExist:
-        return redirectWorkspaceFail(self.request)
+        return redirectWorkspaceFail(self.request, f"Une erreur est survenue.")
     try:
         self.object = form.save()
     except ValidationError:
-        return redirectWorkspaceFail(self.request)
+        return redirectWorkspaceFail(self.request, f"Une erreur est survenue.")
     else:
         return redirect(self.get_success_url())
 
@@ -54,7 +54,7 @@ def routeCreatePermissions(self, cpny_pk, base_class):
             # @TODO if manager.role == fact return False
             # if manager.role == 3 and base_class != Invoice:
             #     print("Manager Class != Invoice")
-            #     return True
+            #     return False
             return True
     except ObjectDoesNotExist:
         commercial = get_object_or_404(Commercial, user=self.request.user)
@@ -122,6 +122,23 @@ def routeListPermissions(self, key_pk):
             return False
 
 
-def redirectWorkspaceFail(request):
-    messages.warning(request, f'An Error occurred ! Please try again later')
+def routeCreateUpdateInvoicePermissions(self, cpny_pk):
+    if hasattr(self.request.user, 'manager'):
+        manager = Manager.objects.get(user=self.request.user)
+        if manager.company.id != cpny_pk or (manager.role != 1 and manager.role != 3):
+            return False
+        return True
+    return False
+
+
+def routeListDetailsInvoicePermissions(self, cpny_pk):
+    if hasattr(self.request.user, 'manager'):
+        if self.kwargs.get('cpny_pk') != self.request.user.manager.company.id:
+            return False
+        return True
+    return False
+
+
+def redirectWorkspaceFail(request, message):
+    messages.warning(request, message)
     return redirect('mvp-workspace')

@@ -24,7 +24,7 @@ class Migration(migrations.Migration):
             ],
             options={
                 'verbose_name': 'client',
-                'verbose_name_plural': 'clients',
+                'verbose_name_plural': 'client',
                 'ordering': ['company', 'name'],
             },
         ),

@@ -45,6 +45,10 @@
                                 </ul>
                             </div>
                             <hr>
+                            {% if user.manager.role == 1 or user.manager.role == 3 %}
+                                <a class="btn" href= {% url 'mvp-invoice-new' user.manager.company.id %}>Ajouter une facture</a>
+                                <a class="btn btn-action" href= {% url 'mvp-invoice-list' user.manager.company.id %}>liste des factures</a>
+                            {% endif %}
                             <hr>
                             <hr>
                             <hr>

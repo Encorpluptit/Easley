@@ -2,7 +2,7 @@
 
 
 {% block title %}
-    Easley - Client Details
+    Easley - License Details
 {% endblock %}
 
 
@@ -16,7 +16,7 @@
         <ol class="breadcrumb">
             <li><a href="{% url 'mvp-home' %}">Home</a></li>
             <li><a href="{% url 'mvp-workspace' %}">Workspace</a></li>
-            <li class="active">Client List</li>
+            <li class="active">License Details</li>
         </ol>
 
         <div class="row">
@@ -24,9 +24,9 @@
             <article class="col-xs-12 maincontent">
                 <header class="page-header">
                     {% if delete %}
-                        <h1 class="page-title">Delete Client</h1>
+                        <h1 class="page-title">Delete License</h1>
                     {% else %}
-                        <h1 class="page-title">Client details</h1>
+                        <h1 class="page-title">License details</h1>
                     {% endif %}
                 </header>
                 <div class="col-md-6 col-md-offset-3 col-sm-8 col-sm-offset-2">
@@ -40,40 +40,26 @@
                                 <hr>
                             {% endif %}
                             <div class="top-margin">
-                                <h2 class="name">{{ object.name }}</h2>
-                                <h4>{{ object.email }}</h4>
-                                <h4>{{ object.company }}</h4>
+                                <h2 class="name">{{ object.description }}</h2>
+                                <h4>{{ object.client }}</h4>
+                                <h4>{{ object.cost }}</h4>
+                                <h4>{{ object.start_date }}</h4>
+                                <h4>{{ object.duration }}</h4>
                             </div>
-                            {% if user.commercial and object.commercial == user.commercial %}
-                                {% if button_update %}
-                                    <a class="btn btn-action"
-                                       href= {% url 'mvp-client-update' user.commercial.company.id object.id %}>
-                                        {{ button_update }}
-                                    </a>
-                                {% endif %}
-                                {% if button_delete %}
-                                    <a class="btn btn-action"
-                                       href= {% url 'mvp-client-delete' user.commercial.company.id object.id %}>
-                                        {{ button_delete }}
-                                    </a>
-                                {% endif %}
-                            {% endif %}
-                            {% if user.manager %}
-                                {% if user.manager.role == 1 or user.manager.role == 2 %}
+                                {% if user.manager.role == 1 or user.manager.role == 3 %}
                                     {% if button_update %}
                                         <a class="btn btn-action"
-                                           href= {% url 'mvp-client-update' user.manager.company.id object.id %}>
+                                           href= {% url 'mvp-invoice-update' user.manager.company.id object.id %}>
                                             {{ button_update }}
                                         </a>
                                     {% endif %}
                                     {% if button_delete %}
                                         <a class="btn btn-action"
-                                           href= {% url 'mvp-client-delete' user.manager.company.id object.id %}>
+                                           href= {% url 'mvp-invoice-delete' user.manager.company.id object.id %}>
                                             {{ button_delete }}
                                         </a>
                                     {% endif %}
                                 {% endif %}
-                            {% endif %}
                         </div>
                     </div>
                 </div>

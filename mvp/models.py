@@ -109,8 +109,8 @@ class Client(models.Model):
 
     class Meta:
         verbose_name = "client"
-        verbose_name_plural = "clients"
-        ordering = ['company', 'commercial__id', 'name']
+        verbose_name_plural = "client"
+        ordering = ['company__id', 'commercial__id', 'name']
 
     def __str__(self):
         return self.name
@@ -164,7 +164,7 @@ class Service(models.Model):
     class Meta:
         verbose_name = "service"
         verbose_name_plural = "services"
-        ordering = ['pricing', 'company__id', 'description']
+        ordering = ['company__id', 'commercial__id', 'pricing', 'description']
 
     def __str__(self):
         return self.description
@@ -218,7 +218,7 @@ class License(models.Model):
     class Meta:
         verbose_name = "license"
         verbose_name_plural = "licenses"
-        ordering = ['cost', 'company__id', 'description']
+        ordering = ['company__id', 'commercial__id', 'cost', 'description']
 
     def __str__(self):
         return self.description
@@ -227,27 +227,60 @@ class License(models.Model):
         return reverse('mvp-license-details', args=[comp_id, str(self.id)])
 
 
-
 # @TODO: Invoice model
-# class Invoice(models.Model):
-#     company = models.ForeignKey(
-#         Companies,
-#         on_delete=models.CASCADE,
-#         related_name="company's invoices+",
-#         related_query_name="company's invoices",
-#     )
-#     client = models.ForeignKey(
-#         Clients,
-#         on_delete=models.CASCADE,
-#         related_name="invoice's client+",
-#         related_query_name="invoice's client",
-#     )
-#     commercial = models.ForeignKey(
-#         User,
-#         on_delete=models.CASCADE,
-#         related_name="commercial",
-#         related_query_name="client's commercial",
-#     )
+class Invoice(models.Model):
+    description = models.TextField(
+        max_length=300,
+        verbose_name="invoice's description",
+        help_text="description de la facture",
+    )
+    company = models.ForeignKey(
+        Company,
+        on_delete=models.CASCADE,
+        verbose_name="invoice's company",
+        help_text="Indicate invoice's company",
+    )
+    client = models.ForeignKey(
+        Client,
+        on_delete=models.CASCADE,
+        verbose_name="invoice's client",
+        help_text="le client relatif à cette facture",
+    )
+    pricing = models.PositiveIntegerField(
+        default=0,
+        verbose_name="pricing de la facture",
+        help_text="pricing du service (EN EUROS)",
+    )
+    commercial = models.ForeignKey(
+        Commercial,
+        on_delete=models.CASCADE,
+        verbose_name="invoice's commercial",
+        help_text="le commercial relatif à cette facture",
+    )
+    licenses = models.ManyToManyField(
+        License,
+        # on_delete=models.CASCADE,
+        verbose_name="invoice's licenses",
+        help_text="les licenses relatif à cette facture",
+    )
+    services = models.ManyToManyField(
+        Service,
+        # on_delete=models.CASCADE,
+        verbose_name="invoice's services",
+        help_text="les services relatifs à cette facture",
+    )
+
+    class Meta:
+        verbose_name = "facture"
+        verbose_name_plural = "factures"
+        ordering = ['company__id', 'commercial__id', 'pricing', 'description']
+
+    def __str__(self):
+        return self.description
+
+    def get_absolute_url(self, comp_id):
+        return reverse('mvp-invoice-details', args=[comp_id, str(self.id)])
+
 
 # - invoices
 # - company_id

@@ -16,9 +16,12 @@
         <ol class="breadcrumb">
             <li><a href="{% url 'mvp-home' %}">Home</a></li>
             <li><a href="{% url 'mvp-workspace' %}">Workspace</a></li>
-            <li class="active">License Creation</li>
+            {% if update %}
+                <li class="active">License Update</li>
+            {% else %}
+                <li class="active">License Creation</li>
+            {% endif %}
         </ol>
-
         <div class="row">
             <!-- Article main content -->
             <article class="col-xs-12 maincontent">

@@ -18,8 +18,9 @@
         </div>
         <br>
         {% if field.help_text %}
-            <p class="help">{{ field.help_text|safe }}</p>
+            <ul><li><p class="help">{{ field.help_text|safe }}</p></li></ul>
         {% endif %}
         <span class="text-danger">{{ field.errors }}</span>
+        <br>
     {% endfor %}
 </div>

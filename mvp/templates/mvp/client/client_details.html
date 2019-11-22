@@ -16,7 +16,11 @@
         <ol class="breadcrumb">
             <li><a href="{% url 'mvp-home' %}">Home</a></li>
             <li><a href="{% url 'mvp-workspace' %}">Workspace</a></li>
-            <li class="active">Client List</li>
+            {% if delete %}
+                <li class="active">Delete Client</li>
+            {% else %}
+                <li class="active">Client Details</li>
+            {% endif %}
         </ol>
 
         <div class="row">
@@ -29,21 +33,30 @@
                         <h1 class="page-title">Client details</h1>
                     {% endif %}
                 </header>
-                <div class="col-md-12">
+                <div class="col-md-10 col-md-offset-1 col-sm-8 col-sm-offset-1">
                     <div class="panel panel-default">
                         <div class="panel-body">
                             {% if delete %}
                                 <form method="POST">
                                     {% csrf_token %}
                                     <button class="btn btn-outline-danger" type="submit">Delete</button>
+                                    <a class="btn btn-action"
+                                       href= {% url 'mvp-client-details' object.company.id object.id %}>
+                                        No, Come Back</a>
                                 </form>
                                 <hr>
                             {% endif %}
-                            <div class="top-margin">
-                                <h2 class="name">{{ object.name }}</h2>
-                                <h4>{{ object.email }}</h4>
-                                <h4>{{ object.company }}</h4>
-                            </div>
+                            <article class="media content-section">
+                                <div class="media-body">
+                                    <h2><a class="article-title" href="#">{{ object.name }}</a></h2>
+                                    <hr>
+                                    <div class="article-metadata">
+                                        <h4 class="mr-2">{{ object.email }}</h4>
+                                        <small class="text-muted">{{ object.company }}</small>
+                                    </div>
+                                    <p class="article-content">{{ post.content }}</p>
+                                </div>
+                            </article>
                             {% if user.commercial and object.commercial == user.commercial %}
                                 {% if button_update %}
                                     <a class="btn btn-action"

@@ -27,27 +27,35 @@
                 <div class="col-md-12 ">
                     <div class="panel panel-default">
                         <div class="panel-body">
-                            <a class="btn btn-action" href={% url 'mvp-client-list' user.manager.company.id user.manager.id %}>Liste des
+                            <a class="btn btn-action"
+                               href={% url 'mvp-client-list' user.manager.company.id user.manager.id %}>Liste des
                                 Clients
                             </a>
-                            <a class="btn btn-action" href={% url 'mvp-service-list' user.manager.company.id user.manager.id %}>Liste
+                            <a class="btn btn-action"
+                               href={% url 'mvp-service-list' user.manager.company.id user.manager.id %}>Liste
                                 des Services
                             </a>
-                            <a class="btn btn-action" href={% url 'mvp-license-list' user.manager.company.id user.manager.id %}>Liste
+                            <a class="btn btn-action"
+                               href={% url 'mvp-license-list' user.manager.company.id user.manager.id %}>Liste
                                 des Licenses
                             </a>
                             <hr>
                             <div class="navbar-collapse collapse">
                                 <ul class="nav navbar-nav ">
-                                    <li><a class="btn" href= {% url 'mvp-client-new' user.manager.company.id %}>Ajouter un Client</a></li>
-                                    <li><a class="btn" href= {% url 'mvp-service-new' user.manager.company.id %}>Ajouter un Service</a></li>
-                                    <li><a class="btn" href= {% url 'mvp-license-new' user.manager.company.id %}>Ajouter une License</a></li>
+                                    <li><a class="btn" href= {% url 'mvp-client-new' user.manager.company.id %}>Ajouter
+                                        un Client</a></li>
+                                    <li><a class="btn" href= {% url 'mvp-service-new' user.manager.company.id %}>Ajouter
+                                        un Service</a></li>
+                                    <li><a class="btn" href= {% url 'mvp-license-new' user.manager.company.id %}>Ajouter
+                                        une License</a></li>
                                 </ul>
                             </div>
                             <hr>
+                            <a class="btn btn-action" href= {% url 'mvp-invoice-list' user.manager.company.id %}>liste
+                                des factures</a>
                             {% if user.manager.role == 1 or user.manager.role == 3 %}
-                                <a class="btn" href= {% url 'mvp-invoice-new' user.manager.company.id %}>Ajouter une facture</a>
-                                <a class="btn btn-action" href= {% url 'mvp-invoice-list' user.manager.company.id %}>liste des factures</a>
+                                <a class="btn" href= {% url 'mvp-invoice-new' user.manager.company.id %}>Ajouter une
+                                    facture</a>
                             {% endif %}
                             <hr>
                             <hr>

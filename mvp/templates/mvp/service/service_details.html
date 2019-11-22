@@ -16,7 +16,11 @@
         <ol class="breadcrumb">
             <li><a href="{% url 'mvp-home' %}">Home</a></li>
             <li><a href="{% url 'mvp-workspace' %}">Workspace</a></li>
-            <li class="active">Service details</li>
+            {% if delete %}
+                <li class="active">Delete Service</li>
+            {% else %}
+                <li class="active">Service Details</li>
+            {% endif %}
         </ol>
 
         <div class="row">
@@ -29,23 +33,47 @@
                         <h1 class="page-title">Service details</h1>
                     {% endif %}
                 </header>
-                <div class="col-md-6 col-md-offset-3 col-sm-8 col-sm-offset-2">
+                <div class="col-md-10 col-md-offset-1 col-sm-8 col-sm-offset-1">
                     <div class="panel panel-default">
                         <div class="panel-body">
                             {% if delete %}
                                 <form method="POST">
                                     {% csrf_token %}
                                     <button class="btn btn-outline-danger" type="submit">Delete</button>
+                                    <a class="btn btn-action"
+                                       href= {% url 'mvp-service-details' object.company.id object.id %}>
+                                        No, Come Back</a>
                                 </form>
                                 <hr>
                             {% endif %}
-                            <div class="top-margin">
-                                <h2 class="name">{{ object.description }}</h2>
-                                <h4>{{ object.client }}</h4>
-                                <h4>{{ object.pricing }}</h4>
-                                <h4>{{ object.estimated_date }}</h4>
-                                <h4>{{ object.actual_date }}</h4>
-                            </div>
+                            <article class="media content-section">
+                                <div class="media-body">
+                                    <h2 class="article-title">{{ object.description }}</h2>
+                                    <hr>
+                                    <div class="article-metadata">
+                                        <small class="text-muted">{{ object.client }}</small><br>
+                                        <small class="text-muted">{{ object.commercial }}</small>
+                                    </div>
+                                    <hr>
+                                    <table class="table table-hover table-bordered">
+                                        <thead class="thead-dark">
+                                        <tr>
+                                            <th scope="col">Prix</th>
+                                            <th scope="col">Date Prévisionelle</th>
+                                            <th scope="col">Date réelle</th>
+                                        </tr>
+                                        </thead>
+                                        <tbody>
+                                        <tr>
+                                            <td class="article-content">{{ object.pricing }}</td>
+                                            <td class="article-content">{{ object.estimated_date }}</td>
+                                            <td class="article-content">{{ object.actual_date }}</td>
+                                        </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </article>
+                            <hr>
                             {% if user.commercial and object.commercial == user.commercial %}
                                 {% if button_update %}
                                     <a class="btn btn-action"

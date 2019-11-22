@@ -45,11 +45,12 @@
                                     <tr>
                                     <th scope="row">{{forloop.counter}}</th>
                                     <td>
-                                        <a href= {% url 'mvp-license-details' service.company.id service.id %}>{{ service.description }}</a>
+                                        <a href= {% url 'mvp-service-details' service.company.id service.id %}>{{ service.description }}</a>
                                     </td>
                                     <td>{{ service.client|truncatechars:30 }}</td>
                                     <td>{{ service.pricing|safe }}</td>
                                     <td>{{ service.estimated_date|safe }}</td>
+                                    <td>{{ service.actual_date|safe }}</td>
                                     <td>{{ service.commercial|safe }}</td>
                                 {% endfor %}
                                 </tr>

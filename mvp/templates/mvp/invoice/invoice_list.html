@@ -47,18 +47,16 @@
                                     <td>
                                         <a href= {% url 'mvp-invoice-details' invoice.company.id invoice.id %}>{{ invoice.description }}</a>
                                     </td>
-                                    <td>{{ invoice.client|truncatechars:30 }}</td>
+                                    <td>{{ invoice.client|truncatechars:20 }}</td>
                                     <td>{{ invoice.pricing|safe }}</td>
-{#                                    <td>{{ invoice.services }}</td>#}
                                     <td>
                                     {% for service in  invoice.services.all %}
                                         <a href= {% url 'mvp-service-details' invoice.company.id service.id %}>{{ service.description }}</a><br>
-{#                                        <p>{{ service }}</p>#}
                                     {% endfor %}
                                     </td>
                                     <td>
                                     {% for license in  invoice.licenses.all %}
-                                        <p>{{ license }}</p>
+                                        <a href= {% url 'mvp-license-details' invoice.company.id license.id %}>{{ license.description }}</a><br>
                                     {% endfor %}
                                     </td>
                                     <td>{{ invoice.commercial|safe }}</td>

@@ -82,18 +82,16 @@ class ServiceForm(forms.ModelForm):
     class Meta:
         model = Service
         exclude = ('company',)
+        widgets = {
+            'estimated_date': forms.SelectDateWidget,
+            'actual_date': forms.SelectDateWidget,
+        }
 
     def is_valid(self):
         if hasattr(self.user, 'commercial'):
             self.data._mutable = True
             self.data['commercial'] = self.user.commercial.pk
             self.data._mutable = False
-        # elif hasattr(self.user, 'manager'):
-        #     client = Client.objects.get(pk=self.data['client'])
-        #     if not client or client.commercial.pk != int(self.data['commercial']):
-        #         self.add_error('client', "Ce client n'est pas lié à ce commercial")
-        #         self.add_error('commercial', "Ce commercial n'est pas lié à ce client")
-        #         return False
         return super().is_valid()
 
 
@@ -115,18 +113,13 @@ class LicenseForm(forms.ModelForm):
     class Meta:
         model = License
         exclude = ('company',)
+        widgets = {'start_date': forms.SelectDateWidget, 'duration': forms.NumberInput}
 
     def is_valid(self):
         if hasattr(self.user, 'commercial'):
             self.data._mutable = True
             self.data['commercial'] = self.user.commercial.pk
             self.data._mutable = False
-        # elif hasattr(self.user, 'manager'):
-        #     client = Client.objects.get(pk=self.data['client'])
-        #     if not client or client.commercial.pk != int(self.data['commercial']):
-        #         self.add_error('client', "Ce client n'est pas lié à ce commercial")
-        #         self.add_error('commercial', "Ce commercial n'est pas lié à ce client")
-        #         return False
         return super().is_valid()
 
 
@@ -171,12 +164,6 @@ class InvoiceFrom(forms.ModelForm):
             self.data._mutable = True
             self.data['commercial'] = self.user.commercial.pk
             self.data._mutable = False
-        # elif hasattr(self.user, 'manager'):
-        #     client = Client.objects.get(pk=self.data['client'])
-        #     if not client or client.commercial.pk != int(self.data['commercial']):
-        #         self.add_error('client', "Ce client n'est pas lié à ce commercial")
-        #         self.add_error('commercial', "Ce commercial n'est pas lié à ce client")
-        #         return False
         return super().is_valid()
 
 

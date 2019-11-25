@@ -1,0 +1,92 @@
+{% extends 'mvp/generic/content.html' %}
+{% load static %}
+
+{% block content %}
+    <article class="media content-section">
+        <div class="media-body">
+            <h2><a class="article-title" href="#">{{ object.name }}</a></h2>
+            <hr>
+            <div class="article-metadata">
+                <h4 class="mr-2">{{ object.email }}</h4>
+                <small class="text-muted">{{ object.company }}</small>
+            </div>
+            {#            <p class="article-content">{{ post.content }}</p>#}
+        </div>
+    </article>
+    <hr>
+    {#    border-left-primary #}
+
+    <div class="row">
+        <div class="col-lg-6">
+            <!-- Service Card -->
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Services (a modif)</h6>
+                </div>
+                <div class="card-body">
+                    {% if not licenses %}
+                        there is no license
+                    {% else %}
+                        {% for license in licenses %}
+                            {{ license }}<br>
+                        {% endfor %}
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-6">
+            <!-- License Card -->
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Licenses</h6>
+                </div>
+                <div class="card-body">
+                    {% if not licenses %}
+                        there is no license
+                    {% else %}
+                        {% for license in licenses %}
+                            {{ license }}<br>
+                        {% endfor %}
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+    <hr>
+    {% if details and user.commercial and object.commercial == user.commercial or details and user.manager and user.manager.role != 3 %}
+        <a class="btn btn-warning btn-icon-split"
+           href= {% url 'mvp-client-update' object.company.id object.id %}>
+            <span class="icon text-white-50"><i class="fas fa-exclamation-triangle"></i></span>
+            <span class="text">Modifier ces informations</span>
+        </a>
+        <a class="btn btn-danger btn-icon-split"
+           href= {% url 'mvp-client-delete' object.company.id object.id %}>
+            <span class="icon text-white-50"><i class="fas fa-trash"></i></span>
+            <span class="text">Supprimer le client</span>
+        </a>
+    {% elif delete_client %}
+        <form method="POST">
+            {% csrf_token %}
+            <button class="btn btn-danger btn-icon-split" type="submit">
+                <span class="icon text-white-50"><i class="fas fa-trash"></i></span>
+                <span class="text">Supprimer le client</span>
+            </button>
+            <a class="btn btn-secondary btn-icon-split"
+               href= {% url 'mvp-client-details' object.company.id object.id %}>
+                <span class="icon text-white-50"><i class="fas fa-arrow-right"></i></span>
+                <span class="text">Retour</span>
+            </a>
+        </form>
+        <hr>
+    {% endif %}
+{% endblock %}
+
+{% block scripts %}
+    <!-- Table Page level plugins -->
+    <script src={% static 'mvp/vendor/datatables/jquery.dataTables.min.js' %}></script>
+    <script src={% static 'mvp/vendor/datatables/dataTables.bootstrap4.min.js' %}></script>
+
+    <!-- Table Page level custom scripts -->
+    <script src={% static 'mvp/js/demo/datatables-demo.js' %}></script>
+
+{% endblock %}

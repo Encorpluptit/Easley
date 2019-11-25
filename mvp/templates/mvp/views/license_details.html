@@ -1,0 +1,57 @@
+{% extends 'mvp/generic/content.html' %}
+
+{% block content %}
+    <article class="media content-section">
+        <div class="media-body">
+            <h2 class="article-title">{{ object.description }}</h2>
+            <hr>
+            <div class="article-metadata">
+                <b class="text-gray-900">Client: {{ object.client }}</b><br>
+                <b class="text-gray-900">BizDev: {{ object.commercial }}</b><br>
+            </div>
+            <hr>
+            <table class="table table-hover table-bordered">
+                <thead class="thead-dark">
+                <tr>
+                    <th scope="col">Prix</th>
+                    <th scope="col">Date de début</th>
+                    <th scope="col">Duréee</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr>
+                    <td class="article-content">{{ object.cost }}</td>
+                    <td class="article-content">{{ object.start_date|date:"d F, Y" }}</td>
+                    <td class="article-content">{{ object.duration }}</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </article>
+    {% if details and user.commercial and object.commercial == user.commercial or details and user.manager and user.manager.role != 3 %}
+        <a class="btn btn-warning btn-icon-split"
+           href= {% url 'mvp-license-update' object.company.id object.id %}>
+            <span class="icon text-white-50"><i class="fas fa-exclamation-triangle"></i></span>
+            <span class="text">Modifier ces informations</span>
+        </a>
+        <a class="btn btn-danger btn-icon-split"
+           href= {% url 'mvp-license-delete' object.company.id object.id %}>
+            <span class="icon text-white-50"><i class="fas fa-trash"></i></span>
+            <span class="text">Supprimer la license</span>
+        </a>
+    {% elif delete_license %}
+        <form method="POST">
+            {% csrf_token %}
+            <button class="btn btn-danger btn-icon-split" type="submit">
+                <span class="icon text-white-50"><i class="fas fa-trash"></i></span>
+                <span class="text">Supprimer la license</span>
+            </button>
+            <a class="btn btn-secondary btn-icon-split"
+               href= {% url 'mvp-license-details' object.company.id object.id %}>
+                <span class="icon text-white-50"><i class="fas fa-arrow-right"></i></span>
+                <span class="text">Retour</span>
+            </a>
+        </form>
+        <hr>
+    {% endif %}
+{% endblock %}

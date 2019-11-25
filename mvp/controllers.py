@@ -1,6 +1,6 @@
 from django.contrib import messages
 from django.contrib.auth import authenticate, login
-from .models import Manager, Commercial, Client, Service
+from .models import Manager, Commercial, Client, Service, Invoice
 from django.core.exceptions import ObjectDoesNotExist, ValidationError
 from django.shortcuts import get_object_or_404, redirect
 
@@ -51,10 +51,8 @@ def routeCreatePermissions(self, cpny_pk, base_class):
     try:
         manager = Manager.objects.get(user=self.request.user)
         if manager.company.id == cpny_pk:
-            # @TODO if manager.role == fact return False
-            # if manager.role == 3 and base_class != Invoice:
-            #     print("Manager Class != Invoice")
-            #     return False
+            if manager.role == 3:
+                return False
             return True
     except ObjectDoesNotExist:
         commercial = get_object_or_404(Commercial, user=self.request.user)

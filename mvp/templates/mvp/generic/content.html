@@ -1,0 +1,14 @@
+{% extends 'mvp/generic/blank.html' %}
+
+{% block page %}
+    <div class="card shadow mb-4">
+        <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-primary">
+                {% if content_heading %}{{ content_heading }}
+                {% else %}{% block content_heading %}{% endblock %}{% endif %}</h6>
+        </div>
+        <div class="card-body">
+            {% block content %}{% endblock %}
+        </div>
+    </div>
+{% endblock %}

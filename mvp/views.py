@@ -18,11 +18,11 @@ from django.urls import reverse
 
 
 def home(request):
-    return render(request, 'mvp/base/home.html')
+    return render(request, 'mvp/misc/home.html')
 
 
 def about(request):
-    return render(request, 'mvp/base/about.html')
+    return render(request, 'mvp/misc/about.html')
 
 
 def contact(request):
@@ -40,7 +40,7 @@ def register(request):
     return render(request, 'mvp/login_register/register.html', {'form': form})
 
 
-# @ TODO: A Refaire avec CreateView ?
+# @ TODO: A Refaire avec CreateView ? OUI
 @login_required
 def companyCreation(request):
     form = CompanyForm(request.POST or None, ceo=request.user)
@@ -65,12 +65,13 @@ def join_company(request):
 
 @login_required
 def commercialWorkspace(request):
-    return render(request, 'mvp/commercial/commercial_workspace.html')
+    return render(request, 'mvp/workspace/bizdev.html')
 
 
 @login_required
 def ceoWorkspace(request):
-    return render(request, 'mvp/manager/manager_workspace.html')
+    return render(request, 'mvp/workspace/bizdev.html', )
+    # return render(request, 'mvp/workspace/manager.html')
 
 
 @login_required

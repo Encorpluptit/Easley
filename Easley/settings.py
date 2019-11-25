@@ -124,4 +124,6 @@ LOGIN_REDIRECT_URL = 'mvp-workspace'
 # REGISTER_REDIRECT_URL = 'mvp-workplace'
 LOGOUT_REDIRECT_URL = 'mvp-home'
 
+SESSION_SERIALIZER = 'django.contrib.sessions.serializers.PickleSerializer'
+
 django_heroku.settings(locals())

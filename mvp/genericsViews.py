@@ -19,15 +19,20 @@ from .controllers import (
     redirectWorkspaceFail,
 )
 
+PERMISSION_DENIED = f"Oups, une erreur est survenue ! " \
+                    f"Vous n'avez peut-être pas accès à cette page ou celle-ci n'existe plus."
 
 class ClientCreateView(LoginRequiredMixin, UserPassesTestMixin, CreateView):
     model = Client
     form_class = ClientForm
-    template_name = 'mvp/client/client_form.html'
+    template_name = 'mvp/views/client_form.html'
     object = None
     pk_url_kwarg = 'cpny_pk'
-    extra_context = {"button": "Ajouter un client"}
-    permission_denied_message = f"Vous n'avez pas la permission de voir cette page."
+    extra_context = {"create_client": True, "button": "Ajouter un client",
+                     "page_title": "Easley - Create Client", "page_heading": "Gestion des clients",
+                     "section": "client", "content_heading": "Créer un client"}
+    permission_denied_message = PERMISSION_DENIED
+    success_message = f'Client Créé !'
 
     def form_valid(self, form):
         return validateCompanyInFormCreateUpdateView(self, form)
@@ -36,6 +41,7 @@ class ClientCreateView(LoginRequiredMixin, UserPassesTestMixin, CreateView):
         return routeCreatePermissions(self, self.kwargs.get(self.pk_url_kwarg), self.model)
 
     def get_success_url(self):
+        messages.success(self.request, self.success_message)
         return self.object.get_absolute_url(self.object.company.id)
 
     def get_form_kwargs(self, *args, **kwargs):
@@ -50,16 +56,20 @@ class ClientCreateView(LoginRequiredMixin, UserPassesTestMixin, CreateView):
 class ClientUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
     model = Client
     form_class = ClientForm
-    template_name = 'mvp/client/client_form.html'
+    template_name = 'mvp/views/client_form.html'
     object = None
     pk_url_kwarg = 'client_pk'
-    extra_context = {"update": True, "button": "Update"}
-    permission_denied_message = f"Vous n'avez pas la permission de voir cette page."
+    extra_context = {"update_client": True, "button": "Modifier le client",
+                     "page_title": "Easley - Update Client", "page_heading": "Gestion des clients",
+                     "section": "client", "content_heading": "Modifier un client"}
+    permission_denied_message = PERMISSION_DENIED
+    success_message = f'Client Modifié !'
 
     def test_func(self):
         return routeUpdatePermissions(self, self.pk_url_kwarg, self.model)
 
     def get_success_url(self):
+        messages.success(self.request, self.success_message)
         return self.object.get_absolute_url(self.object.company.id)
 
     def get_form_kwargs(self, *args, **kwargs):
@@ -73,10 +83,12 @@ class ClientUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
 
 class ClientListView(LoginRequiredMixin, UserPassesTestMixin, ListView):
     model = Client
-    template_name = 'mvp/client/client_list.html'
+    template_name = 'mvp/views/client_list.html'
     ordering = ['id']
     pk_url_kwarg = 'com_pk'
-    permission_denied_message = f"Vous n'avez pas la permission de voir cette page."
+    # @ TODO: Rajouter list_client_info (pour list client delete ??)
+    extra_context = {"list_client": True, "section": "client", }
+    permission_denied_message = PERMISSION_DENIED
 
     def get_queryset(self):
         if hasattr(self.request.user, 'commercial'):
@@ -95,13 +107,14 @@ class ClientListView(LoginRequiredMixin, UserPassesTestMixin, ListView):
 
 class ClientDetailView(LoginRequiredMixin, UserPassesTestMixin, DetailView):
     model = Client
-    template_name = 'mvp/client/client_details.html'
+    template_name = 'mvp/views/client_details.html'
     pk_url_kwarg = 'client_pk'
-    extra_context = {"button_update": "Update", "button_delete": "Delete"}
-    permission_denied_message = f"Vous n'avez pas la permission de voir cette page."
+    extra_context = {"details": True,
+                     "page_title": "Easley - Client Details", "page_heading": "Gestion des clients",
+                     "section": "client", "content_heading": "Informations client"}
+    permission_denied_message = PERMISSION_DENIED
 
     def get_queryset(self):
-        # @TODO: Faire try except empty querryset ?
         return Client.objects.filter(id=self.kwargs.get(self.pk_url_kwarg))
 
     def test_func(self):
@@ -110,25 +123,36 @@ class ClientDetailView(LoginRequiredMixin, UserPassesTestMixin, DetailView):
     def handle_no_permission(self):
         return redirectWorkspaceFail(self.request, self.permission_denied_message)
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['licenses'] = self.object.license_set.all()
+        context['services'] = self.object.service_set.all()
+        return context
+
 
 class ClientDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
     model = Client
-    template_name = 'mvp/client/client_details.html'
+    template_name = 'mvp/views/client_details.html'
     object = None
     pk_url_kwarg = 'client_pk'
-    extra_context = {"delete": True, "button": "Delete"}
-    permission_denied_message = f"Vous n'avez pas la permission de voir cette page."
+    extra_context = {"delete_client": True,
+                     "page_title": "Easley - Delete Client", "page_heading": "Gestion des clients",
+                     "section": "client", "content_heading": "Supprimer un client"}
+    permission_denied_message = PERMISSION_DENIED
+    success_message = f'Client Supprimé !'
 
     def test_func(self):
         return routeDeletePermissions(self, self.pk_url_kwarg, self.model)
 
     def get_success_url(self):
         if hasattr(self.request.user, 'commercial'):
+            messages.warning(self.request, self.success_message)
             return reverse('mvp-client-list', args=[self.object.company.id, self.request.user.commercial.id])
         elif hasattr(self.request.user, 'manager'):
+            messages.warning(self.request, self.success_message)
             return reverse('mvp-client-list', args=[self.object.company.id, self.request.user.manager.id])
         else:
-            return redirect('mvp-workspace')
+            redirectWorkspaceFail(self.request, self.success_message)
 
     def handle_no_permission(self):
         return redirectWorkspaceFail(self.request, self.permission_denied_message)
@@ -141,9 +165,11 @@ class ServiceCreateView(LoginRequiredMixin, UserPassesTestMixin, CreateView):
     object = None
     pk_url_kwarg = 'cpny_pk'
     extra_context = {"button": "Ajouter un Service"}
-    permission_denied_message = f"Vous n'avez pas la permission de voir cette page."
+    permission_denied_message = PERMISSION_DENIED
 
     def form_valid(self, form):
+        # print(form.cleaned_data)
+        # self.request.session['service_form_data'] = form.cleaned_data
         return validateCompanyInFormCreateUpdateView(self, form)
 
     def test_func(self):
@@ -154,6 +180,8 @@ class ServiceCreateView(LoginRequiredMixin, UserPassesTestMixin, CreateView):
 
     def get_form_kwargs(self, *args, **kwargs):
         kwargs = super(ServiceCreateView, self).get_form_kwargs()
+        # kwargs = {'data': self.request.session.get('service_form_data', None)}
+        # kwargs.update(super(ServiceCreateView, self).get_form_kwargs())
         kwargs['user'] = self.request.user
         return kwargs
 
@@ -168,7 +196,7 @@ class ServiceUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
     object = None
     pk_url_kwarg = 'service_pk'
     extra_context = {"update": True, "button": "Update"}
-    permission_denied_message = f"Vous n'avez pas la permission de voir cette page."
+    permission_denied_message = PERMISSION_DENIED
 
     def test_func(self):
         return routeUpdatePermissions(self, self.pk_url_kwarg, self.model)
@@ -190,7 +218,7 @@ class ServiceListView(LoginRequiredMixin, UserPassesTestMixin, ListView):
     template_name = 'mvp/service/service_list.html'
     ordering = ['id']
     pk_url_kwarg = 'com_pk'
-    permission_denied_message = f"Vous n'avez pas la permission de voir cette page."
+    permission_denied_message = PERMISSION_DENIED
 
     def get_queryset(self):
         if hasattr(self.request.user, 'commercial'):
@@ -212,10 +240,9 @@ class ServiceDetailView(LoginRequiredMixin, UserPassesTestMixin, DetailView):
     template_name = 'mvp/service/service_details.html'
     pk_url_kwarg = 'service_pk'
     extra_context = {"button_update": "Update", "button_delete": "Delete"}
-    permission_denied_message = f"Vous n'avez pas la permission de voir cette page."
+    permission_denied_message = PERMISSION_DENIED
 
     def get_queryset(self):
-        # @TODO: Faire try except empty querryset ?
         return Service.objects.filter(id=self.kwargs.get(self.pk_url_kwarg))
 
     def test_func(self):
@@ -231,7 +258,7 @@ class ServiceDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
     object = None
     pk_url_kwarg = 'service_pk'
     extra_context = {"delete": True, "button": "Delete"}
-    permission_denied_message = f"Vous n'avez pas la permission de voir cette page."
+    permission_denied_message = PERMISSION_DENIED
 
     def test_func(self):
         return routeDeletePermissions(self, self.pk_url_kwarg, self.model)
@@ -251,24 +278,35 @@ class ServiceDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
 class LicenseCreateView(LoginRequiredMixin, UserPassesTestMixin, CreateView):
     model = License
     form_class = LicenseForm
-    template_name = 'mvp/license/license_form.html'
+    template_name = 'mvp/views/license_form.html'
     object = None
     pk_url_kwarg = 'cpny_pk'
-    extra_context = {"button": "Ajouter une License"}
-    permission_denied_message = f"Vous n'avez pas la permission de voir cette page."
+    extra_context = {"create_license": True, "button": "Ajouter une license",
+                     "page_title": "Easley - Create License", "page_heading": "Gestion des licenses",
+                     "section": "license", "content_heading": "Créer une license"}
+    permission_denied_message = PERMISSION_DENIED
+    success_message = f'License Créée !'
 
     def form_valid(self, form):
+        # print(form.cleaned_data)
+        self.request.session['license_form_data'] = form.cleaned_data
         return validateCompanyInFormCreateUpdateView(self, form)
 
     def test_func(self):
         return routeCreatePermissions(self, self.kwargs.get(self.pk_url_kwarg), self.model)
 
     def get_success_url(self):
+        messages.success(self.request, self.success_message)
         return self.object.get_absolute_url(self.object.company.id)
 
     def get_form_kwargs(self, *args, **kwargs):
-        kwargs = super(LicenseCreateView, self).get_form_kwargs()
+        # del self.request.session['license_form_data']
+        print("session in get_form kwargs", self.request.session.get('license_form_data', None))
+        kwargs = {'data': self.request.session.get('license_form_data', None)}
+        kwargs.update(super(LicenseCreateView, self).get_form_kwargs())
+        # kwargs = super(LicenseCreateView, self).get_form_kwargs()
         kwargs['user'] = self.request.user
+        print(kwargs)
         return kwargs
 
     def handle_no_permission(self):
@@ -278,16 +316,20 @@ class LicenseCreateView(LoginRequiredMixin, UserPassesTestMixin, CreateView):
 class LicenseUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
     model = License
     form_class = LicenseForm
-    template_name = 'mvp/license/license_form.html'
+    template_name = 'mvp/views/license_form.html'
     object = None
     pk_url_kwarg = 'license_pk'
-    extra_context = {"update": True, "button": "Update"}
-    permission_denied_message = f"Vous n'avez pas la permission de voir cette page."
+    extra_context = {"update_license": True, "button": "Modifier la license",
+                     "page_title": "Easley - Update License", "page_heading": "Gestion des licenses",
+                     "section": "license", "content_heading": "Modifier la license"}
+    permission_denied_message = PERMISSION_DENIED
+    success_message = f'License Modifiée'
 
     def test_func(self):
         return routeUpdatePermissions(self, self.pk_url_kwarg, self.model)
 
     def get_success_url(self):
+        messages.success(self.request, self.success_message)
         return self.object.get_absolute_url(self.object.company.id)
 
     def get_form_kwargs(self, *args, **kwargs):
@@ -301,10 +343,11 @@ class LicenseUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
 
 class LicenseListView(LoginRequiredMixin, UserPassesTestMixin, ListView):
     model = License
-    template_name = 'mvp/license/license_list.html'
+    template_name = 'mvp/views/license_list.html'
     pk_url_kwarg = 'com_pk'
     ordering = ['id']
-    permission_denied_message = f"Vous n'avez pas la permission de voir cette page."
+    extra_context = {"list_license": True, "section": "license",}
+    permission_denied_message = PERMISSION_DENIED
 
     def get_queryset(self):
         if hasattr(self.request.user, 'commercial'):
@@ -323,13 +366,14 @@ class LicenseListView(LoginRequiredMixin, UserPassesTestMixin, ListView):
 
 class LicenseDetailView(LoginRequiredMixin, UserPassesTestMixin, DetailView):
     model = License
-    template_name = 'mvp/license/license_details.html'
+    template_name = 'mvp/views/license_details.html'
     pk_url_kwarg = 'license_pk'
-    extra_context = {"button_update": "Update", "button_delete": "Delete"}
-    permission_denied_message = f"Vous n'avez pas la permission de voir cette page."
+    extra_context = {"details": True,
+                     "page_title": "Easley - License Details", "page_heading": "Gestion des licenses",
+                     "section": "license", "content_heading": "Informations license"}
+    permission_denied_message = PERMISSION_DENIED
 
     def get_queryset(self):
-        # @TODO: Faire try except empty querryset ?
         return License.objects.filter(pk=self.kwargs.get(self.pk_url_kwarg))
 
     def test_func(self):
@@ -341,22 +385,27 @@ class LicenseDetailView(LoginRequiredMixin, UserPassesTestMixin, DetailView):
 
 class LicenseDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
     model = License
-    template_name = 'mvp/license/license_details.html'
+    template_name = 'mvp/views/license_details.html'
     object = None
     pk_url_kwarg = 'license_pk'
-    extra_context = {"delete": True, "button": "Delete"}
-    permission_denied_message = f"Vous n'avez pas la permission de voir cette page."
+    extra_context = {"delete_license": True,
+                     "page_title": "Easley - Delete License", "page_heading": "Gestion des licenses",
+                     "section": "license", "content_heading": "Supprimer une license"}
+    permission_denied_message = PERMISSION_DENIED
+    success_message = f'License Supprimée !'
 
     def test_func(self):
         return routeDeletePermissions(self, self.pk_url_kwarg, self.model)
 
     def get_success_url(self):
         if hasattr(self.request.user, 'commercial'):
+            messages.warning(self.request, self.success_message)
             return reverse('mvp-license-list', args=[self.object.company.id, self.request.user.commercial.id])
         elif hasattr(self.request.user, 'manager'):
+            messages.warning(self.request, self.success_message)
             return reverse('mvp-license-list', args=[self.object.company.id, self.request.user.manager.id])
         else:
-            return redirect('mvp-workspace')
+            return redirectWorkspaceFail(self.request, self.success_message)
 
     def handle_no_permission(self):
         return redirectWorkspaceFail(self.request, self.permission_denied_message)
@@ -369,7 +418,7 @@ class InvoiceCreateView(LoginRequiredMixin, UserPassesTestMixin, CreateView):
     object = None
     pk_url_kwarg = 'cpny_pk'
     extra_context = {"button": "Ajouter une facture"}
-    permission_denied_message = f"Vous n'avez pas la permission de voir cette page."
+    permission_denied_message = PERMISSION_DENIED
 
     def form_valid(self, form):
         return validateCompanyInFormCreateUpdateView(self, form)
@@ -396,7 +445,7 @@ class InvoiceUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
     object = None
     pk_url_kwarg = 'invoice_pk'
     extra_context = {"update": True, "button": "Update"}
-    permission_denied_message = f"Vous n'avez pas la permission de voir cette page."
+    permission_denied_message = PERMISSION_DENIED
 
     def test_func(self):
         return routeCreateUpdateInvoicePermissions(self, self.kwargs.get('cpny_pk'))
@@ -418,7 +467,7 @@ class InvoiceListView(LoginRequiredMixin, UserPassesTestMixin, ListView):
     template_name = 'mvp/invoice/invoice_list.html'
     pk_url_kwarg = 'com_pk'
     ordering = ['id']
-    permission_denied_message = f"Vous n'avez pas la permission de voir cette page."
+    permission_denied_message = PERMISSION_DENIED
 
     def get_queryset(self):
         if hasattr(self.request.user, 'manager'):
@@ -438,10 +487,9 @@ class InvoiceDetailView(LoginRequiredMixin, UserPassesTestMixin, DetailView):
     template_name = 'mvp/invoice/invoice_details.html'
     pk_url_kwarg = 'invoice_pk'
     extra_context = {"button_update": "Update", "button_delete": "Delete"}
-    permission_denied_message = f"Vous n'avez pas la permission de voir cette page."
+    permission_denied_message = PERMISSION_DENIED
 
     def get_queryset(self):
-        # @TODO: Faire try except empty querryset ?
         return Invoice.objects.filter(pk=self.kwargs.get(self.pk_url_kwarg))
 
     def test_func(self):
@@ -457,10 +505,10 @@ class InvoiceDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
     object = None
     pk_url_kwarg = 'invoice_pk'
     extra_context = {"delete": True, "button": "Delete"}
-    permission_denied_message = f"Vous n'avez pas la permission de voir cette page."
+    permission_denied_message = PERMISSION_DENIED
 
     def test_func(self):
-        return routeCreateUpdateInvoicePermissions(self, self.kwargs.get('cpny_pk'),)
+        return routeCreateUpdateInvoicePermissions(self, self.kwargs.get('cpny_pk'), )
 
     def get_success_url(self):
         return reverse('mvp-invoice-list', args=[self.object.company.id, self.request.user.manager.id])

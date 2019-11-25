@@ -1,0 +1,40 @@
+{#{% extends 'mvp/generic/blank.html' %}#}
+{% extends 'mvp/generic/content.html' %}
+{% load static %}
+
+{#{% block page %}#}
+{#    <div class="card shadow mb-4">#}
+{#        <div class="card-header py-3">#}
+{#            <h6 class="m-0 font-weight-bold text-primary">#}
+{#                {% if content_heading %}{{ content_heading }}#}
+{#                {% else %}{% block content_heading %}{% endblock %}{% endif %}</h6>#}
+{#        </div>#}
+{#        <div class="card-body">#}
+{#            <div class="table-responsive">#}
+{#                {% block table %}#}
+{#                {% endblock %}#}
+{#            </div>#}
+{#        </div>#}
+{#    </div>#}
+{#{% endblock %}#}
+
+{% block content %}
+    <div class="table-responsive">
+        {% block table %}
+        {% endblock %}
+    </div>
+{% endblock %}
+
+{% block links %}
+    <link rel="stylesheet" href= {% static 'mvp/vendor/datatables/dataTables.bootstrap4.min.css' %}>
+{% endblock %}
+
+{% block scripts %}
+    <!-- Table Page level plugins -->
+    <script src={% static 'mvp/vendor/datatables/jquery.dataTables.min.js' %}></script>
+    <script src={% static 'mvp/vendor/datatables/dataTables.bootstrap4.min.js' %}></script>
+
+    <!-- Table Page level custom scripts -->
+    <script src={% static 'mvp/js/demo/datatables-demo.js' %}></script>
+
+{% endblock %}

@@ -1,14 +1,14 @@
 from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
-from .models import Company, Commercial, Manager, Client, Service, License
+from .models import Company, Commercial, Manager, Client, Conseil, License
 from .controllers import customRegisterUser, customCompanyRegister
 from .forms import (
     UserRegisterForm,
     CompanyForm,
     ClientForm,
     UserUpdateForm,
-    ServiceForm,
+    ConseilForm,
     LicenseForm,
 )
 from django.urls import reverse
@@ -86,7 +86,7 @@ def workspace(request):
 
 @login_required
 def serviceCreation(request):
-    form = ServiceForm(request.POST or None, user=request.user)
+    form = ConseilForm(request.POST or None, user=request.user)
     # print(request.POST)
     if request.method == "POST" and form.is_valid():
         if hasattr(request.user, 'commercial'):

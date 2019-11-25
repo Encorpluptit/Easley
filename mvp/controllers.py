@@ -1,6 +1,6 @@
 from django.contrib import messages
 from django.contrib.auth import authenticate, login
-from .models import Manager, Commercial, Client, Service, Invoice
+from .models import Manager, Commercial, Client, Conseil, Invoice
 from django.core.exceptions import ObjectDoesNotExist, ValidationError
 from django.shortcuts import get_object_or_404, redirect
 

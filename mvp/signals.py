@@ -1,6 +1,6 @@
 from django.db.models.signals import post_delete
 from django.dispatch import receiver
-from .models import Company, Commercial, Manager, Client, Service, License
+from .models import Company, Commercial, Manager, Client, Conseil, License
 
 
 

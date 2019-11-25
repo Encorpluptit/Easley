@@ -2,7 +2,7 @@ from django import forms
 from django.contrib import messages
 from django.contrib.auth.models import User
 from django.contrib.auth.forms import UserCreationForm
-from .models import Company, Commercial, Manager, Client, Service, License, Invoice
+from .models import Company, Commercial, Manager, Client, Conseil, License, Invoice
 from django.core.exceptions import ValidationError
 
 
@@ -64,7 +64,7 @@ class ClientForm(forms.ModelForm):
         return super().is_valid()
 
 
-class ServiceForm(forms.ModelForm):
+class ConseilForm(forms.ModelForm):
     def __init__(self, *args, user=None, **kwargs):
         super().__init__(*args, **kwargs)
         if hasattr(user, 'commercial'):
@@ -80,7 +80,7 @@ class ServiceForm(forms.ModelForm):
         self.user = user
 
     class Meta:
-        model = Service
+        model = Conseil
         exclude = ('company',)
         widgets = {
             'estimated_date': forms.SelectDateWidget,

@@ -119,37 +119,40 @@ class Client(models.Model):
         return reverse('mvp-client-details', args=[comp_id, str(self.id)])
 
 
-# @TODO: faire help_text dans Service et license
-class Service(models.Model):
+# @TODO: faire help_text dans Conseil et license
+class Conseil(models.Model):
     description = models.TextField(
         max_length=300,
-        verbose_name="service's description",
-        help_text="description du service"
+        verbose_name="conseil's description",
+        help_text="description du conseil",
     )
     client = models.ForeignKey(
         Client,
         default=None,
         on_delete=models.CASCADE,
-        verbose_name="service's client",
+        verbose_name="client cible du conseil",
+        help_text="client cible du conseil",
     )
     company = models.ForeignKey(
         Company,
         default=None,
         on_delete=models.CASCADE,
-        verbose_name="service's company",
+        verbose_name="entreprise relative au conseil",
+        help_text="entreprise relative au conseil",
     )
     commercial = models.ForeignKey(
         Commercial,
         default=None,
         on_delete=models.CASCADE,
-        verbose_name="service's commercial",
+        verbose_name="commercial à l'origine du conseil",
+        help_text="commercial à l'origine du conseil",
     )
     pricing = models.PositiveIntegerField(
         default=0,
-        verbose_name="pricing du service",
-        help_text="pricing du service (EN EUROS)"
+        verbose_name="montant total du conseil.",
+        help_text="montant total du conseil (EN EUROS)",
+        editable=False,
     )
-    # invoice
     estimated_date = models.DateTimeField(
         default=timezone.now,
         verbose_name="date prévisionelle ???",
@@ -157,20 +160,44 @@ class Service(models.Model):
     )
     actual_date = models.DateTimeField(
         default=timezone.now,
-        verbose_name="fin du Service (ACTUEL ???)",
-        help_text="fin du Service (ACTUEL)(en mois/jours)."
+        verbose_name="fin du Conseil (ACTUEL ???)",
+        help_text="fin du Conseil (ACTUEL)(en mois/jours)."
     )
 
     class Meta:
-        verbose_name = "service"
-        verbose_name_plural = "services"
+        verbose_name = "conseil"
+        verbose_name_plural = "conseils"
         ordering = ['company__id', 'commercial__id', 'pricing', 'description']
 
     def __str__(self):
         return self.description
 
     def get_absolute_url(self, comp_id):
-        return reverse('mvp-service-details', args=[comp_id, str(self.id)])
+        return reverse('mvp-conseil-details', args=[comp_id, str(self.id)])
+
+
+class Service(models.Model):
+    description = models.TextField(
+        max_length=150,
+        verbose_name="description du service",
+        help_text="description du service",
+    )
+    pricing = models.PositiveIntegerField(
+        default=0,
+        verbose_name="pricing du service",
+        help_text="pricing du service (EN EUROS)",
+    )
+    conseil = models.ForeignKey(
+        Conseil,
+        on_delete=models.CASCADE,
+        verbose_name="conseil relatif au service",
+        help_text="conseil relatif au service",
+    )
+
+    class Meta:
+        verbose_name = "détail du service rendu"
+        verbose_name_plural = "détails des services rendus"
+        ordering = ['pricing']
 
 
 class License(models.Model):
@@ -268,6 +295,7 @@ class Invoice(models.Model):
         # on_delete=models.CASCADE,
         verbose_name="invoice's services",
         help_text="les services relatifs à cette facture",
+        through='Conseil',
     )
 
     class Meta:
@@ -287,7 +315,7 @@ class Invoice(models.Model):
 # - client_id
 # - commercial(le
 # commercial)
-# manytomany Service
+# manytomany Conseil
 # manytomany or OneToOne or Foreignkey(peut être pas ici la foreign key)
 # contract_type
 # contract_

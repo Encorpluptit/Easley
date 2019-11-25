@@ -5,8 +5,8 @@ from django.core.exceptions import ObjectDoesNotExist, EmptyResultSet, Validatio
 from django.shortcuts import redirect, get_object_or_404
 from django.http import HttpResponseForbidden, HttpResponseNotFound
 from django.urls import reverse
-from .models import Company, Commercial, Manager, Client, Service, License, Invoice
-from .forms import ClientForm, ServiceForm, LicenseForm, InvoiceFrom
+from .models import Company, Commercial, Manager, Client, Conseil, License, Invoice
+from .forms import ClientForm, ConseilForm, LicenseForm, InvoiceFrom
 from .controllers import (
     routeListPermissions,
     routeDetailsPermissions,
@@ -158,13 +158,13 @@ class ClientDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
         return redirectWorkspaceFail(self.request, self.permission_denied_message)
 
 
-class ServiceCreateView(LoginRequiredMixin, UserPassesTestMixin, CreateView):
-    model = Service
-    form_class = ServiceForm
+class ConseilCreateView(LoginRequiredMixin, UserPassesTestMixin, CreateView):
+    model = Conseil
+    form_class = ConseilForm
     template_name = 'mvp/service/service_form.html'
     object = None
     pk_url_kwarg = 'cpny_pk'
-    extra_context = {"button": "Ajouter un Service"}
+    extra_context = {"button": "Ajouter un Conseil"}
     permission_denied_message = PERMISSION_DENIED
 
     def form_valid(self, form):
@@ -179,9 +179,9 @@ class ServiceCreateView(LoginRequiredMixin, UserPassesTestMixin, CreateView):
         return self.object.get_absolute_url(self.object.company.id)
 
     def get_form_kwargs(self, *args, **kwargs):
-        kwargs = super(ServiceCreateView, self).get_form_kwargs()
+        kwargs = super(ConseilCreateView, self).get_form_kwargs()
         # kwargs = {'data': self.request.session.get('service_form_data', None)}
-        # kwargs.update(super(ServiceCreateView, self).get_form_kwargs())
+        # kwargs.update(super(ConseilCreateView, self).get_form_kwargs())
         kwargs['user'] = self.request.user
         return kwargs
 
@@ -189,9 +189,9 @@ class ServiceCreateView(LoginRequiredMixin, UserPassesTestMixin, CreateView):
         return redirectWorkspaceFail(self.request, self.permission_denied_message)
 
 
-class ServiceUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
-    model = Service
-    form_class = ServiceForm
+class ConseilUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
+    model = Conseil
+    form_class = ConseilForm
     template_name = 'mvp/service/service_form.html'
     object = None
     pk_url_kwarg = 'service_pk'
@@ -205,7 +205,7 @@ class ServiceUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
         return self.object.get_absolute_url(self.object.company.id)
 
     def get_form_kwargs(self, *args, **kwargs):
-        kwargs = super(ServiceUpdateView, self).get_form_kwargs()
+        kwargs = super(ConseilUpdateView, self).get_form_kwargs()
         kwargs['user'] = self.request.user
         return kwargs
 
@@ -213,8 +213,8 @@ class ServiceUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
         return redirectWorkspaceFail(self.request, self.permission_denied_message)
 
 
-class ServiceListView(LoginRequiredMixin, UserPassesTestMixin, ListView):
-    model = Service
+class ConseilListView(LoginRequiredMixin, UserPassesTestMixin, ListView):
+    model = Conseil
     template_name = 'mvp/service/service_list.html'
     ordering = ['id']
     pk_url_kwarg = 'com_pk'
@@ -235,15 +235,15 @@ class ServiceListView(LoginRequiredMixin, UserPassesTestMixin, ListView):
         return redirectWorkspaceFail(self.request, self.permission_denied_message)
 
 
-class ServiceDetailView(LoginRequiredMixin, UserPassesTestMixin, DetailView):
-    model = Service
+class ConseilDetailView(LoginRequiredMixin, UserPassesTestMixin, DetailView):
+    model = Conseil
     template_name = 'mvp/service/service_details.html'
     pk_url_kwarg = 'service_pk'
     extra_context = {"button_update": "Update", "button_delete": "Delete"}
     permission_denied_message = PERMISSION_DENIED
 
     def get_queryset(self):
-        return Service.objects.filter(id=self.kwargs.get(self.pk_url_kwarg))
+        return Conseil.objects.filter(id=self.kwargs.get(self.pk_url_kwarg))
 
     def test_func(self):
         return routeDetailsPermissions(self, self.pk_url_kwarg, self.model)
@@ -252,8 +252,8 @@ class ServiceDetailView(LoginRequiredMixin, UserPassesTestMixin, DetailView):
         return redirectWorkspaceFail(self.request, self.permission_denied_message)
 
 
-class ServiceDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
-    model = Service
+class ConseilDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
+    model = Conseil
     template_name = 'mvp/service/service_details.html'
     object = None
     pk_url_kwarg = 'service_pk'

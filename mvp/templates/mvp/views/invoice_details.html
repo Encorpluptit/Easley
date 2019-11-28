@@ -20,14 +20,14 @@
         <div class="col-lg-6">
             <!-- Service Card -->
             <div class="card shadow mb-4">
-                <div class="card-header py-3 border-bottom-danger">
+                <div class="card-header py-3">
                     <h6 class="m-0 font-weight-bold text-primary">Conseil (a modif)</h6>
                 </div>
-                <div class="card-body border-left-primary border-bottom-primary">
-                    {% if not conseils %}
+                <div class="card-body">
+                    {% if not conseil %}
                         Ce client n'a pas de conseil.
                     {% else %}
-                        {% for conseil in conseils %}
+                        {% for conseil in conseil %}
                             {{ conseil }}<br>
                         {% endfor %}
                     {% endif %}
@@ -36,7 +36,7 @@
         </div>
         <div class="col-lg-6">
             <!-- License Card -->
-            <div class="card shadow mb-4  border-bottom-dark">
+            <div class="card shadow mb-4">
                 <div class="card-header py-3">
                     <h6 class="m-0 font-weight-bold text-primary">Licenses</h6>
                 </div>
@@ -53,7 +53,7 @@
         </div>
     </div>
     <hr>
-    {% if details and user.commercial and object.commercial == user.commercial or details and user.manager and user.manager.role != 3 %}
+    {% if details and user.manager and user.manager.role != 3 %}
         <a class="btn btn-warning btn-icon-split"
            href= {% url 'mvp-client-update' object.company.id object.id %}>
             <span class="icon text-white-50"><i class="fas fa-exclamation-triangle"></i></span>
@@ -62,14 +62,14 @@
         <a class="btn btn-danger btn-icon-split"
            href= {% url 'mvp-client-delete' object.company.id object.id %}>
             <span class="icon text-white-50"><i class="fas fa-trash"></i></span>
-            <span class="text">Supprimer le client</span>
+            <span class="text">Supprimer la facture</span>
         </a>
-    {% elif delete_client %}
+    {% elif delete_invoice %}
         <form method="POST">
             {% csrf_token %}
             <button class="btn btn-danger btn-icon-split" type="submit">
                 <span class="icon text-white-50"><i class="fas fa-trash"></i></span>
-                <span class="text">Supprimer le client</span>
+                <span class="text">Supprimer la facture</span>
             </button>
             <a class="btn btn-secondary btn-icon-split"
                href= {% url 'mvp-client-details' object.company.id object.id %}>

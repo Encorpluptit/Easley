@@ -1,0 +1,73 @@
+{% extends 'mvp/generic/content.html' %}
+
+{% block content %}
+    <article class="media content-section">
+        <div class="media-body">
+            <h2 class="article-title">{{ object.description }}</h2>
+            <hr>
+            <div class="article-metadata">
+                <b class="text-gray-900">Client: {{ object.client }}</b><br>
+                <b class="text-gray-900">BizDev: {{ object.commercial }}</b><br>
+            </div>
+            <hr>
+            <h4>Services</h4>
+            {% if object.service_set.all %}
+                <table class="table table-hover table-bordered">
+                    <thead class="thead-dark">
+                    <tr>
+                        <th scope="col">Prix</th>
+                        <th scope="col">Date de début</th>
+                        <th scope="col">Duréee</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for service in object.service_set.all %}
+                        <tr>
+                        <th scope="row">{{ forloop.counter }}</th>
+                        <td>URL VERS SERVICES
+                            {#                        <a href= {% url 'mvp-ser-details' object.company.id object.id %}>{{ object.description }}</a>#}
+                        </td>
+                        <td>{{ service.start_date|date:"d F, Y" }}</td>
+                        <td>{{ service.actual_date|date:"d F, Y" }}</td>
+                        <td></td>
+                    {% endfor %}
+                    </tr>
+                    </tbody>
+                </table>
+            {% else %}
+                Ce conseil n'as pas de services pour l'instant.<br>
+            {% endif %}
+            <a class="btn btn-success btn-icon-split" href= {% url 'mvp-service-new' object.contract.company.id object.contract.id object.id %}>
+                <span class="icon text-white-50"><i class="fas fa-check"></i></span>
+                <span class="text">Ajouter une license</span>
+            </a>
+        </div>
+    </article>
+    <hr>
+    {#    {% if details and user.commercial and object.commercial == user.commercial or details and user.manager and user.manager.role != 3 %}#}
+    {#        <a class="btn btn-warning btn-icon-split"#}
+    {#           href= {% url 'mvp-conseil-update' object.company.id object.id %}>#}
+    {#            <span class="icon text-white-50"><i class="fas fa-exclamation-triangle"></i></span>#}
+    {#            <span class="text">Modifier ces informations</span>#}
+    {#        </a>#}
+    {#        <a class="btn btn-danger btn-icon-split"#}
+    {#           href= {% url 'mvp-conseil-delete' object.company.id object.id %}>#}
+    {#            <span class="icon text-white-50"><i class="fas fa-trash"></i></span>#}
+    {#            <span class="text">Supprimer le conseil</span>#}
+    {#        </a>#}
+    {#    {% elif delete_conseil %}#}
+    {#        <form method="POST">#}
+    {#            {% csrf_token %}#}
+    {#            <button class="btn btn-danger btn-icon-split" type="submit">#}
+    {#                <span class="icon text-white-50"><i class="fas fa-trash"></i></span>#}
+    {#                <span class="text">Supprimer le conseil</span>#}
+    {#            </button>#}
+    {#            <a class="btn btn-secondary btn-icon-split"#}
+    {#               href= {% url 'mvp-conseil-details' object.company.id object.id %}>#}
+    {#                <span class="icon text-white-50"><i class="fas fa-arrow-right"></i></span>#}
+    {#                <span class="text">Retour</span>#}
+    {#            </a>#}
+    {#        </form>#}
+    {#        <hr>#}
+    {#    {% endif %}#}
+{% endblock %}

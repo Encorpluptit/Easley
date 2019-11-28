@@ -1,0 +1,12 @@
+{% extends 'mvp/generic/content.html' %}
+
+{% block content %}
+    <form method="post">
+        {% csrf_token %}
+        {% include 'mvp/generic/form.html' %}
+        <button class="btn btn-success btn-icon-split" type="submit">
+            <span class="icon text-white-50"><i class="fas fa-check"></i></span>
+            <span class="text">{% if button %}{{ button }}{% else %}Confirmer{% endif %}</span>
+        </button>
+    </form>
+{% endblock %}

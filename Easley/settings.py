@@ -122,7 +122,7 @@ STATICFILES_DIRS = (
 
 LOGIN_REDIRECT_URL = 'mvp-workspace'
 # REGISTER_REDIRECT_URL = 'mvp-workplace'
-LOGOUT_REDIRECT_URL = 'mvp-home'
+LOGOUT_REDIRECT_URL = 'mvp-login'
 
 SESSION_SERIALIZER = 'django.contrib.sessions.serializers.PickleSerializer'
 

@@ -14,7 +14,7 @@ def customRegisterUser(request, form):
         login(request, auth)
         messages.success(request,
                          f'Account Created, Welcome {user.first_name + " " + user.last_name} !'
-                         f'Please make a choice.')
+                         f' Please make a choice.')
         return True
     else:
         messages.warning(request, f'An Error occurred ! Please try again later')
@@ -23,6 +23,7 @@ def customRegisterUser(request, form):
 
 def customCompanyRegister(request, form):
     try:
+        print(form.instance)
         company = form.save()
         ceo = Manager.objects.create(user=request.user, company=company, role=1)
         ceo.save()
@@ -66,7 +67,8 @@ def routeUpdatePermissions(self, key_pk, base_class):
     try:
         manager = Manager.objects.get(user=self.request.user)
         if manager.company.id == self.kwargs.get('cpny_pk') and manager.company == base_class.objects.get(pk=self.kwargs.get(key_pk)).company:
-            # @TODO : mettre la foret de if ici
+            if manager.role == 3:
+                return False
             return True
     except ObjectDoesNotExist:
         base_class = get_object_or_404(base_class, pk=self.kwargs.get(key_pk))
@@ -80,14 +82,11 @@ def routeDeletePermissions(self, key_pk, base_class):
     try:
         manager = Manager.objects.get(user=self.request.user)
         if manager.company.id == self.kwargs.get('cpny_pk') and manager.company == base_class.objects.get(pk=self.kwargs.get(key_pk)).company:
-            # @TODO : mettre la foret de if ici
+            if manager.role == 3:
+                return False
             return True
     except ObjectDoesNotExist:
-        base_class = get_object_or_404(base_class, pk=self.kwargs.get(key_pk))
-        if base_class.commercial == self.request.user.commercial:
-            return True
-        else:
-            return False
+        return False
 
 
 def routeDetailsPermissions(self, key_pk, base_class):
@@ -95,8 +94,9 @@ def routeDetailsPermissions(self, key_pk, base_class):
         manager = Manager.objects.get(user=self.request.user)
         if manager.company.id == self.kwargs.get('cpny_pk') and manager.company == base_class.objects.get(pk=self.kwargs.get(key_pk)).company:
             return True
+        else:
+            return False
     except ObjectDoesNotExist:
-        # @ TODO refactor après except for all permissions au dessus
         base_class = get_object_or_404(base_class, pk=self.kwargs.get(key_pk))
         if self.kwargs.get('cpny_pk') != self.request.user.commercial.company.id:
             return False
@@ -104,8 +104,6 @@ def routeDetailsPermissions(self, key_pk, base_class):
             return True
         else:
             return False
-    else:
-        return False
 
 
 def routeListPermissions(self, key_pk):
@@ -122,11 +120,12 @@ def routeListPermissions(self, key_pk):
 
 def routeCreateUpdateInvoicePermissions(self, cpny_pk):
     if hasattr(self.request.user, 'manager'):
-        manager = Manager.objects.get(user=self.request.user)
+        manager = get_object_or_404(Manager, user=self.request.user)
         if manager.company.id != cpny_pk or (manager.role != 1 and manager.role != 3):
             return False
         return True
-    return False
+    else:
+        return False
 
 
 def routeListDetailsInvoicePermissions(self, cpny_pk):

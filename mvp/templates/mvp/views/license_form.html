@@ -4,15 +4,13 @@
     <form method="post">
         {% csrf_token %}
         {% include 'mvp/generic/form.html' %}
-        {% if create_license == True or update_license == True %}
+        {% if not form.intance.contact.validated %}
             <button class="btn btn-success btn-icon-split" type="submit">
                 <span class="icon text-white-50"><i class="fas fa-check"></i></span>
                 <span class="text">{% if button %}{{ button }}{% else %}Confirmer{% endif %}</span>
             </button>
             <a class="btn btn-secondary btn-icon-split"
-                    {% if update_license == True %}
-               href={% url 'mvp-license-details' form.instance.company.pk form.instance.pk %}
-                       {% else %}href= {% url 'mvp-workspace' %}{% endif %}>
+               href= {{ request.META.HTTP_REFERER}}>
                 <span class="icon text-white-50"><i class="fas fa-arrow-right"></i></span>
                 <span class="text">Retour</span>
             </a>

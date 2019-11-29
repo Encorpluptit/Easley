@@ -23,7 +23,6 @@ def customRegisterUser(request, form):
 
 def customCompanyRegister(request, form):
     try:
-        print(form.instance)
         company = form.save()
         ceo = Manager.objects.create(user=request.user, company=company, role=1)
         ceo.save()

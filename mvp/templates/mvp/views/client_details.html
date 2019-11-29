@@ -45,7 +45,8 @@
                         Ce client n'as pas de license.
                     {% else %}
                         {% for license in licenses %}
-                            {{ license }}<br>
+                            <a href= {% url 'mvp-license-details' object.company.id object.id license.id %}>{{ license }}</a>
+                            <br>
                         {% endfor %}
                     {% endif %}
                 </div>

@@ -1,0 +1,26 @@
+{% extends 'mvp/generic/blank.html' %}
+{#{% extends 'mvp/generic/content.html' %}#}
+{% load static %}
+
+{#{% block content_heading %}#}
+{#    lol#}
+{#{% endblock %}#}
+{##}
+{#{% block content %}#}
+{#    Faire le workpace de bizdev#}
+{#{% endblock %}#}
+
+{% block page %}
+    Faire le workpace de manager
+    <hr>
+    <h5>Code Entreprise : {{ user.manager.company.id }}</h5>
+{% endblock %}
+
+{% block page_title %}
+    Easley - Tableau de Bord
+{% endblock %}
+
+{% block page_heading %}
+    Votre Tableau de bord
+{% endblock %}
+

@@ -1,0 +1,40 @@
+{% extends 'mvp/generic/content.html' %}
+
+{% block content %}
+    <form method="post">
+        {% csrf_token %}
+        {#        {% include 'mvp/generic/form.html' %}#}
+        <th><label for="id_company">Please Enter your company code.
+            <span class="text-danger">*</span></label></th>
+        <td><input type="number" class="form-control" name="company_id" maxlength="150"
+                   placeholder="Company Code"
+                   autofocus required id="id_company"></td>
+        <hr>
+        <div class="row">
+            <div class="col-lg-8">
+            </div>
+            <div class="col-lg-4 text-right">
+                <button class="btn btn-action" type="submit">Join Company</button>
+            </div>
+        </div>
+        <button class="btn btn-success btn-icon-split" type="submit">
+            <span class="icon text-white-50"><i class="fas fa-check"></i></span>
+            <span class="text">{% if button %}{{ button }}{% else %}Confirmer{% endif %}</span>
+        </button>
+    </form>
+{% endblock %}
+
+
+{% block page_title %}
+    Easley - Rejoindre mon Entreprise
+{% endblock %}
+
+
+{% block page_heading %}
+    Rejoindre mon Entreprise
+{% endblock %}
+
+
+{% block content_heading %}
+    Rentrer votre code entreprise.
+{% endblock %}

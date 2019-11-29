@@ -23,7 +23,6 @@ PERMISSION_DENIED = f"Oups, une erreur est survenue ! " \
                     f"Vous n'avez peut-être pas accès à cette page ou celle-ci n'existe plus."
 
 
-# @ TODO: Refaire
 class ClientCreateView(LoginRequiredMixin, UserPassesTestMixin, CreateView):
     model = Client
     form_class = ClientForm
@@ -36,9 +35,6 @@ class ClientCreateView(LoginRequiredMixin, UserPassesTestMixin, CreateView):
     permission_denied_message = PERMISSION_DENIED
     success_message = f'Client Créé !'
 
-    def form_valid(self, form):
-        return validateCompanyInFormCreateUpdateView(self, form)
-
     def test_func(self):
         return routeCreatePermissions(self, self.kwargs.get(self.pk_url_kwarg), self.model)
 
@@ -48,6 +44,11 @@ class ClientCreateView(LoginRequiredMixin, UserPassesTestMixin, CreateView):
 
     def get_form_kwargs(self, *args, **kwargs):
         kwargs = super(ClientCreateView, self).get_form_kwargs()
+        if hasattr(self.request.user, 'manager'):
+            kwargs['company'] = self.request.user.manager.company
+            kwargs['manager'] = True
+        elif hasattr(self.request.user, 'commercial'):
+            kwargs['company'] = self.request.user.commercial.company
         kwargs['user'] = self.request.user
         return kwargs
 
@@ -77,6 +78,11 @@ class ClientUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
 
     def get_form_kwargs(self, *args, **kwargs):
         kwargs = super(ClientUpdateView, self).get_form_kwargs()
+        if hasattr(self.request.user, 'manager'):
+            kwargs['company'] = self.request.user.manager.company
+            kwargs['manager'] = True
+        elif hasattr(self.request.user, 'commercial'):
+            kwargs['company'] = self.request.user.commercial.company
         kwargs['user'] = self.request.user
         return kwargs
 
@@ -84,7 +90,6 @@ class ClientUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
         return redirectWorkspaceFail(self.request, self.permission_denied_message)
 
 
-# @ TODO: Refaire
 class ClientListView(LoginRequiredMixin, UserPassesTestMixin, ListView):
     model = Client
     template_name = 'mvp/views/client_list.html'
@@ -205,7 +210,7 @@ class ConseilCreateView(LoginRequiredMixin, UserPassesTestMixin, CreateView):
         cpny_pk = self.kwargs.get('cpny_pk')
         if hasattr(self.request.user, 'manager'):
             manager = self.request.user.manager
-            if manager.company.id == cpny_pk and manager.role == 1:
+            if manager.company.id == cpny_pk and (manager.role == 1 or manager.role == 2):
                 return True
         elif hasattr(self.request.user, 'commercial'):
             contrat = get_object_or_404(Contract, pk=self.kwargs.get(self.pk_url_kwarg))
@@ -228,34 +233,6 @@ class ConseilCreateView(LoginRequiredMixin, UserPassesTestMixin, CreateView):
             kwargs['company'] = self.request.user.commercial.company
         kwargs['contract'] = get_object_or_404(Contract, pk=self.kwargs.get(self.pk_url_kwarg))
         return kwargs
-
-    def handle_no_permission(self):
-        return redirectWorkspaceFail(self.request, self.permission_denied_message)
-
-
-class ConseilDetailView(LoginRequiredMixin, UserPassesTestMixin, DetailView):
-    model = Conseil
-    template_name = 'mvp/views/conseil_details.html'
-    pk_url_kwarg = 'conseil_pk'
-    extra_context = {"details": True,
-                     "page_title": "Easley - Conseil Details", "page_heading": "Gestion des conseils",
-                     "section": "conseil", "content_heading": "Informations conseil"}
-    permission_denied_message = PERMISSION_DENIED
-
-    def get_queryset(self):
-        return Conseil.objects.filter(id=self.kwargs.get(self.pk_url_kwarg))
-
-    def test_func(self):
-        cpny_pk = self.kwargs.get('cpny_pk')
-        if hasattr(self.request.user, 'manager'):
-            if self.request.user.manager.company.id == cpny_pk:
-                return True
-        elif hasattr(self.request.user, 'commercial'):
-            contrat = get_object_or_404(Contract, pk=self.kwargs.get('contract_pk'))
-            commercial = self.request.user.commercial
-            if commercial.company.id == cpny_pk and commercial.id == contrat.commercial.id:
-                return True
-        return False
 
     def handle_no_permission(self):
         return redirectWorkspaceFail(self.request, self.permission_denied_message)
@@ -286,7 +263,6 @@ class ConseilUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
             if commercial.company.id == cpny_pk and commercial.id == contrat.commercial.id:
                 return True
         return False
-        # return routeUpdatePermissions(self, self.pk_url_kwarg, self.model)
 
     def get_success_url(self):
         messages.success(self.request, self.success_message)
@@ -296,30 +272,6 @@ class ConseilUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
         kwargs = super(ConseilUpdateView, self).get_form_kwargs()
         kwargs['user'] = self.request.user
         return kwargs
-
-    def handle_no_permission(self):
-        return redirectWorkspaceFail(self.request, self.permission_denied_message)
-
-
-# @ TODO: Refaire
-class ConseilListView(LoginRequiredMixin, UserPassesTestMixin, ListView):
-    model = Conseil
-    template_name = 'mvp/views/conseil_list.html'
-    ordering = ['id']
-    pk_url_kwarg = 'com_pk'
-    extra_context = {"list_conseil": True, "section": "conseil", }
-    permission_denied_message = PERMISSION_DENIED
-
-    def get_queryset(self):
-        if hasattr(self.request.user, 'commercial'):
-            return self.request.user.commercial.conseil_set.all()
-        elif hasattr(self.request.user, 'manager'):
-            return self.request.user.manager.company.conseil_set.all()
-        else:
-            return HttpResponseNotFound
-
-    def test_func(self):
-        return routeListPermissions(self, self.pk_url_kwarg)
 
     def handle_no_permission(self):
         return redirectWorkspaceFail(self.request, self.permission_denied_message)
@@ -354,6 +306,7 @@ class ConseilDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
         return redirectWorkspaceFail(self.request, self.permission_denied_message)
 
 
+# @ TODO: A enlever ?
 class LicenseCreateView(LoginRequiredMixin, UserPassesTestMixin, CreateView):
     model = License
     form_class = LicenseForm
@@ -398,6 +351,7 @@ class LicenseCreateView(LoginRequiredMixin, UserPassesTestMixin, CreateView):
         return redirectWorkspaceFail(self.request, self.permission_denied_message)
 
 
+# @ TODO: Refaire
 class LicenseUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
     model = License
     form_class = LicenseForm
@@ -411,39 +365,34 @@ class LicenseUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
     success_message = f'License Modifiée'
 
     def test_func(self):
-        return routeUpdatePermissions(self, self.pk_url_kwarg, self.model)
+        cpny_pk = self.kwargs.get('cpny_pk')
+        if hasattr(self.request.user, 'manager'):
+            manager = self.request.user.manager
+            if manager.company.id == cpny_pk and (manager.role == 1 or manager.role == 2):
+                return True
+        elif hasattr(self.request.user, 'commercial'):
+            license = get_object_or_404(License, pk=self.kwargs.get(self.pk_url_kwarg))
+            if license.contract.validated:
+                return False
+            commercial = self.request.user.commercial
+            if commercial.company.id == cpny_pk and commercial.id == license.contract.commercial.id:
+                return True
+        return False
+        # return routeUpdatePermissions(self, self.pk_url_kwarg, self.model)
 
     def get_success_url(self):
         messages.success(self.request, self.success_message)
-        return self.object.get_absolute_url(self.object.company.id)
+        return self.object.get_absolute_url(self.object.contract.company.id, self.object.contract.id)
 
     def get_form_kwargs(self, *args, **kwargs):
         kwargs = super(LicenseUpdateView, self).get_form_kwargs()
         kwargs['user'] = self.request.user
+        if hasattr(self.request.user, 'manager'):
+            kwargs['company'] = self.request.user.manager.company
+        elif hasattr(self.request.user, 'commercial'):
+            kwargs['company'] = self.request.user.commercial.company
+        kwargs['contract'] = get_object_or_404(Contract, pk=self.kwargs.get('contract_pk'))
         return kwargs
-
-    def handle_no_permission(self):
-        return redirectWorkspaceFail(self.request, self.permission_denied_message)
-
-
-class LicenseListView(LoginRequiredMixin, UserPassesTestMixin, ListView):
-    model = License
-    template_name = 'mvp/views/license_list.html'
-    pk_url_kwarg = 'com_pk'
-    ordering = ['id']
-    extra_context = {"list_license": True, "section": "license", }
-    permission_denied_message = PERMISSION_DENIED
-
-    def get_queryset(self):
-        if hasattr(self.request.user, 'commercial'):
-            return self.request.user.commercial.license_set.all()
-        elif hasattr(self.request.user, 'manager'):
-            return self.request.user.manager.company.license_set.all()
-        else:
-            return HttpResponseNotFound
-
-    def test_func(self):
-        return routeListPermissions(self, self.pk_url_kwarg)
 
     def handle_no_permission(self):
         return redirectWorkspaceFail(self.request, self.permission_denied_message)
@@ -462,7 +411,17 @@ class LicenseDetailView(LoginRequiredMixin, UserPassesTestMixin, DetailView):
         return License.objects.filter(pk=self.kwargs.get(self.pk_url_kwarg))
 
     def test_func(self):
-        return routeDetailsPermissions(self, self.pk_url_kwarg, self.model)
+        cpny_pk = self.kwargs.get('cpny_pk')
+        if hasattr(self.request.user, 'manager'):
+            manager = self.request.user.manager
+            if manager.company.id == cpny_pk:
+                return True
+        elif hasattr(self.request.user, 'commercial'):
+            license = get_object_or_404(License, pk=self.kwargs.get(self.pk_url_kwarg))
+            commercial = self.request.user.commercial
+            if commercial.company.id == cpny_pk and commercial.id == license.contract.commercial.id:
+                return True
+        return False
 
     def handle_no_permission(self):
         return redirectWorkspaceFail(self.request, self.permission_denied_message)
@@ -623,3 +582,77 @@ class InvoiceDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
 
     def handle_no_permission(self):
         return redirectWorkspaceFail(self.request, self.permission_denied_message)
+
+
+# class ConseilDetailView(LoginRequiredMixin, UserPassesTestMixin, DetailView):
+#     model = Conseil
+#     template_name = 'mvp/views/conseil_details.html'
+#     pk_url_kwarg = 'conseil_pk'
+#     extra_context = {"details": True,
+#                      "page_title": "Easley - Conseil Details", "page_heading": "Gestion des conseils",
+#                      "section": "conseil", "content_heading": "Informations conseil"}
+#     permission_denied_message = PERMISSION_DENIED
+#
+#     def get_queryset(self):
+#         return Conseil.objects.filter(id=self.kwargs.get(self.pk_url_kwarg))
+#
+#     def test_func(self):
+#         cpny_pk = self.kwargs.get('cpny_pk')
+#         if hasattr(self.request.user, 'manager'):
+#             if self.request.user.manager.company.id == cpny_pk:
+#                 return True
+#         elif hasattr(self.request.user, 'commercial'):
+#             contrat = get_object_or_404(Contract, pk=self.kwargs.get('contract_pk'))
+#             commercial = self.request.user.commercial
+#             if commercial.company.id == cpny_pk and commercial.id == contrat.commercial.id:
+#                 return True
+#         return False
+#
+#     def handle_no_permission(self):
+#         return redirectWorkspaceFail(self.request, self.permission_denied_message)
+
+
+# class ConseilListView(LoginRequiredMixin, UserPassesTestMixin, ListView):
+#     model = Conseil
+#     template_name = 'mvp/views/conseil_list.html'
+#     ordering = ['id']
+#     pk_url_kwarg = 'com_pk'
+#     extra_context = {"list_conseil": True, "section": "conseil", }
+#     permission_denied_message = PERMISSION_DENIED
+#
+#     def get_queryset(self):
+#         if hasattr(self.request.user, 'commercial'):
+#             return self.request.user.commercial.conseil_set.all()
+#         elif hasattr(self.request.user, 'manager'):
+#             return self.request.user.manager.company.conseil_set.all()
+#         else:
+#             return HttpResponseNotFound
+#
+#     def test_func(self):
+#         return routeListPermissions(self, self.pk_url_kwarg)
+#
+#     def handle_no_permission(self):
+#         return redirectWorkspaceFail(self.request, self.permission_denied_message)
+
+
+# class LicenseListView(LoginRequiredMixin, UserPassesTestMixin, ListView):
+#     model = License
+#     template_name = 'mvp/views/license_list.html'
+#     pk_url_kwarg = 'com_pk'
+#     ordering = ['id']
+#     extra_context = {"list_license": True, "section": "license", }
+#     permission_denied_message = PERMISSION_DENIED
+#
+#     def get_queryset(self):
+#         if hasattr(self.request.user, 'commercial'):
+#             return self.request.user.commercial.license_set.all()
+#         elif hasattr(self.request.user, 'manager'):
+#             return self.request.user.manager.company.license_set.all()
+#         else:
+#             return HttpResponseNotFound
+#
+#     def test_func(self):
+#         return routeListPermissions(self, self.pk_url_kwarg)
+#
+#     def handle_no_permission(self):
+#         return redirectWorkspaceFail(self.request, self.permission_denied_message)

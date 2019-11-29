@@ -178,6 +178,11 @@ class Contract(models.Model):
         help_text="préciserle responsable de la facturation de ce contrat.",
         related_name="factu_manager"
     )
+    validated = models.BooleanField(
+        default=False,
+        verbose_name="si le contract est validé.",
+        help_text="précisez si le contract est validé..",
+    )
 
     class Meta:
         verbose_name = "conseil"
@@ -311,8 +316,8 @@ class License(models.Model):
     )
     payed = models.BooleanField(
         default=False,
-        verbose_name="si le service est payé.",
-        help_text="précisez si le service est déjà payé.",
+        verbose_name="si la license est payée.",
+        help_text="précisez si la license est déjà payée.",
     )
     # company = models.ForeignKey(
     #     Company,
@@ -337,8 +342,8 @@ class License(models.Model):
     def __str__(self):
         return self.description
 
-    def get_absolute_url(self, comp_id):
-        return reverse('mvp-license-details', args=[comp_id, str(self.id)])
+    def get_absolute_url(self, comp_id, contract_id):
+        return reverse('mvp-license-details', args=[comp_id, contract_id, str(self.id)])
 
 
 class Invoice(models.Model):
@@ -391,7 +396,7 @@ class Invoice(models.Model):
     class Meta:
         verbose_name = "facture"
         verbose_name_plural = "factures"
-        ordering = ['company__id', 'payed',  'price', 'description']
+        ordering = ['company__id', 'payed', 'price', 'description']
 
     def __str__(self):
         return self.description

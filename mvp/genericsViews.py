@@ -334,7 +334,6 @@ class LicenseCreateView(LoginRequiredMixin, UserPassesTestMixin, CreateView):
     def get_success_url(self):
         messages.success(self.request, self.success_message)
         args = [self.object.contract.company.id, self.object.contract.id]
-        # @ TODO: redirect vers license détails ?
         return reverse('mvp-contract-details', args=args)
 
     def get_form_kwargs(self, *args, **kwargs):
@@ -378,7 +377,6 @@ class LicenseUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
             if commercial.company.id == cpny_pk and commercial.id == license.contract.commercial.id:
                 return True
         return False
-        # return routeUpdatePermissions(self, self.pk_url_kwarg, self.model)
 
     def get_success_url(self):
         messages.success(self.request, self.success_message)

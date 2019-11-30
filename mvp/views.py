@@ -1,7 +1,7 @@
 from django.contrib import messages
 from django.shortcuts import render, redirect, get_object_or_404
 from django.core.exceptions import ValidationError
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import login_required, user_passes_test
 from .models import Company, Commercial, Manager, Client, Conseil, License, Contract
 from .controllers import customRegisterUser, customCompanyRegister
 from .forms import (
@@ -96,10 +96,6 @@ def CreateContractForm(request, cpny_pk=None, client_pk=None):
         if form.is_valid():
             contract = form.save(commit=False)
             contract.save()
-            try:
-                del request.session['member_id']
-            except KeyError:
-                pass
             messages.success(request, f'Contrat créé.')
             return redirect('mvp-contract-details', company.id, contract.id, )
     return render(request, 'mvp/views/contract_form.html', {'form': form})
@@ -127,28 +123,28 @@ def ContractDetails(request, cpny_pk=None, contract_pk=None, conseil_pk=None):
     return render(request, 'mvp/views/contract_details.html', context)
 
 
-# @ TODO: Faire permissions
-@login_required
-def LicenseUpdate(request,  cpny_pk=None, contract_pk=None, license_pk=None):
-    context = {
-        'content_heading': 'Modifier la license.',
-    }
-    license = get_object_or_404(License, pk=license_pk)
-    contract = license.contract
-    form = LicenseForm(instance=license, company=contract.company, contract=contract)
-    # form.fields['duration'].initial = license.duration
-    print(request.POST, form.is_valid())
-    if request.method == "POST" and form.is_valid():
-        new_license = form.save()
-        contract.price += (new_license.price - license.price)
-        print("VALID")
-        contract.save()
-        return redirect('mvp-license-details', contract.company.id, contract.id, license.id)
-    context['form'] = form
-    return render(request, 'mvp/views/license_form.html', context)
+# # @ TODO: Faire permissions
+# @login_required
+# def LicenseUpdate(request,  cpny_pk=None, contract_pk=None, license_pk=None):
+#     context = {
+#         'content_heading': 'Modifier la license.',
+#     }
+#     license = get_object_or_404(License, pk=license_pk)
+#     contract = license.contract
+#     form = LicenseForm(instance=license, company=contract.company, contract=contract)
+#     # form.fields['duration'].initial = license.duration
+#     print(request.POST, form.is_valid())
+#     if request.method == "POST" and form.is_valid():
+#         new_license = form.save()
+#         contract.price += (new_license.price - license.price)
+#         print("VALID")
+#         contract.save()
+#         return redirect('mvp-license-details', contract.company.id, contract.id, license.id)
+#     context['form'] = form
+#     return render(request, 'mvp/views/license_form.html', context)
 
 
-# @ TODO: Faire permissions
+# @ TODO: A refaire pour fichier de services / Faire permissions
 @login_required
 def ConseilDetails(request, cpny_pk=None, contract_pk=None, conseil_pk=None):
     context = {

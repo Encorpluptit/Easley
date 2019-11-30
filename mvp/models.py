@@ -193,7 +193,7 @@ class Contract(models.Model):
         return self.description
 
     def get_absolute_url(self, comp_id):
-        return reverse('mvp-conseil-details', args=[comp_id, str(self.id)])
+        return reverse('mvp-contract-details', args=[comp_id, str(self.id)])
 
 
 class Conseil(models.Model):

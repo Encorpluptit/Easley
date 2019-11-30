@@ -201,7 +201,7 @@
 
         <!-- Nav Item - Dashboard -->
         <li class="nav-item">
-            <a class="nav-link" href= {% url 'mvp-contract-new' user.commercial.manager.id %}>
+            <a class="nav-link" href= {% url 'mvp-contract-new' user.manager.company.id %}>
                 <i class="fas fa-fw fa-plus-circle"></i>
                 <span>Create contract</span></a>
         </li>
@@ -209,7 +209,7 @@
     {% elif user.commercial %}
 
         <!-- Nav Item - Client Collapse Menu -->
-        <li {% if section == "client" %}class="nav-item active" {% else %}class="nav-item"{% endif %}>
+        <li {% if section == "client" %} class="nav-item active" {% else %} class="nav-item" {% endif %}>
             <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseClient"
                aria-expanded="true" aria-controls="collapseClient">
                 <i class="fas fa-building"></i>

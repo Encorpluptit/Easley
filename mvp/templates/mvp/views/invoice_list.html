@@ -8,11 +8,12 @@
             <thead class="thead-dark">
             <tr>
                 <th scope="col">#</th>
-                <th scope="col">Conseil</th>
+                <th scope="col">Facture</th>
                 <th scope="col">Client</th>
                 <th scope="col">Price</th>
                 <th scope="col">Services</th>
                 <th scope="col">Licenses</th>
+                <th scope="col">Account Manager</th>
             </tr>
             </thead>
             <tfoot class="thead-dark">
@@ -23,40 +24,41 @@
                 <th scope="col">Price</th>
                 <th scope="col">Services</th>
                 <th scope="col">Licenses</th>
+                <th scope="col">Account Manager</th>
             </tr>
             </tfoot>
             <tbody>
             {% for object in object_list %}
                 <tr>
-                <th scope="row">{{ forloop.counter }}</th>
-                <td>
-                    <a href= {% url 'mvp-invoice-details' object.company.id object.id %}>{{ object.description }}</a>
-                </td>
-                <td>{{ object.client|truncatechars:20 }}</td>
-                <td>{{ object.pricing|safe }}</td>
-                <td>
-                    {% if conseils %}
-                        {% for conseil in  conseils %}
-                            <a href= {% url 'mvp-conseil-details' invoice.company.id service.id %}>{{ conseil.description }}</a>
-                            <br>
-                        {% endfor %}
-                    {% else %}
-                        Aucun Conseil associé.
-                    {% endif %}
-                </td>
-                <td>
-                    {% if licenses %}
-                        {% for license in  licenses %}
-                            <a href= {% url 'mvp-license-details' invoice.company.id license.id %}>{{ license.description }}</a>
-                            <br>
-                        {% endfor %}
-                    {% else %}
-                        Aucune License associée.
-                    {% endif %}
-                </td>
-                <td>{{ invoice.commercial|safe }}</td>
+                    <th scope="row">{{ forloop.counter }}</th>
+                    <td>
+                        <a href= {% url 'mvp-invoice-details' object.company.id object.id %}>{{ object.description }}</a>
+                    </td>
+                    <td>{{ object.contract.client|truncatechars:30 }}</td>
+                    <td>{{ object.price|safe }}</td>
+                    <td>
+                        {% if object.conseil_set.all %}
+                            {% for conseil in  object.conseil_set.all %}
+                                <a href= {% url 'mvp-conseil-details' object.company.id object.contract.id conseil.id %}>{{ conseil.description }}</a>
+                                <br>
+                            {% endfor %}
+                        {% else %}
+                            Aucun Conseil associé.
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if object.license_set.all %}
+                            {% for license in  object.license_set.all %}
+                                <a href= {% url 'mvp-license-details' object.company.id object.contract.id license.id %}>{{ license.description }}</a>
+                                <br>
+                            {% endfor %}
+                        {% else %}
+                            Aucune License associée.
+                        {% endif %}
+                    </td>
+                    <td>{{ object.contract.factu_manager|safe }}</td>
+                </tr>
             {% endfor %}
-            </tr>
             </tbody>
         </table>
     {% endif %}

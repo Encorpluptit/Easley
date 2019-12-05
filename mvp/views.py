@@ -1,21 +1,15 @@
 from django.contrib import messages
 from django.shortcuts import render, redirect, get_object_or_404
-from django.core.exceptions import ValidationError
 from django.contrib.auth.decorators import login_required, user_passes_test
-from .models import Company, Commercial, Manager, Client, Conseil, License, Contract
-from .controllers import customRegisterUser, customCompanyRegister
+from .models import Company, Commercial, Manager, Client, Conseil, License, Contract, Invoice
+from .controllers import customRegisterUser
 from .forms import (
     UserRegisterForm,
     CompanyForm,
-    ClientForm,
-    UserUpdateForm,
-    ConseilForm,
-    LicenseForm,
     ContractForm,
     ClientForm,
     ServiceForm,
 )
-from django.urls import reverse
 
 
 # Create your views here.
@@ -30,10 +24,9 @@ def about(request):
 
 
 def contact(request):
-    return render(request, 'mvp/base/contact.html')
+    return render(request, 'mvp/misc/contact.html')
 
 
-# @ TODO: A Refaire avec CreateView ?
 def register(request):
     form = UserRegisterForm(request.POST or None)
     if request.method == "POST" and form.is_valid():
@@ -92,6 +85,7 @@ def CreateContractForm(request, cpny_pk=None, client_pk=None):
     client = get_object_or_404(Client, pk=client_pk)
     company = get_object_or_404(Company, pk=cpny_pk)
     form = ContractForm(request.POST or None, user=request.user, client=client, company=company)
+    form.fields['commercial'].initial = client.commercial.id
     if request.method == "POST":
         if form.is_valid():
             contract = form.save(commit=False)
@@ -102,6 +96,8 @@ def CreateContractForm(request, cpny_pk=None, client_pk=None):
 
 
 # @ TODO: Faire permissions
+from dateutil.relativedelta import relativedelta
+from django.db.models import Sum
 @login_required
 def ContractDetails(request, cpny_pk=None, contract_pk=None, conseil_pk=None):
     context = {
@@ -109,42 +105,57 @@ def ContractDetails(request, cpny_pk=None, contract_pk=None, conseil_pk=None):
         "section": "contrat", "content_heading": "Détail Contrat"
     }
     contract = get_object_or_404(Contract, pk=contract_pk)
+    conseils = contract.conseil_set.all()
+    licenses = contract.license_set.all()
 
     context['object'] = contract
-    context['licenses'] = contract.license_set.all()
-    context['conseils'] = contract.conseil_set.all()
+    context['licenses'] = licenses
+    context['conseils'] = conseils
     if contract.validated:
         return render(request, 'mvp/views/contract_details.html', context)
     if request.method == "POST":
-        contract.validated = True
-        contract.save()
-        messages.success(request, f'Contrat Validé.')
-        return redirect(contract.get_absolute_url(contract.company.id))
+        if conseils.count() <= 0 and licenses.count() <= 0:
+            messages.info(request, f"Le contrat est vide. Veuillez rentrer une license ou un conseil.")
+        else:
+            # contract.validated = True
+            # @ TODO: create related invoices
+            factu_date = contract.start_date + relativedelta(months=+contract.facturation)
+            tmp = contract.start_date + relativedelta(days=-1)
+            month = contract.facturation
+            while factu_date <= contract.end_date:
+                print(factu_date)
+                invoice_licenses = licenses.filter(end_date__lte=factu_date, end_date__gt=tmp).all()
+                invoice_conseils = conseils.filter(end_date__lte=factu_date, end_date__gt=tmp).all()
+                price = invoice_conseils.aggregate(Sum('price'))['price__sum'] or 0
+                price += invoice_licenses.aggregate(Sum('price'))['price__sum'] or 0
+                print(invoice_licenses, invoice_conseils)
+                print(price)
+                factu = Invoice(description="facttu mois %d" % month,
+                                company=contract.company,
+                                contract=contract,
+                                price=price,
+                                date=factu_date,
+                                )
+                factu.save()
+                for lic in invoice_licenses:
+                    lic.invoice = factu
+                    lic.save()
+                for conseil in invoice_conseils:
+                    conseil.invoice = factu
+                    conseil.save()
+                tmp = factu_date
+                factu_date += relativedelta(months=+contract.facturation)
+                month += contract.facturation
+            # print(contract.end_date - contract.start_date)
+            # print(int((contract.end_date - contract.start_date).days/30))
+            contract.validated = True
+            contract.save()
+            messages.success(request, f'Contrat Validé.')
+            return redirect(contract.get_absolute_url(contract.company.id))
     return render(request, 'mvp/views/contract_details.html', context)
 
 
-# # @ TODO: Faire permissions
-# @login_required
-# def LicenseUpdate(request,  cpny_pk=None, contract_pk=None, license_pk=None):
-#     context = {
-#         'content_heading': 'Modifier la license.',
-#     }
-#     license = get_object_or_404(License, pk=license_pk)
-#     contract = license.contract
-#     form = LicenseForm(instance=license, company=contract.company, contract=contract)
-#     # form.fields['duration'].initial = license.duration
-#     print(request.POST, form.is_valid())
-#     if request.method == "POST" and form.is_valid():
-#         new_license = form.save()
-#         contract.price += (new_license.price - license.price)
-#         print("VALID")
-#         contract.save()
-#         return redirect('mvp-license-details', contract.company.id, contract.id, license.id)
-#     context['form'] = form
-#     return render(request, 'mvp/views/license_form.html', context)
-
-
-# @ TODO: A refaire pour fichier de services / Faire permissions
+# @ TODO: A refaire (avec BaseView ?) pour fichier de services / Faire permissions
 @login_required
 def ConseilDetails(request, cpny_pk=None, contract_pk=None, conseil_pk=None):
     context = {
@@ -165,11 +176,23 @@ def ConseilDetails(request, cpny_pk=None, contract_pk=None, conseil_pk=None):
     return render(request, 'mvp/views/conseil_details.html', context)
 
 
+def ContractListView(request, cpny_pk=None):
+    context = {'validated_contracts': None}
+    if hasattr(request.user, 'commercial'):
+        contracts = request.user.commercial.contract_set.all()
+        context['validated_contracts'] = contracts.filter(validated=True)
+        context['not_validated_contracts'] = contracts.filter(validated=False)
+    elif hasattr(request.user, 'manager'):
+        contracts = request.user.manager.company.contract_set.all()
+        context['validated_contracts'] = contracts.filter(validated=True)
+        context['not_validated_contracts'] = contracts.filter(validated=False)
+    return render(request, 'mvp/views/contract_list.html', context)
+
 @login_required
 def join_company(request):
     if request.method == "POST":
         try:
-            company = Company.objects.filter(pk=int(request.POST['company_id'])).first()
+            company = Company.objects.get(pk=int(request.POST['company_id']))
             Commercial.objects.create(user=request.user, company=company)
             return redirect('mvp-commercial-workspace')
         except:
@@ -230,3 +253,48 @@ def workspace(request):
 #             messages.success(request, f'license created!')
 #             return redirect('mvp-workspace')
 #     return render(request, 'mvp/license/license_form.html', {'form': form})
+
+
+# class ContractDetailView(LoginRequiredMixin, UserPassesTestMixin, DetailView):
+#     model = Contract
+#     template_name = 'mvp/views/contract_details.html'
+#     pk_url_kwarg = 'contract_pk'
+#     extra_context = {"details": True,
+#                      "page_title": "Easley - Contrat Details", "page_heading": "Gestion des Contrats",
+#                      "section": "contrat", "content_heading": "Détail Contrat"}
+#     permission_denied_message = PERMISSION_DENIED
+#
+#     def get_queryset(self):
+#         return Contract.objects.filter(id=self.kwargs.get(self.pk_url_kwarg))
+#
+#     def test_func(self):
+#         return routeDetailsPermissions(self, self.pk_url_kwarg, self.model)
+#
+#     def handle_no_permission(self):
+#         return redirectWorkspaceFail(self.request, self.permission_denied_message)
+#
+#     def get_context_data(self, **kwargs):
+#         context = super().get_context_data(**kwargs)
+#         context['licenses'] = self.object.license_set.all()
+#         context['conseils'] = self.object.conseil_set.all()
+#         return context
+
+
+# @login_required
+# def LicenseUpdate(request,  cpny_pk=None, contract_pk=None, license_pk=None):
+#     context = {
+#         'content_heading': 'Modifier la license.',
+#     }
+#     license = get_object_or_404(License, pk=license_pk)
+#     contract = license.contract
+#     form = LicenseForm(instance=license, company=contract.company, contract=contract)
+#     # form.fields['duration'].initial = license.duration
+#     print(request.POST, form.is_valid())
+#     if request.method == "POST" and form.is_valid():
+#         new_license = form.save()
+#         contract.price += (new_license.price - license.price)
+#         print("VALID")
+#         contract.save()
+#         return redirect('mvp-license-details', contract.company.id, contract.id, license.id)
+#     context['form'] = form
+#     return render(request, 'mvp/views/license_form.html', context)

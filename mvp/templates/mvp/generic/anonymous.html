@@ -10,7 +10,7 @@
     <meta name="description" content="Easley">
     <meta name="author" content="Damien bernard (damien.bernard@epitech.eu)">
 
-    <title>{% if page_title %}{{ page_title }}{% else %}{% block page_title %}{% endblock %}{% endif %}</title>
+    <title>{% block page_title %}{% endblock %}</title>
 
     <link rel="shortcut icon" type="image/png" href= {% static 'mvp/favicon.png' %}/>
 
@@ -31,41 +31,40 @@
 <!-- Page Wrapper -->
 <div id="wrapper">
 
-    {% include 'mvp/generic/sidebar.html' %}
-
     <!-- Content Wrapper -->
-    <div id="content-wrapper" class="d-flex flex-column bg-white">
+    <div id="content-wrapper" class="d-flex flex-column bg-easley-flesh">
 
         <!-- Main Content -->
         <div id="content">
+            <!-- Topbar -->
+            <nav class="navbar navbar-expand navbar-light bg-easley-blue topbar mb-4 static-top shadow">
 
-            {% include 'mvp/generic/topbar.html' %}
+                <!-- Sidebar Toggle (Topbar) -->
+                <button id="sidebarToggleTop" class="btn btn-link d-md-none rounded-circle mr-3">
+                    <i class="fa fa-bars"></i>
+                </button>
+                <img src= {% static 'mvp/Easley_logo.png' %} width="9.1%">
+            </nav>
+            <!-- End of Topbar -->
 
-            <!-- Begin Page Content -->
-            <div class="container-fluid">
-                <!-- Page Heading -->
-                <div class="row">
-                    <div class="col-sm">
-                        <h1 class="h3 mb-4 text-gray-800">
-                            {% if page_heading %}{{ page_heading }}
-                            {% else %}{% block page_heading %}{% endblock %}{% endif %}
-                        </h1>
-                    </div>
-                    <div class="col-9">
-                        {% include 'mvp/generic/flash.html' %}
-                    </div>
+
+            <!-- Page Heading -->
+            <div class="row">
+                <div class="col-9">
+                    {% include 'mvp/generic/flash.html' %}
                 </div>
+            </div>
+            <div class="container">
 
-                {% block page %}{% endblock %}
+                {% block content %} {% endblock %}
 
             </div>
-            <!-- /.container-fluid -->
 
         </div>
         <!-- End of Main Content -->
 
         <!-- Footer -->
-        <footer class="sticky-footer bg-gray-400">
+        <footer class="sticky-footer bg-easley-flesh">
             <div class="container my-auto">
                 <div class="copyright text-center my-auto">
                     <span>Copyright &copy; Easley 2019</span>
@@ -80,30 +79,6 @@
 </div>
 <!-- End of Page Wrapper -->
 
-<!-- Scroll to Top Button-->
-<a class="scroll-to-top rounded" href="#page-top">
-    <i class="fas fa-angle-up"></i>
-</a>
-
-<!-- Logout Modal-->
-<div class="modal fade" id="logoutModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
-     aria-hidden="true">
-    <div class="modal-dialog" role="document">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="exampleModalLabel">Ready to Leave?</h5>
-                <button class="close" type="button" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">×</span>
-                </button>
-            </div>
-            <div class="modal-body">Select "Logout" below if you are ready to end your current session.</div>
-            <div class="modal-footer">
-                <button class="btn btn-secondary" type="button" data-dismiss="modal">Cancel</button>
-                <a class="btn btn-primary" href= {% url 'mvp-logout' %}>Logout</a>
-            </div>
-        </div>
-    </div>
-</div>
 
 <!-- Bootstrap core JavaScript-->
 <script src={% static 'mvp/vendor/jquery/jquery.min.js' %}></script>
@@ -124,6 +99,8 @@
         }, 5000); // <-- time in milliseconds, 1000 =  1 sec
     });
 </script>
+</body>
+<body class="bg-easley-flesh">
 </body>
 
 </html>

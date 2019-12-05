@@ -4,6 +4,13 @@
     <article class="media content-section">
         <div class="media-body">
             <h2 class="article-title">{{ object.description }}</h2>
+            {% if object.contact.validated == False or user.manager and user.manager.role == 1 %}
+                <a class="btn btn-warning btn-icon-split"
+                   href= {% url 'mvp-conseil-update' object.contract.company.id object.contract.id object.id %}>
+                    <span class="icon text-white-50"><i class="fas fa-exclamation-triangle"></i></span>
+                    <span class="text">Modifier ces informations</span>
+                </a>
+            {% endif %}
             <hr>
             <div class="article-metadata">
                 <b class="text-gray-900">Client: {{ object.contract.client }}</b><br>
@@ -43,7 +50,7 @@
                 <span class="icon text-white-50"><i class="fas fa-arrow-right"></i></span>
                 <span class="text">Retour</span>
             </a>
-            {% if not object.contract.validated %}
+            {% if object.contract.validated == False %}
                 <!-- Collapsible Client Form -->
                 <div class="card shadow mb-4">
                     <!-- Client Form - Accordion -->
@@ -68,8 +75,18 @@
                         </div>
                     </div>
                 </div>
-                </div>
             {% endif %}
+            <a class="btn btn-primary btn-icon-split"
+               href= {% url 'mvp-contract-details' object.contract.company.id object.contract.id %}>
+                <span class="icon text-white-50"><i class="fas fa-info-circle"></i></span>
+                <span class="text">Voir le contrat parent.</span>
+            </a>
+            <a class="btn btn-secondary btn-icon-split"
+               href= {{ request.META.HTTP_REFERER }}>
+                <span class="icon text-white-50"><i class="fas fa-arrow-right"></i></span>
+                <span class="text">Retour</span>
+            </a><br>
+        </div>
     </article>
     <hr>
 {% endblock %}

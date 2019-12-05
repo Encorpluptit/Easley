@@ -6277,6 +6277,18 @@ button.bg-light:focus {
   background-color: #5a5c69 !important;
 }
 
+.bg-easley-blue {
+  background-color: #27283C !important;
+}
+
+.bg-easley-flesh {
+  background-color: #FAEBD7 !important;
+}
+
+.bg-easley-aquamarine {
+  background-color: #7FFFD4 !important;
+}
+
 a.bg-dark:hover, a.bg-dark:focus,
 button.bg-dark:hover,
 button.bg-dark:focus {

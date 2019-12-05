@@ -2,9 +2,12 @@ from django.db import models
 from django.contrib.auth.models import User
 from django.urls import reverse
 from django.utils import timezone
+from dateutil.relativedelta import relativedelta
 
 
 # Create your models here.
+
+
 class Company(models.Model):
     name = models.CharField(
         max_length=150,
@@ -139,6 +142,21 @@ class Contract(models.Model):
         verbose_name="description du contrat",
         help_text="description du contrat",
     )
+    start_date = models.DateField(
+        default=timezone.now,
+        verbose_name="date de début du contrat",
+        help_text="date de début du contrat"
+    )
+    end_date = models.DateField(
+        default=timezone.now() + relativedelta(months=1),
+        verbose_name="date de fin du contrat",
+        help_text="date de fin du contrat."
+    )
+    facturation = models.PositiveSmallIntegerField(
+        default=1,
+        verbose_name="Fréquance de la facturation.",
+        help_text="Fréquence de la facturation.",
+    )
     price = models.PositiveIntegerField(
         default=0,
         verbose_name="montant total du contrat.",
@@ -196,6 +214,54 @@ class Contract(models.Model):
         return reverse('mvp-contract-details', args=[comp_id, str(self.id)])
 
 
+class Invoice(models.Model):
+    description = models.CharField(
+        max_length=300,
+        verbose_name="invoice's description",
+        help_text="description de la facture",
+    )
+    price = models.PositiveIntegerField(
+        default=0,
+        verbose_name="montant total de la facture.",
+        help_text="montant total de la facture (EN EUROS).",
+    )
+    date = models.DateField(
+        default=timezone.now,
+        verbose_name="date de la facture",
+        help_text="date de la facture."
+    )
+    payed = models.BooleanField(
+        default=False,
+        verbose_name="si la facture est payée.",
+        help_text="précisez si la facture est payée",
+    )
+    contract = models.ForeignKey(
+        Contract,
+        default=None,
+        on_delete=models.CASCADE,
+        verbose_name="le ou les conseil(s) relatif(s) à cette facture.",
+        help_text="préciser le ou les conseil(s) à facturer.",
+        blank=True,
+    )
+    company = models.ForeignKey(
+        Company,
+        on_delete=models.CASCADE,
+        verbose_name="l'entreprise de cette facture.",
+        help_text="préciser l'entreprise de cette facture.",
+    )
+
+    class Meta:
+        verbose_name = "facture"
+        verbose_name_plural = "factures"
+        ordering = ['company__id', 'payed', 'price', 'description']
+
+    def __str__(self):
+        return self.description
+
+    def get_absolute_url(self, comp_id):
+        return reverse('mvp-invoice-details', args=[comp_id, str(self.id)])
+
+
 class Conseil(models.Model):
     description = models.TextField(
         max_length=300,
@@ -218,6 +284,24 @@ class Conseil(models.Model):
         default=False,
         verbose_name="si le conseil est payé.",
         help_text="précisez si le conseil est déjà payé.",
+    )
+    start_date = models.DateField(
+        default=timezone.now,
+        verbose_name="date de début du conseil",
+        help_text="date de début du conseil"
+    )
+    end_date = models.DateField(
+        default=timezone.now() + relativedelta(months=1),
+        verbose_name="date de fin du conseil",
+        help_text="date de fin du conseil."
+    )
+    invoice = models.ForeignKey(
+        Invoice,
+        default=None,
+        null=True,
+        on_delete=models.CASCADE,
+        verbose_name="la facture relative à ce conseil",
+        help_text="la facture relative à ce conseil.",
     )
     # company = models.ForeignKey(
     #     Company,
@@ -264,12 +348,12 @@ class Service(models.Model):
         verbose_name="conseil relatif au service",
         help_text="conseil relatif au service",
     )
-    estimated_date = models.DateTimeField(
+    estimated_date = models.DateField(
         default=timezone.now,
         verbose_name="date prévisionelle ???",
         help_text="date prévisionelle ???(en mois/jours)."
     )
-    actual_date = models.DateTimeField(
+    actual_date = models.DateField(
         default=timezone.now,
         verbose_name="fin du service (ACTUEL ???)",
         help_text="fin du service (ACTUEL)(en mois/jours)."
@@ -304,13 +388,13 @@ class License(models.Model):
         verbose_name="coût de la license",
         help_text="coût de la license (EN EUROS)"
     )
-    start_date = models.DateTimeField(
+    start_date = models.DateField(
         default=timezone.now,
         verbose_name="date de début",
         help_text="date de début (en mois/jours)."
     )
-    duration = models.DurationField(
-        default='21 days',
+    end_date = models.DateField(
+        default=timezone.now() + relativedelta(months=1),
         verbose_name="durée de la license",
         help_text="durée de la license (en mois/jours)."
     )
@@ -318,6 +402,14 @@ class License(models.Model):
         default=False,
         verbose_name="si la license est payée.",
         help_text="précisez si la license est déjà payée.",
+    )
+    invoice = models.ForeignKey(
+        Invoice,
+        default=None,
+        null=True,
+        on_delete=models.CASCADE,
+        verbose_name="la facture relative à cette license",
+        help_text="la facture relative à cette license.",
     )
     # company = models.ForeignKey(
     #     Company,
@@ -344,65 +436,6 @@ class License(models.Model):
 
     def get_absolute_url(self, comp_id, contract_id):
         return reverse('mvp-license-details', args=[comp_id, contract_id, str(self.id)])
-
-
-class Invoice(models.Model):
-    description = models.CharField(
-        max_length=300,
-        verbose_name="invoice's description",
-        help_text="description de la facture",
-    )
-    price = models.PositiveIntegerField(
-        default=0,
-        verbose_name="montant total de la facture.",
-        help_text="montant total de la facture (EN EUROS).",
-    )
-    payed = models.BooleanField(
-        default=False,
-        verbose_name="si la facture est payée.",
-        help_text="précisez si la facture est payée",
-    )
-    contract = models.ForeignKey(
-        Contract,
-        default=None,
-        on_delete=models.CASCADE,
-        verbose_name="le ou les conseil(s) relatif(s) à cette facture.",
-        help_text="préciser le ou les conseil(s) à facturer.",
-        blank=True,
-    )
-    license = models.ForeignKey(
-        License,
-        default=None,
-        on_delete=models.CASCADE,
-        verbose_name="le ou les conseil(s) relatif(s) à cette facture.",
-        help_text="préciser le ou les conseil(s) à facturer.",
-        blank=True,
-    )
-    conseil = models.ForeignKey(
-        Conseil,
-        default=None,
-        on_delete=models.CASCADE,
-        verbose_name="le ou les conseil(s) relatif(s) à cette facture.",
-        help_text="préciser le ou les conseil(s) à facturer.",
-        blank=True,
-    )
-    company = models.ForeignKey(
-        Company,
-        on_delete=models.CASCADE,
-        verbose_name="l'entreprise de cette facture.",
-        help_text="préciser l'entreprise de cette facture.",
-    )
-
-    class Meta:
-        verbose_name = "facture"
-        verbose_name_plural = "factures"
-        ordering = ['company__id', 'payed', 'price', 'description']
-
-    def __str__(self):
-        return self.description
-
-    def get_absolute_url(self, comp_id):
-        return reverse('mvp-invoice-details', args=[comp_id, str(self.id)])
 
 # - invoices
 # - company_id

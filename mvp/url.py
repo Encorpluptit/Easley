@@ -1,29 +1,23 @@
 from django.urls import path
+from django.conf import settings
+from django.conf.urls.static import static
 from django.contrib.auth import views as auth_views
 from . import views
 from .genericsViews import (
-    ClientCreateView,
-    ClientUpdateView,
-    ClientListView,
-    ClientDetailView,
-    ClientDeleteView,
-    ConseilCreateView,
-    ConseilUpdateView,
-    ConseilDeleteView,
-    LicenseCreateView,
-    LicenseUpdateView,
-    LicenseDetailView,
-    LicenseDeleteView,
     InvoiceCreateView,
     InvoiceUpdateView,
     InvoiceListView,
     InvoiceDetailView,
     InvoiceDeleteView,
-
-    # ConseilDetailView,
-    # ContractDetailView,
-    # ConseilListView,
-    # LicenseListView,
+)
+from mvp.modelviews.conseil import ConseilCreateView, ConseilUpdateView, ConseilDeleteView
+from mvp.modelviews.license import LicenseCreateView, LicenseUpdateView, LicenseDetailView, LicenseDeleteView
+from mvp.modelviews.client import (
+    ClientCreateView,
+    ClientUpdateView,
+    ClientListView,
+    ClientDetailView,
+    ClientDeleteView
 )
 
 urlpatterns = [
@@ -32,11 +26,22 @@ urlpatterns = [
     path('login/', auth_views.LoginView.as_view(template_name='mvp/misc/login.html'), name='mvp-login'),
     path('logout/', auth_views.LogoutView.as_view(), name='mvp-logout'),
     path('register/', views.register, name='mvp-register'),
+    path('password-reset/', auth_views.PasswordResetView.as_view(template_name='mvp/misc/password_reset.html'),
+         name='mvp_password_reset'),
+    path('password-reset/done/',
+         auth_views.PasswordResetDoneView.as_view(template_name='mvp/misc/password_reset_done.html'),
+         name='password_reset_done'),
+    path('password-reset-confirm/<uidb64>/<token>/',
+         auth_views.PasswordResetConfirmView.as_view(template_name='mvp/misc/password_reset_confirm.html'),
+         name='password_reset_confirm'),
+    path('password-reset/complete/', auth_views.PasswordResetCompleteView.as_view(template_name='mvp/misc/login.html')),
+    # path('register/', auth_views., name='mvp-register'),
     path('company/join', views.join_company, name='mvp-join-company'),
     path('company/register', views.companyCreation, name='mvp-company-register'),
     path('workspace/', views.workspace, name="mvp-workspace"),
     path('workspace/commercial/', views.commercialWorkspace, name="mvp-commercial-workspace"),
     path('workspace/manager/', views.ceoWorkspace, name="mvp-manager-workspace"),
+    path('<int:cpny_pk>/contract/list/', views.ContractListView, name='mvp-contract-list'),
     path('<int:cpny_pk>/contract/new/',
          views.CreateContractClient, name='mvp-contract-new'),
     path('<int:cpny_pk>/contract/<int:client_pk>/new/',
@@ -99,3 +104,6 @@ urlpatterns = [
     path('<int:cpny_pk>/invoice/delete/<int:invoice_pk>/', InvoiceDeleteView.as_view(), name='mvp-invoice-delete'),
     # path('register/', .register, name='mvp-register'),
 ]
+
+if settings.DEBUG:
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

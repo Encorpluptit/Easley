@@ -2,10 +2,17 @@ from django import forms
 from django.contrib.auth.models import User
 from django.contrib.auth.forms import UserCreationForm
 from .models import Company, Commercial, Manager, Client, Conseil, License, Invoice, Service, Contract
-from django.core.exceptions import ValidationError
 
 
 # Create your forms here.
+
+
+CONTRACT_FACTURATION = [
+    (1, 'Mensuel'),
+    (3, 'Trimestriel'),
+    (6, 'Semestriel'),
+    (12, 'Annuel'),
+]
 
 
 class UserRegisterForm(UserCreationForm):
@@ -13,13 +20,12 @@ class UserRegisterForm(UserCreationForm):
     first_name = forms.CharField(max_length=150, )
     last_name = forms.CharField(max_length=150, )
 
-    # terms = forms.BooleanField()
-
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         for key in self.fields:
             self.fields[key].widget.attrs.update({'class': 'form-control'})
             self.fields[key].widget.attrs.update({'placeholder': key})
+            self.fields[key].widget.attrs.update({'title': self.fields[key].help_text})
 
     class Meta:
         model = User
@@ -33,6 +39,7 @@ class CompanyForm(forms.ModelForm):
         for key in self.fields:
             self.fields[key].widget.attrs.update({'class': 'form-control'})
             self.fields[key].widget.attrs.update({'placeholder': key})
+            self.fields[key].widget.attrs.update({'title': self.fields[key].help_text})
 
     class Meta:
         model = Company
@@ -47,6 +54,8 @@ class ClientForm(forms.ModelForm):
             self.fields['commercial'].initial = user.commercial.id
         else:
             self.fields['commercial'].queryset = company.commercial_set.all()
+        if not kwargs.get('instance', None):
+            self.fields['account_manager'].initial = company.manager_set.filter(role=2).first()
         self.instance.company = company
         self.fields['account_manager'].queryset = company.manager_set.filter(role=2)
         for key in self.fields:
@@ -60,16 +69,21 @@ class ClientForm(forms.ModelForm):
 
 
 class ContractForm(forms.ModelForm):
+    facturation = forms.ChoiceField(choices=CONTRACT_FACTURATION)
+
     def __init__(self, *args, user=None, client=None, company=None, **kwargs):
         super().__init__(*args, **kwargs)
         if hasattr(user, 'commercial'):
             self.fields['commercial'].widget = forms.HiddenInput()
             self.fields['commercial'].initial = user.commercial.id
         elif hasattr(user, 'manager'):
-            self.fields['commercial'].queryset = Commercial.objects.filter(company=user.manager.company)
-        self.fields['factu_manager'].queryset = company.manager_set.filter(role=3)
+            self.fields['commercial'].queryset = company.commercial_set.all()
+        if not kwargs.get('instance', None):
+            self.fields['commercial'].initial = client.commercial
         self.instance.company = company
         self.instance.client = client
+        # self.fields['factu_manager'].queryset = company.manager_set.filter(role=3)
+        self.instance.factu_manager = company.manager_set.filter(role=3).first()
         for key in self.fields:
             self.fields[key].widget.attrs.update({'class': 'form-control'})
             self.fields[key].widget.attrs.update({'placeholder': key})
@@ -77,12 +91,14 @@ class ContractForm(forms.ModelForm):
 
     class Meta:
         model = Contract
-        exclude = ('client', 'company', 'price')
+        exclude = ('client', 'company', 'price', 'validated', 'payed', 'factu_manager')
         widgets = {
         }
 
 
 class ConseilForm(forms.ModelForm):
+    services_excels = forms.FileField(initial=None, required=False, show_hidden_initial=True)
+
     def __init__(self, *args, user=None, company=None, contract=None, **kwargs):
         super().__init__(*args, **kwargs)
         self.instance.company = company
@@ -94,11 +110,11 @@ class ConseilForm(forms.ModelForm):
 
     class Meta:
         model = Conseil
-        exclude = ('contract', )
+        exclude = ('contract', 'payed', 'invoice')
         # exclude = ('company', 'contract', 'client', )
         widgets = {
-            'estimated_date': forms.SelectDateWidget,
-            'actual_date': forms.SelectDateWidget,
+            'start_date': forms.SelectDateWidget,
+            'end_date': forms.SelectDateWidget,
         }
 
 
@@ -134,14 +150,12 @@ class LicenseForm(forms.ModelForm):
 
     class Meta:
         model = License
-        exclude = ('contract',)
+        exclude = ('contract', 'payed', 'invoice')
         # exclude = ('company', 'contract', 'client', )
-        widgets = {'start_date': forms.SelectDateWidget, 'duration': forms.NumberInput}
+        # widgets = {'start_date': forms.SelectDateWidget, 'duration': forms.NumberInput}
 
 
 class InvoiceFrom(forms.ModelForm):
-    # license = forms.ModelMultipleChoiceField(required=False, queryset=License.objects.all())
-
     def __init__(self, *args, user=None, **kwargs):
         super().__init__(*args, **kwargs)
         if hasattr(user, 'manager'):

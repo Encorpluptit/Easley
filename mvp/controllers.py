@@ -1,6 +1,6 @@
 from django.contrib import messages
 from django.contrib.auth import authenticate, login
-from .models import Manager, Commercial, Client, Conseil, Invoice
+from .models import Manager, Commercial, Contract, Client, Conseil, Invoice
 from django.core.exceptions import ObjectDoesNotExist, ValidationError
 from django.shortcuts import get_object_or_404, redirect
 
@@ -8,13 +8,10 @@ from django.shortcuts import get_object_or_404, redirect
 def customRegisterUser(request, form):
     user = form.save()
     auth = authenticate(request,
-                        username=form.cleaned_data['username'],
-                        password=form.cleaned_data['password1'])
+                        username=form.cleaned_data['username'], password=form.cleaned_data['password1'])
     if auth is not None:
         login(request, auth)
-        messages.success(request,
-                         f'Account Created, Welcome {user.first_name + " " + user.last_name} !'
-                         f' Please make a choice.')
+        messages.success(request, f'Account Created, Welcome %s %s !' % (user.first_name, user.last_name))
         return True
     else:
         messages.warning(request, f'An Error occurred ! Please try again later')
@@ -29,6 +26,17 @@ def customCompanyRegister(request, form):
         messages.success(request, f'Company {company.name} Created, Welcome {ceo} !')
     except ValidationError:
         messages.warning(request, f'An Error occurred ! Please try again later')
+
+
+def FillConseilLicenseForm(self, model_view, *args, **kwargs):
+    kwargs = super(model_view, self).get_form_kwargs()
+    kwargs['user'] = self.request.user
+    if hasattr(self.request.user, 'manager'):
+        kwargs['company'] = self.request.user.manager.company
+    elif hasattr(self.request.user, 'commercial'):
+        kwargs['company'] = self.request.user.commercial.company
+    kwargs['contract'] = get_object_or_404(Contract, pk=self.kwargs.get(self.pk_url_kwarg))
+    return kwargs
 
 
 def validateCompanyInFormCreateUpdateView(self, form):

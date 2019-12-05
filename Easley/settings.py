@@ -101,7 +101,6 @@ AUTH_PASSWORD_VALIDATORS = [
 # Internationalization
 # https://docs.djangoproject.com/en/2.1/topics/i18n/
 
-# LANGUAGE_CODE = 'en-us'
 LANGUAGE_CODE = 'fr-fr'
 
 TIME_ZONE = 'UTC'
@@ -116,13 +115,28 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/2.1/howto/static-files/
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 STATIC_URL = '/static/'
-
 STATICFILES_DIRS = (
     os.path.join(BASE_DIR, "static"),
 )
 
+# Media files (files)
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+MEDIA_URL = '/media/'
+
+# Email Configuration
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+# EMAIL_HOST = 'localhost'
+# EMAIL_PORT = 1025
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = os.environ.get('EMAIL_HOST_USER')
+EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD')
+
+# Redirect AUTH_VIEWS
+LOGIN_URL = 'mvp-login'
 LOGIN_REDIRECT_URL = 'mvp-workspace'
-# REGISTER_REDIRECT_URL = 'mvp-workplace'
+REGISTER_REDIRECT_URL = 'mvp-login'
 LOGOUT_REDIRECT_URL = 'mvp-login'
 
 SESSION_SERIALIZER = 'django.contrib.sessions.serializers.PickleSerializer'

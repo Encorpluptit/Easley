@@ -22,7 +22,7 @@
                                 <th scope="col">#</th>
                                 <th scope="col">Name</th>
                                 <th scope="col">Email</th>
-                                <th scope="col">Commercial</th>
+                                <th scope="col">Responsable Clientèle</th>
                             </tr>
                             </thead>
                             <tfoot class="thead-dark">
@@ -30,7 +30,7 @@
                                 <th scope="col">#</th>
                                 <th scope="col">Name</th>
                                 <th scope="col">Email</th>
-                                <th scope="col">Commercial</th>
+                                <th scope="col">Responsable Clientèle</th>
                             </tr>
                             </tfoot>
                             <tbody>
@@ -40,11 +40,8 @@
                                     <td>
                                         <a href= {% url 'mvp-contract-form' client.company.id client.id %}>{{ client.name }}</a>
                                     </td>
-{#                                    <td>#}
-{#                                        <a href= {% url 'mvp-client-details' client.company.id client.id %}>{{ client.name }}</a>#}
-{#                                    </td>#}
                                     <td>{{ client.email }}</td>
-                                    <td>{{ client.commercial }}</td>
+                                    <td>{{ client.account_manager }}</td>
                                 </tr>
                             {% endfor %}
                             </tbody>
@@ -57,32 +54,37 @@
 
     <!-- Collapsible Client Form -->
     <div class="card shadow mb-4">
-        <!-- Client Form - Accordion -->
-        <a href="#collapseClientForm" class="d-block card-header py-3" data-toggle="collapse" role="button"
-           aria-expanded="true" aria-controls="collapseClientForm">
-            <button class="btn btn-primary btn-icon-split" type="submit">
-                <span class="icon text-white-50"><i class="fas fa-plus-circle"></i></span>
-                <span class="text">Nouveau Client</span>
-            </button>
-        </a>
-        <!-- Card Client Form - Collapse -->
+    <!-- Client Form - Accordion -->
+    <a href="#collapseClientForm" class="d-block card-header py-3" data-toggle="collapse" role="button"
+       aria-expanded="true" aria-controls="collapseClientForm">
+        <button class="btn btn-primary btn-icon-split" type="submit">
+            <span class="icon text-white-50"><i class="fas fa-plus-circle"></i></span>
+            <span class="text">Nouveau Client</span>
+        </button>
+    </a>
+
+    <!-- Card Client Form - Collapse -->
+    {% if post %}
+        <div class="collapse show" id="collapseClientForm">
+    {% else %}
         <div class="collapse hide" id="collapseClientForm">
-            <div class="card-body">
-                <form method="post">
-                    {% csrf_token %}
-                    {% include 'mvp/generic/form.html' %}
-                    <button class="btn btn-success btn-icon-split" type="submit">
-                        <span class="icon text-white-50"><i class="fas fa-check"></i></span>
-                        <span class="text">Ajouter un client</span>
-                    </button>
-                    <a class="btn btn-secondary btn-icon-split" href= {% url 'mvp-workspace' %}>
-                        <span class="icon text-white-50"><i class="fas fa-arrow-right"></i></span>
-                        <span class="text">Retour</span>
-                    </a>
-                </form>
-            </div>
-        </div>
-    </div>
+    {% endif %}
+<div class="card-body">
+    <form method="post">
+        {% csrf_token %}
+        {% include 'mvp/generic/form.html' %}
+        <button class="btn btn-success btn-icon-split" type="submit">
+            <span class="icon text-white-50"><i class="fas fa-check"></i></span>
+            <span class="text">Ajouter un client</span>
+        </button>
+        <a class="btn btn-secondary btn-icon-split" href= {% url 'mvp-workspace' %}>
+            <span class="icon text-white-50"><i class="fas fa-arrow-right"></i></span>
+            <span class="text">Retour</span>
+        </a>
+    </form>
+</div>
+</div>
+</div>
 
 {% endblock %}
 

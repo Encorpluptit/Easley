@@ -85,7 +85,6 @@ class InvoiceListView(LoginRequiredMixin, UserPassesTestMixin, ListView):
 
     def get_queryset(self):
         if hasattr(self.request.user, 'manager'):
-            print(self.request.user.manager.company.invoice_set.all())
             return self.request.user.manager.company.invoice_set.all()
         else:
             return HttpResponseNotFound

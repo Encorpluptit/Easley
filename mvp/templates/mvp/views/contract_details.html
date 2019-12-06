@@ -1,4 +1,5 @@
 {% extends 'mvp/generic/content.html' %}
+{% load static %}
 
 {% block content %}
     <article class="media content-section">
@@ -9,6 +10,15 @@
                 <b class="text-gray-900">Client: {{ object.client }}</b><br>
                 <b class="text-gray-900">BizDev: {{ object.commercial }}</b><br>
                 <b class="text-gray-900">Factu: {{ object.factu_manager }}</b><br>
+                <div class="row">
+                    <div class="col">{{ object.start_date }}</div>
+                    <div class="col-9">
+                        <div class="progress progress-sm mb-2">
+                            <div class="progress-bar" role="progressbar" style="width: {{ progression }}%"></div>
+                        </div>
+                    </div>
+                    <div class="col">{{ object.end_date }}</div>
+                    </div>
             </div>
             <hr>
             <table class="table table-hover table-bordered">
@@ -103,3 +113,4 @@
         </div>
     </article>
 {% endblock %}
+

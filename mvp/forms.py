@@ -88,6 +88,8 @@ class ContractForm(forms.ModelForm):
             self.fields[key].widget.attrs.update({'class': 'form-control'})
             self.fields[key].widget.attrs.update({'placeholder': key})
             self.fields[key].widget.attrs.update({'title': self.fields[key].help_text})
+        self.fields['start_date'].widget.attrs.update({'data-toggle': 'datepicker'})
+        self.fields['end_date'].widget.attrs.update({'data-toggle': 'datepicker'})
 
     class Meta:
         model = Contract

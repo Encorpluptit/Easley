@@ -1,10 +1,10 @@
 {% load static %}
 <!-- Sidebar -->
-<ul class="navbar-nav bg-easley-blue sidebar sidebar-dark accordion hide" id="accordionSidebar">
+<ul class="navbar-nav bg-easley-blue sidebar toggled sidebar-dark accordion" id="accordionSidebar">
 
     <!-- Sidebar - Brand -->
     <a class="sidebar-brand d-flex align-items-center justify-content-center bg-easley-blue" href= {% url 'mvp-home' %}>
-        <img src= {% static 'mvp/Easley_logo.png' %}>
+        <img alt="Accueil" src= {% static 'mvp/Easley_logo.png' %}>
     </a>
 
     <!-- Divider -->
@@ -29,11 +29,33 @@
 
         {% if user.manager.role == 1 or user.manager.role == 2 %}
 
-            <!-- Nav Item - Dashboard -->
-            <li class="nav-item">
-                <a class="nav-link" href= {% url 'mvp-contract-new' user.manager.company.id %}>
-                    <i class="fas fa-fw fa-plus-circle"></i>
-                    <span>Create contract</span></a>
+            <!-- Nav Item - Client Collapse Menu -->
+            <li {% if section == "contract" %}class="nav-item active" {% else %}class="nav-item"{% endif %}>
+                <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseContract"
+                   aria-expanded="true" aria-controls="collapseContract">
+                    <i class="fas fa-file-contract"></i>
+                    <span>Contrats</span>
+                </a>
+
+                <!-- Nav Item - Contract Collapse content -->
+                {% if section == "contract" %}
+                    <div id="collapseContract" class="collapse show" aria-labelledby="headingContract"
+                         data-parent="#accordionSidebar">
+                {% else %}
+                    <div id="collapseContract" class="collapse" aria-labelledby="headingContract"
+                         data-parent="#accordionSidebar">
+                {% endif %}
+                <div class="bg-white py-2 collapse-inner rounded">
+                    <h6 class="collapse-header">Gérez vos contrats:</h6>
+                    <a {% if create_client %}class="collapse-item active" {% else %}class="collapse-item"{% endif %}
+                       href= {% url 'mvp-contract-new' user.manager.company.id %}>
+                        <i class="fas fa-file-signature"></i> Créer un contrat</a>
+                    <a {% if list_client %}class="collapse-item active" {% else %}class="collapse-item"{% endif %}
+                       href= {% url 'mvp-contract-list' user.manager.company.id%}>
+                        Tous mes contrats.</a>
+                </div><!-- End Nav Item - Client Collapse content -->
+
+                </div><!-- End Nav Item - Client Collapse menu -->
             </li>
 
             <!-- Nav Item - Client Collapse Menu -->
@@ -195,173 +217,4 @@
 
 </ul>
 <!-- End of Sidebar -->
-
-{#            <!-- Nav Item - License Collapse Menu -->#}
-{#            <li {% if section == "license" %}class="nav-item active" {% else %}class="nav-item"{% endif %}>#}
-{#                <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseLicense"#}
-{#                   aria-expanded="true" aria-controls="collapseLicense">#}
-{#                    <i class="fas fa-certificate"></i>#}
-{#                    <span>License</span>#}
-{#                </a>#}
-{##}
-{#                <!-- Nav Item - License Collapse content -->#}
-{#                {% if section == "license" %}#}
-{#                    <div id="collapseLicense" class="collapse show" aria-labelledby="headingLicense"#}
-{#                         data-parent="#accordionSidebar">#}
-{#                {% else %}#}
-{#                    <div id="collapseLicense" class="collapse" aria-labelledby="headingLicense"#}
-{#                         data-parent="#accordionSidebar">#}
-{#                {% endif %}#}
-{#                <div class="bg-white py-2 collapse-inner rounded">#}
-{#                    <h6 class="collapse-header">Gérez vos licenses:</h6>#}
-{#                    <a {% if create_license %}class="collapse-item active"#}
-{#                       {% else %}class="collapse-item"{% endif %}#}
-{#                       href= {% url 'mvp-license-new' user.manager.company.id %}>#}
-{#                        Créer une license</a>#}
-{#                    <a {% if list_license %}class="collapse-item active" {% else %}class="collapse-item"{% endif %}#}
-{#                       href= {% url 'mvp-license-list' user.manager.company.id user.manager.id %}>#}
-{#                        Toutes mes licenses</a>#}
-{#                </div><!-- End Nav Item - License Collapse content -->#}
-{##}
-{#                </div><!-- End Nav Item - License Collapse menu -->#}
-{#            </li>#}
-{##}
-{#            <!-- Nav Item - Conseil Collapse Menu -->#}
-{#            <li {% if section == "conseil" %}class="nav-item active" {% else %}class="nav-item"{% endif %}>#}
-{#                <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseConseil"#}
-{#                   aria-expanded="true" aria-controls="collapseConseil">#}
-{#                    <i class="fas fa-user-friends"></i>#}
-{#                    <span>Conseil</span>#}
-{#                </a>#}
-{##}
-{#                <!-- Nav Item - >Conseil Collapse content -->#}
-{#                {% if section == "conseil" %}#}
-{#                    <div id="collapseConseil" class="collapse show" aria-labelledby="headingConseil"#}
-{#                         data-parent="#accordionSidebar">#}
-{#                {% else %}#}
-{#                    <div id="collapseConseil" class="collapse" aria-labelledby="headingConseil"#}
-{#                         data-parent="#accordionSidebar">#}
-{#                {% endif %}#}
-{#                <div class="bg-white py-2 collapse-inner rounded">#}
-{#                    <h6 class="collapse-header">Gérez vos conseils:</h6>#}
-{#                    <a {% if create_conseil %}class="collapse-item active"#}
-{#                       {% else %}class="collapse-item"{% endif %}#}
-{#                       href= {% url 'mvp-conseil-new' user.manager.company.id %}>#}
-{#                        Créer un conseil</a>#}
-{#                    <a {% if list_conseil %}class="collapse-item active" {% else %}class="collapse-item"{% endif %}#}
-{#                       href= {% url 'mvp-conseil-list' user.manager.company.id user.manager.id %}>#}
-{#                        Tous mes conseils</a>#}
-{#                </div><!-- End Nav Item - Conseil Collapse content -->#}
-{##}
-{#                </div><!-- End Nav Item - Conseil Collapse menu -->#}
-{#            </li>#}
-
-{#            <!-- Nav Item - Licenses -->#}
-{#            <li {% if section == "license" %}class="nav-item active" {% else %}class="nav-item"{% endif %}>#}
-{#                <a class="nav-link"#}
-{#                   href= {% url 'mvp-license-list' user.manager.company.id user.manager.id %}>#}
-{#                    <i class="fas fa-certificate"></i>#}
-{#                    <span>Licenses</span></a>#}
-{#            </li>#}
-
-{#            <!-- Nav Item - Licenses -->#}
-{#            <li {% if section == "conseil" %}class="nav-item active" {% else %}class="nav-item"{% endif %}>#}
-{#                <a class="nav-link"#}
-{#                   href= {% url 'mvp-conseil-list' user.manager.company.id user.manager.id %}>#}
-{#                    <i class="fas fa-user-friends"></i>#}
-{#                    <span>Conseils</span></a>#}
-{#            </li>#}
-
-
-{#        <!-- Nav Item - MyCompany Collapse Menu -->#}
-{#        <li {% if section == "invoice" %}class="nav-item active" {% else %}class="nav-item"{% endif %}>#}
-{#            <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseMyCompany"#}
-{#               aria-expanded="true" aria-controls="collapseMyCompany">#}
-{#                <i class="fas fa-building"></i>#}
-{#                <span>My Company</span>#}
-{#            </a>#}
-{##}
-{#            <!-- Nav Item - MyCompany Collapse content -->#}
-{#            {% if section == "invoice" %}#}
-{#                <div id="collapseMyCompany" class="collapse show" aria-labelledby="headingMyCompany"#}
-{#                     data-parent="#accordionSidebar">#}
-{#            {% else %}#}
-{#                <div id="collapseMyCompany" class="collapse" aria-labelledby="headingMyCompany"#}
-{#                     data-parent="#accordionSidebar">#}
-{#            {% endif %}#}
-{#            <div class="bg-white py-2 collapse-inner rounded">#}
-{#                <h6 class="collapse-header">Gérez vos factures:</h6>#}
-{#                <a {% if create_conseil %}class="collapse-item active"#}
-{#                   {% else %}class="collapse-item"{% endif %}#}
-{#                   href= {% url 'mvp-invoice-new' user.manager.company.id %}>#}
-{#                    Mon Résumé</a>#}
-{#                <a {% if list_conseil %}class="collapse-item active" {% else %}class="collapse-item"{% endif %}#}
-{#                   href= {% url 'mvp-invoice-list' user.manager.company.id %}>#}
-{#                    Mes KPI</a>#}
-{#            </div><!-- End Nav Item - Invoice Collapse content -->#}
-{##}
-{#            </div><!-- End Nav Item - Invoice Collapse menu -->#}
-{#        </li>#}
-{##}
-
-{##}
-{#        <!-- Nav Item - License Collapse Menu -->#}
-{#        <li {% if section == "license" %}class="nav-item active" {% else %}class="nav-item"{% endif %}>#}
-{#            <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseLicense"#}
-{#               aria-expanded="true" aria-controls="collapseLicense">#}
-{#                <i class="fas fa-certificate"></i>#}
-{#                <span>License</span>#}
-{#            </a>#}
-{##}
-{#            <!-- Nav Item - License Collapse content -->#}
-{#            {% if section == "license" %}#}
-{#                <div id="collapseLicense" class="collapse show" aria-labelledby="headingLicense"#}
-{#                     data-parent="#accordionSidebar">#}
-{#            {% else %}#}
-{#                <div id="collapseLicense" class="collapse" aria-labelledby="headingLicense"#}
-{#                     data-parent="#accordionSidebar">#}
-{#            {% endif %}#}
-{#            <div class="bg-white py-2 collapse-inner rounded">#}
-{#                <h6 class="collapse-header">Gérez vos licenses:</h6>#}
-{#                <a {% if create_license %}class="collapse-item active"#}
-{#                   {% else %}class="collapse-item"{% endif %}#}
-{#                   href= {% url 'mvp-license-new' user.commercial.company.id %}>#}
-{#                    Créer une license</a>#}
-{#                <a {% if list_license %}class="collapse-item active" {% else %}class="collapse-item"{% endif %}#}
-{#                   href= {% url 'mvp-license-list' user.commercial.company.id user.commercial.id %}>#}
-{#                    Toutes mes licenses</a>#}
-{#            </div><!-- End Nav Item - License Collapse content -->#}
-{##}
-{#            </div><!-- End Nav Item - License Collapse menu -->#}
-{#        </li>#}
-{##}
-{#        <!-- Nav Item - Conseil Collapse Menu -->#}
-{#        <li {% if section == "conseil" %}class="nav-item active" {% else %}class="nav-item"{% endif %}>#}
-{#            <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseConseil"#}
-{#               aria-expanded="true" aria-controls="collapseConseil">#}
-{#                <i class="fas fa-user-friends"></i>#}
-{#                <span>Conseil</span>#}
-{#            </a>#}
-{##}
-{#            <!-- Nav Item - >Conseil Collapse content -->#}
-{#            {% if section == "conseil" %}#}
-{#                <div id="collapseConseil" class="collapse show" aria-labelledby="headingConseil"#}
-{#                     data-parent="#accordionSidebar">#}
-{#            {% else %}#}
-{#                <div id="collapseConseil" class="collapse" aria-labelledby="headingConseil"#}
-{#                     data-parent="#accordionSidebar">#}
-{#            {% endif %}#}
-{#            <div class="bg-white py-2 collapse-inner rounded">#}
-{#                <h6 class="collapse-header">Gérez vos conseils:</h6>#}
-{#                <a {% if create_conseil %}class="collapse-item active"#}
-{#                   {% else %}class="collapse-item"{% endif %}#}
-{#                   href= {% url 'mvp-conseil-new' user.commercial.company.id %}>#}
-{#                    Créer un conseil</a>#}
-{#                <a {% if list_conseil %}class="collapse-item active" {% else %}class="collapse-item"{% endif %}#}
-{#                   href= {% url 'mvp-conseil-list' user.commercial.company.id user.commercial.id %}>#}
-{#                    Tous mes conseils</a>#}
-{#            </div><!-- End Nav Item - Conseil Collapse content -->#}
-{##}
-{#            </div><!-- End Nav Item - Conseil Collapse menu -->#}
-{#        </li>#}
 

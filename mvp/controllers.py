@@ -1,8 +1,10 @@
 from django.contrib import messages
 from django.contrib.auth import authenticate, login
-from .models import Manager, Commercial, Contract, Client, Conseil, Invoice
-from django.core.exceptions import ObjectDoesNotExist, ValidationError
 from django.shortcuts import get_object_or_404, redirect
+from django.core.exceptions import ObjectDoesNotExist, ValidationError
+from dateutil.relativedelta import relativedelta
+from django.db.models import Sum
+from .models import Manager, Commercial, Contract, Client, Conseil, Invoice
 
 
 def customRegisterUser(request, form):
@@ -16,6 +18,37 @@ def customRegisterUser(request, form):
     else:
         messages.warning(request, f'An Error occurred ! Please try again later')
         return False
+
+def CreateAllInvoice(contract, licenses, conseils):
+    factu_date = contract.start_date + relativedelta(months=+contract.facturation)
+    tmp = contract.start_date + relativedelta(days=-1)
+    month = contract.facturation
+    while factu_date <= contract.end_date:
+        # print(factu_date)
+        invoice_licenses = licenses.filter(end_date__lte=factu_date, end_date__gt=tmp).all()
+        invoice_conseils = conseils.filter(end_date__lte=factu_date, end_date__gt=tmp).all()
+        price = invoice_conseils.aggregate(Sum('price'))['price__sum'] or 0
+        price += invoice_licenses.aggregate(Sum('price'))['price__sum'] or 0
+        # print(invoice_licenses, invoice_conseils)
+        # print(price)
+        factu = Invoice(description="facttu mois %d" % month,
+                        company=contract.company,
+                        contract=contract,
+                        price=price,
+                        date=factu_date,
+                        )
+        factu.save()
+        for lic in invoice_licenses:
+            lic.invoice = factu
+            lic.save()
+        for conseil in invoice_conseils:
+            conseil.invoice = factu
+            conseil.save()
+        tmp = factu_date
+        factu_date += relativedelta(months=+contract.facturation)
+        month += contract.facturation
+    # print(contract.end_date - contract.start_date)
+    # print(int((contract.end_date - contract.start_date).days/30))
 
 
 def customCompanyRegister(request, form):

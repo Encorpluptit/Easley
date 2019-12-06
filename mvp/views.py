@@ -1,8 +1,11 @@
 from django.contrib import messages
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required, user_passes_test
+from dateutil.relativedelta import relativedelta
+from dateutil.utils import today
+from django.db.models import Sum
 from .models import Company, Commercial, Manager, Client, Conseil, License, Contract, Invoice
-from .controllers import customRegisterUser
+from .controllers import customRegisterUser, CreateAllInvoice
 from .forms import (
     UserRegisterForm,
     CompanyForm,
@@ -79,6 +82,7 @@ def CreateContractClient(request, **kwargs):
     context['form'] = form
     return render(request, 'mvp/views/contract_client.html', context)
 
+
 # @ TODO: Faire permissions
 @login_required
 def CreateContractForm(request, cpny_pk=None, client_pk=None):
@@ -96,8 +100,8 @@ def CreateContractForm(request, cpny_pk=None, client_pk=None):
 
 
 # @ TODO: Faire permissions
-from dateutil.relativedelta import relativedelta
-from django.db.models import Sum
+
+
 @login_required
 def ContractDetails(request, cpny_pk=None, contract_pk=None, conseil_pk=None):
     context = {
@@ -111,43 +115,20 @@ def ContractDetails(request, cpny_pk=None, contract_pk=None, conseil_pk=None):
     context['object'] = contract
     context['licenses'] = licenses
     context['conseils'] = conseils
+    context['progression'] = 0
+    date_now = today().date()
+    if contract.start_date <= date_now:
+        try:
+            context['progression'] = int((date_now - contract.start_date) / (contract.end_date - contract.start_date) * 100)
+        except ZeroDivisionError:
+            pass
     if contract.validated:
         return render(request, 'mvp/views/contract_details.html', context)
-    if request.method == "POST":
+    if request.method == "POST" and not contract.validated:
         if conseils.count() <= 0 and licenses.count() <= 0:
             messages.info(request, f"Le contrat est vide. Veuillez rentrer une license ou un conseil.")
         else:
-            # contract.validated = True
-            # @ TODO: create related invoices
-            factu_date = contract.start_date + relativedelta(months=+contract.facturation)
-            tmp = contract.start_date + relativedelta(days=-1)
-            month = contract.facturation
-            while factu_date <= contract.end_date:
-                print(factu_date)
-                invoice_licenses = licenses.filter(end_date__lte=factu_date, end_date__gt=tmp).all()
-                invoice_conseils = conseils.filter(end_date__lte=factu_date, end_date__gt=tmp).all()
-                price = invoice_conseils.aggregate(Sum('price'))['price__sum'] or 0
-                price += invoice_licenses.aggregate(Sum('price'))['price__sum'] or 0
-                print(invoice_licenses, invoice_conseils)
-                print(price)
-                factu = Invoice(description="facttu mois %d" % month,
-                                company=contract.company,
-                                contract=contract,
-                                price=price,
-                                date=factu_date,
-                                )
-                factu.save()
-                for lic in invoice_licenses:
-                    lic.invoice = factu
-                    lic.save()
-                for conseil in invoice_conseils:
-                    conseil.invoice = factu
-                    conseil.save()
-                tmp = factu_date
-                factu_date += relativedelta(months=+contract.facturation)
-                month += contract.facturation
-            # print(contract.end_date - contract.start_date)
-            # print(int((contract.end_date - contract.start_date).days/30))
+            CreateAllInvoice(contract, licenses, conseils)
             contract.validated = True
             contract.save()
             messages.success(request, f'Contrat Validé.')
@@ -188,6 +169,7 @@ def ContractListView(request, cpny_pk=None):
         context['not_validated_contracts'] = contracts.filter(validated=False)
     return render(request, 'mvp/views/contract_list.html', context)
 
+
 @login_required
 def join_company(request):
     if request.method == "POST":
@@ -218,7 +200,6 @@ def workspace(request):
         return redirect('mvp-manager-workspace')
     else:
         return redirect('mvp-join-company')
-
 
 # @login_required
 # def serviceCreation(request):

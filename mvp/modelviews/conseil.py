@@ -106,7 +106,6 @@ class ConseilUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
 
     def get_success_url(self):
         messages.success(self.request, self.success_message)
-        print(self.request.META)
         return self.object.get_absolute_url(self.object.company.id, self.object.contract.id)
 
     def get_form_kwargs(self, *args, **kwargs):

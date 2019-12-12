@@ -24,7 +24,7 @@ def email(request):
     email_from = settings.EMAIL_HOST_USER
     recipient_list = ['damien.bernard@epitech.eu', ]
     send_mail(subject, message, email_from, recipient_list)
-    return redirect('redirect to a new page')
+    return redirect('mvp-home')
 
 
 def home(request):

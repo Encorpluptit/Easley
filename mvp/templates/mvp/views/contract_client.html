@@ -5,18 +5,18 @@
     <!-- Collapsible Client List -->
     <div class="card shadow mb-4">
         <!-- Client List - Accordion -->
-        <a href="#collapseClienList" class="d-block card-header py-3" data-toggle="collapse" role="button"
-           aria-expanded="true" aria-controls="collapseClienList">
+        <a href="#collapseClientList" class="d-block card-header py-3" data-toggle="collapse" role="button"
+           aria-expanded="true" aria-controls="collapseClientList">
             <h6 class="m-0 font-weight-bold text-primary">Depuis mes clients.</h6>
         </a>
         <!-- Card List Client - Collapse -->
-        <div class="collapse hide" id="collapseClienList">
+        <div class="collapse hide" id="collapseClientList">
             <div class="card-body">
                 <div class="table-responsive">
                     {% if not client_list %}
                         Vous n'avez actuellement aucun client.
                     {% else %}
-                        <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
+                        <table class="table table-bordered" id="dataTable">
                             <thead class="thead-dark">
                             <tr>
                                 <th scope="col">#</th>

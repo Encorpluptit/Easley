@@ -7,9 +7,235 @@ def GetDate():
     return date.today()
 
 
-# def GetPrestaDate(Company):
-#     print(Company['Contracts'][0]['Start_date'])
-#     return date.today()
+def GetClient_1Data(nb_contract=1, lic=False, cons=False):
+    if nb_contract == 1:
+        if lic:
+            return [
+                {
+                    'description': "License_1_Contrat_1",
+                    'start_date_offset': {
+                        'months': 0,
+                        'weeks': 0,
+                        'days': 0, },
+                    'duration': 6,
+                    'price': 10000,
+                    'payed': False},
+                {
+                    'description': "License_2_Contrat_1",
+                    'start_date_offset': {
+                        'months': 3,
+                        'weeks': 0,
+                        'days': 0, },
+                    'duration': 9,
+                    'price': 20000,
+                    'payed': False},
+            ]
+        elif cons:
+            return [
+                {
+                    'description': "Conseil_1_Contrat_1",
+                    'start_date_offset': {
+                        'months': 0,
+                        'weeks': 0,
+                        'days': 0, },
+                    'duration': 2,
+                    'price': 5000,
+                    'payed': False,
+                    'Services': [
+                        {
+                            'descr': "début service",
+                            'price': 2000,
+                            'estimated_date_offset': {
+                                'months': 0,
+                                'weeks': 0,
+                                'days': 0, },
+                            'junior_day': 1,
+                            'senior_day': 1,
+                            'payed': False,
+                            'done': 0},
+                        {
+                            'descr': "mileu service",
+                            'price': 2000,
+                            'estimated_date_offset': {
+                                'months': 0,
+                                'weeks': 2,
+                                'days': 0, },
+                            'junior_day': 2,
+                            'senior_day': 2,
+                            'payed': False,
+                            'done': 0},
+                        {
+                            'descr': "fin service",
+                            'price': 1000,
+                            'estimated_date_offset': {
+                                'months': 1,
+                                'weeks': 2,
+                                'days': 0, },
+                            'junior_day': 3,
+                            'senior_day': 3,
+                            'payed': False,
+                            'done': 0},
+                    ]},
+
+                {
+                    'description': "Conseil_2_Contrat_1",
+                    'start_date_offset': {
+                        'months': 10,
+                        'weeks': 0,
+                        'days': 0, },
+                    'duration': 2,
+                    'price': 5000,
+                    'payed': False,
+                    'Services': [
+                        {
+                            'descr': "début service",
+                            'price': 2000,
+                            'estimated_date_offset': {
+                                'months': 0,
+                                'weeks': 0,
+                                'days': 0, },
+                            'junior_day': 1,
+                            'senior_day': 1,
+                            'payed': False,
+                            'done': 0},
+                        {
+                            'descr': "mileu service",
+                            'price': 2000,
+                            'estimated_date_offset': {
+                                'months': 0,
+                                'weeks': 2,
+                                'days': 0, },
+                            'junior_day': 2,
+                            'senior_day': 2,
+                            'payed': False,
+                            'done': 0},
+                        {
+                            'descr': "fin service",
+                            'price': 1000,
+                            'estimated_date_offset': {
+                                'months': 1,
+                                'weeks': 2,
+                                'days': 0, },
+                            'junior_day': 3,
+                            'senior_day': 3,
+                            'payed': False,
+                            'done': 0},
+                    ]},
+            ]
+    elif nb_contract == 2:
+        if lic:
+            return [
+                {
+                    'description': "License_1_Contrat_2",
+                    'start_date_offset': {
+                        'months': 0,
+                        'weeks': 0,
+                        'days': 0, },
+                    'duration': 12,
+                    'price': 20000,
+                    'payed': False},
+                {
+                    'description': "License_2_Contrat_2",
+                    'start_date_offset': {
+                        'months': 12,
+                        'weeks': 0,
+                        'days': 0, },
+                    'duration': 9,
+                    'price': 5000,
+                    'payed': False},
+            ]
+        elif cons:
+            return [
+                {
+                    'description': "Conseil_1_Contrat_2",
+                    'start_date_offset': {
+                        'months': 5,
+                        'weeks': 0,
+                        'days': 0, },
+                    'duration': 2,
+                    'price': 5000,
+                    'payed': False,
+                    'Services': [
+                        {
+                            'descr': "début service",
+                            'price': 2000,
+                            'estimated_date_offset': {
+                                'months': 0,
+                                'weeks': 0,
+                                'days': 0, },
+                            'junior_day': 1,
+                            'senior_day': 1,
+                            'payed': False,
+                            'done': 0},
+                        {
+                            'descr': "mileu service",
+                            'price': 2000,
+                            'estimated_date_offset': {
+                                'months': 2,
+                                'weeks': 2,
+                                'days': 0, },
+                            'junior_day': 2,
+                            'senior_day': 2,
+                            'payed': False,
+                            'done': 0},
+                        {
+                            'descr': "fin service",
+                            'price': 1000,
+                            'estimated_date_offset': {
+                                'months': 4,
+                                'weeks': 2,
+                                'days': 0, },
+                            'junior_day': 3,
+                            'senior_day': 3,
+                            'payed': False,
+                            'done': 0},
+                    ]},
+
+                {
+                    'description': "Conseil_2_Contrat_2",
+                    'start_date_offset': {
+                        'months': 12,
+                        'weeks': 0,
+                        'days': 0, },
+                    'duration': 5,
+                    'price': 5000,
+                    'payed': False,
+                    'Services': [
+                        {
+                            'descr': "début service",
+                            'price': 2000,
+                            'estimated_date_offset': {
+                                'months': 0,
+                                'weeks': 0,
+                                'days': 0, },
+                            'junior_day': 1,
+                            'senior_day': 1,
+                            'payed': False,
+                            'done': 0},
+                        {
+                            'descr': "mileu service",
+                            'price': 2000,
+                            'estimated_date_offset': {
+                                'months': 0,
+                                'weeks': 2,
+                                'days': 0, },
+                            'junior_day': 2,
+                            'senior_day': 2,
+                            'payed': False,
+                            'done': 0},
+                        {
+                            'descr': "fin service",
+                            'price': 1000,
+                            'estimated_date_offset': {
+                                'months': 1,
+                                'weeks': 2,
+                                'days': 0, },
+                            'junior_day': 3,
+                            'senior_day': 3,
+                            'payed': False,
+                            'done': 0},
+                    ]},
+            ]
 
 
 def GetSpecificData(user, company_nb, DATA):
@@ -18,257 +244,230 @@ def GetSpecificData(user, company_nb, DATA):
         'Contracts': [
             {
                 'Client': "Client_1[Commercial 1]",
-                'Commercial' : "Commercial_%s_1" % user,
+                'Commercial': "Commercial_%s_1" % user,
                 'FactuManager': "Factu_%s" % user,
                 'Descr': "Contrat_1_Client_1",
                 'Start_date': GetDate(),
                 'Duration': 12,
                 'Facturation': 1,
-
-                'Licenses': [
-                    {
-                        'description' : "License_1_Contrat_1",
-                        'start_date_offset': {
-                            'months': 0,
-                            'weeks': 0,
-                            'days': 0,},
-                        'duration' : 6,
-                        'price': 10000,
-                        'payed': False},
-                    {
-                        'description' : "License_2_Contrat_1",
-                        'start_date_offset': {
-                            'months': 3,
-                            'weeks': 0,
-                            'days': 0,},
-                        'duration' : 9,
-                        'price': 20000,
-                        'payed': False},
-                ],
-
-                'Conseils': [
-                    {
-                        'description': "Conseil_1_Contrat_1",
-                        'start_date_offset': {
-                            'months': 0,
-                            'weeks': 0,
-                            'days': 0,},
-                        'duration' : 2,
-                        'price': 5000,
-                        'payed': False,
-                        'Services': [
-                            {
-                                'descr': "début service",
-                                'price': 2000,
-                                'estimated_date_offset': {
-                                    'months': 0,
-                                    'weeks': 0,
-                                    'days': 0,},
-                                'junior_day': 1,
-                                'senior_day': 1,
-                                'payed': False,
-                                'done': 0},
-                            {
-                                'descr': "mileu service",
-                                'price': 2000,
-                                'estimated_date_offset': {
-                                    'months': 0,
-                                    'weeks': 2,
-                                    'days': 0,},
-                                'junior_day': 2,
-                                'senior_day': 2,
-                                'payed': False,
-                                'done': 0},
-                            {
-                                'descr': "fin service",
-                                'price': 1000,
-                                'estimated_date_offset': {
-                                    'months': 1,
-                                    'weeks': 2,
-                                    'days': 0,},
-                                'junior_day': 3,
-                                'senior_day': 3,
-                                'payed': False,
-                                'done': 0},
-                        ]},
-
-                    {
-                        'description': "Conseil_2_Contrat_1",
-                        'start_date_offset': {
-                            'months': 10,
-                            'weeks': 0,
-                            'days': 0,},
-                        'duration' : 2,
-                        'price': 5000,
-                        'payed': False,
-                        'Services': [
-                            {
-                                'descr': "début service",
-                                'price': 2000,
-                                'estimated_date_offset': {
-                                    'months': 0,
-                                    'weeks': 0,
-                                    'days': 0,},
-                                'junior_day': 1,
-                                'senior_day': 1,
-                                'payed': False,
-                                'done': 0},
-                            {
-                                'descr': "mileu service",
-                                'price': 2000,
-                                'estimated_date_offset': {
-                                    'months': 0,
-                                    'weeks': 2,
-                                    'days': 0,},
-                                'junior_day': 2,
-                                'senior_day': 2,
-                                'payed': False,
-                                'done': 0},
-                            {
-                                'descr': "fin service",
-                                'price': 1000,
-                                'estimated_date_offset': {
-                                    'months': 1,
-                                    'weeks': 2,
-                                    'days': 0,},
-                                'junior_day': 3,
-                                'senior_day': 3,
-                                'payed': False,
-                                'done': 0},
-                        ]},
-                ]
+                'Licenses': GetClient_1Data(nb_contract=1, lic=True),
+                'Conseils': GetClient_1Data(nb_contract=1, cons=True),
             },
-
 
             {
                 'Client': "Client_1[Commercial 1]",
-                'Commercial' : "Commercial_%s_1" % user,
+                'Commercial': "Commercial_%s_1" % user,
                 'FactuManager': "Factu_%s" % user,
                 'Descr': "Contrat_2_Client_1",
                 'Start_date': GetDate(),
+                'Duration': 24,
+                'Facturation': 1,
+                'Licenses': GetClient_1Data(nb_contract=2, lic=True),
+                'Conseils': GetClient_1Data(nb_contract=2, cons=True),
+            },
+
+            {
+                'Client': "Client_2[Commercial 1]",
+                'Commercial': "Commercial_%s_1" % user,
+                'FactuManager': "Factu_%s" % user,
+                'Descr': "Contrat_1_Client_2",
+                'Start_date': GetDate(),
+                'Duration': 12,
+                'Facturation': 3,
+                'Licenses': GetClient_1Data(nb_contract=1, lic=True),
+                'Conseils': GetClient_1Data(nb_contract=1, cons=True),
+            },
+
+            {
+                'Client': "Client_2[Commercial 1]",
+                'Commercial': "Commercial_%s_1" % user,
+                'FactuManager': "Factu_%s" % user,
+                'Descr': "Contrat_2_Client_2",
+                'Start_date': GetDate(),
+                'Duration': 24,
+                'Facturation': 3,
+                'Licenses': GetClient_1Data(nb_contract=2, lic=True),
+                'Conseils': GetClient_1Data(nb_contract=2, cons=True),
+            },
+
+            {
+                'Client': "Client_3[Commercial 1]",
+                'Commercial': "Commercial_%s_1" % user,
+                'FactuManager': "Factu_%s" % user,
+                'Descr': "Contrat_1_Client_3",
+                'Start_date': GetDate(),
+                'Duration': 12,
+                'Facturation': 12,
+                'Licenses': GetClient_1Data(nb_contract=1, lic=True),
+                'Conseils': GetClient_1Data(nb_contract=1, cons=True),
+            },
+
+            {
+                'Client': "Client_3[Commercial 1]",
+                'Commercial': "Commercial_%s_1" % user,
+                'FactuManager': "Factu_%s" % user,
+                'Descr': "Contrat_2_Client_3",
+                'Start_date': GetDate(),
+                'Duration': 24,
+                'Facturation': 12,
+                'Licenses': GetClient_1Data(nb_contract=2, lic=True),
+                'Conseils': GetClient_1Data(nb_contract=2, cons=True),
+            },
+
+            {
+                'Client': "Client_1[Commercial 2]",
+                'Commercial': "Commercial_%s_2" % user,
+                'FactuManager': "Factu_%s" % user,
+                'Descr': "Contrat_1_Client_1",
+                'Start_date': GetDate() - relativedelta(months=3),
                 'Duration': 12,
                 'Facturation': 1,
-
-                'Licenses': [
-                    {
-                        'description' : "License_1_Contrat_2",
-                        'start_date_offset': {
-                            'months': 0,
-                            'weeks': 0,
-                            'days': 0,},
-                        'duration' : 6,
-                        'price': 10000,
-                        'payed': False},
-                    {
-                        'description' : "License_2_Contrat_2",
-                        'start_date_offset': {
-                            'months': 3,
-                            'weeks': 0,
-                            'days': 0,},
-                        'duration' : 9,
-                        'price': 20000,
-                        'payed': False},
-                ],
-
-                'Conseils': [
-                    {
-                        'description': "Conseil_1_Contrat_2",
-                        'start_date_offset': {
-                            'months': 0,
-                            'weeks': 0,
-                            'days': 0,},
-                        'duration' : 2,
-                        'price': 5000,
-                        'payed': False,
-                        'Services': [
-                            {
-                                'descr': "début service",
-                                'price': 2000,
-                                'estimated_date_offset': {
-                                    'months': 0,
-                                    'weeks': 0,
-                                    'days': 0,},
-                                'junior_day': 1,
-                                'senior_day': 1,
-                                'payed': False,
-                                'done': 0},
-                            {
-                                'descr': "mileu service",
-                                'price': 2000,
-                                'estimated_date_offset': {
-                                    'months': 0,
-                                    'weeks': 2,
-                                    'days': 0,},
-                                'junior_day': 2,
-                                'senior_day': 2,
-                                'payed': False,
-                                'done': 0},
-                            {
-                                'descr': "fin service",
-                                'price': 1000,
-                                'estimated_date_offset': {
-                                    'months': 1,
-                                    'weeks': 2,
-                                    'days': 0,},
-                                'junior_day': 3,
-                                'senior_day': 3,
-                                'payed': False,
-                                'done': 0},
-                        ]},
-
-                    {
-                        'description': "Conseil_2_Contrat_2",
-                        'start_date_offset': {
-                            'months': 10,
-                            'weeks': 0,
-                            'days': 0,},
-                        'duration' : 2,
-                        'price': 5000,
-                        'payed': False,
-                        'Services': [
-                            {
-                                'descr': "début service",
-                                'price': 2000,
-                                'estimated_date_offset': {
-                                    'months': 0,
-                                    'weeks': 0,
-                                    'days': 0,},
-                                'junior_day': 1,
-                                'senior_day': 1,
-                                'payed': False,
-                                'done': 0},
-                            {
-                                'descr': "mileu service",
-                                'price': 2000,
-                                'estimated_date_offset': {
-                                    'months': 0,
-                                    'weeks': 2,
-                                    'days': 0,},
-                                'junior_day': 2,
-                                'senior_day': 2,
-                                'payed': False,
-                                'done': 0},
-                            {
-                                'descr': "fin service",
-                                'price': 1000,
-                                'estimated_date_offset': {
-                                    'months': 1,
-                                    'weeks': 2,
-                                    'days': 0,},
-                                'junior_day': 3,
-                                'senior_day': 3,
-                                'payed': False,
-                                'done': 0},
-                        ]},
-                ]
+                'Licenses': GetClient_1Data(nb_contract=1, lic=True),
+                'Conseils': GetClient_1Data(nb_contract=1, cons=True),
             },
+
+            {
+                'Client': "Client_1[Commercial 2]",
+                'Commercial': "Commercial_%s_2" % user,
+                'FactuManager': "Factu_%s" % user,
+                'Descr': "Contrat_2_Client_1",
+                'Start_date': GetDate() - relativedelta(months=3),
+                'Duration': 24,
+                'Facturation': 1,
+                'Licenses': GetClient_1Data(nb_contract=2, lic=True),
+                'Conseils': GetClient_1Data(nb_contract=2, cons=True),
+            },
+
+            {
+                'Client': "Client_2[Commercial 2]",
+                'Commercial': "Commercial_%s_2" % user,
+                'FactuManager': "Factu_%s" % user,
+                'Descr': "Contrat_1_Client_2",
+                'Start_date': GetDate() - relativedelta(months=3),
+                'Duration': 12,
+                'Facturation': 3,
+                'Licenses': GetClient_1Data(nb_contract=1, lic=True),
+                'Conseils': GetClient_1Data(nb_contract=1, cons=True),
+            },
+
+            {
+                'Client': "Client_2[Commercial 2]",
+                'Commercial': "Commercial_%s_2" % user,
+                'FactuManager': "Factu_%s" % user,
+                'Descr': "Contrat_2_Client_2",
+                'Start_date': GetDate() - relativedelta(months=3),
+                'Duration': 24,
+                'Facturation': 3,
+                'Licenses': GetClient_1Data(nb_contract=2, lic=True),
+                'Conseils': GetClient_1Data(nb_contract=2, cons=True),
+            },
+
+            {
+                'Client': "Client_3[Commercial 2]",
+                'Commercial': "Commercial_%s_2" % user,
+                'FactuManager': "Factu_%s" % user,
+                'Descr': "Contrat_1_Client_3",
+                'Start_date': GetDate() - relativedelta(months=3),
+                'Duration': 12,
+                'Facturation': 12,
+                'Licenses': GetClient_1Data(nb_contract=1, lic=True),
+                'Conseils': GetClient_1Data(nb_contract=1, cons=True),
+            },
+
+            {
+                'Client': "Client_3[Commercial 2]",
+                'Commercial': "Commercial_%s_2" % user,
+                'FactuManager': "Factu_%s" % user,
+                'Descr': "Contrat_2_Client_3",
+                'Start_date': GetDate() - relativedelta(months=3),
+                'Duration': 24,
+                'Facturation': 12,
+                'Licenses': GetClient_1Data(nb_contract=2, lic=True),
+                'Conseils': GetClient_1Data(nb_contract=2, cons=True),
+            },
+
+            {
+                'Client': "Client_1[Commercial 3]",
+                'Commercial': "Commercial_%s_3" % user,
+                'FactuManager': "Factu_%s" % user,
+                'Descr': "Contrat_1_Client_1",
+                'Start_date': GetDate() - relativedelta(months=6),
+                'Duration': 12,
+                'Facturation': 1,
+                'Licenses': GetClient_1Data(nb_contract=1, lic=True),
+                'Conseils': GetClient_1Data(nb_contract=1, cons=True),
+            },
+
+            {
+                'Client': "Client_1[Commercial 3]",
+                'Commercial': "Commercial_%s_3" % user,
+                'FactuManager': "Factu_%s" % user,
+                'Descr': "Contrat_2_Client_1",
+                'Start_date': GetDate() - relativedelta(months=6),
+                'Duration': 24,
+                'Facturation': 1,
+                'Licenses': GetClient_1Data(nb_contract=2, lic=True),
+                'Conseils': GetClient_1Data(nb_contract=2, cons=True),
+            },
+
+            {
+                'Client': "Client_2[Commercial 3]",
+                'Commercial': "Commercial_%s_3" % user,
+                'FactuManager': "Factu_%s" % user,
+                'Descr': "Contrat_1_Client_2",
+                'Start_date': GetDate() - relativedelta(months=6),
+                'Duration': 12,
+                'Facturation': 3,
+                'Licenses': GetClient_1Data(nb_contract=1, lic=True),
+                'Conseils': GetClient_1Data(nb_contract=1, cons=True),
+            },
+
+            {
+                'Client': "Client_2[Commercial 3]",
+                'Commercial': "Commercial_%s_3" % user,
+                'FactuManager': "Factu_%s" % user,
+                'Descr': "Contrat_2_Client_2",
+                'Start_date': GetDate() - relativedelta(months=6),
+                'Duration': 24,
+                'Facturation': 3,
+                'Licenses': GetClient_1Data(nb_contract=2, lic=True),
+                'Conseils': GetClient_1Data(nb_contract=2, cons=True),
+            },
+
+            {
+                'Client': "Client_3[Commercial 3]",
+                'Commercial': "Commercial_%s_3" % user,
+                'FactuManager': "Factu_%s" % user,
+                'Descr': "Contrat_1_Client_3",
+                'Start_date': GetDate() - relativedelta(months=6),
+                'Duration': 12,
+                'Facturation': 12,
+                'Licenses': GetClient_1Data(nb_contract=1, lic=True),
+                'Conseils': GetClient_1Data(nb_contract=1, cons=True),
+            },
+
+            {
+                'Client': "Client_3[Commercial 3]",
+                'Commercial': "Commercial_%s_3" % user,
+                'FactuManager': "Factu_%s" % user,
+                'Descr': "Contrat_2_Client_3",
+                'Start_date': GetDate() - relativedelta(months=6),
+                'Duration': 24,
+                'Facturation': 12,
+                'Licenses': GetClient_1Data(nb_contract=2, lic=True),
+                'Conseils': GetClient_1Data(nb_contract=2, cons=True),
+            },
+
+
 
         ],
     }
 
 
 def get_data(DATA):
-    return [GetSpecificData("Damien", 3, DATA), ]
+    return [GetSpecificData("Enis", 1, DATA),
+            GetSpecificData("Eliot", 2, DATA),
+            GetSpecificData("Damien", 3, DATA), ]
 
 
 def CreateLicense(contract, LicenseData, license_index, dictio_license):
@@ -290,6 +489,7 @@ def CreateLicense(contract, LicenseData, license_index, dictio_license):
     dictio_license[license_index] = l
     return l, license_index + 1
 
+
 def CreateConseil(contract, ConseilData, conseil_index, dictio_conseil):
     date = ConseilData['start_date_offset']
     c = Conseil(
@@ -308,6 +508,7 @@ def CreateConseil(contract, ConseilData, conseil_index, dictio_conseil):
     # print(c, c.contract.start_date, date, c.start_date, c.end_date, c.duration)
     dictio_conseil[conseil_index] = c
     return c, conseil_index + 1
+
 
 def CreateService(conseil, ServiceData, service_index, dictio_service):
     date = ServiceData['estimated_date_offset']

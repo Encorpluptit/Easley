@@ -10,10 +10,10 @@
                 <th scope="col">#</th>
                 <th scope="col">Facture</th>
                 <th scope="col">Client</th>
-                <th scope="col">Price</th>
+                <th scope="col">Prix</th>
                 <th scope="col">Services</th>
                 <th scope="col">Licenses</th>
-                <th scope="col">Account Manager</th>
+                <th scope="col">Responsable facturation</th>
             </tr>
             </thead>
             <tfoot class="thead-dark">
@@ -21,10 +21,10 @@
                 <th scope="col">#</th>
                 <th scope="col">Conseil</th>
                 <th scope="col">Client</th>
-                <th scope="col">Price</th>
+                <th scope="col">Prix</th>
                 <th scope="col">Services</th>
                 <th scope="col">Licenses</th>
-                <th scope="col">Account Manager</th>
+                <th scope="col">Responsable facturation</th>
             </tr>
             </tfoot>
             <tbody>
@@ -37,8 +37,8 @@
                     <td>{{ object.contract.client|truncatechars:30 }}</td>
                     <td>{{ object.price|safe }}</td>
                     <td>
-                        {% if object.conseil_set.all %}
-                            {% for conseil in  object.conseil_set.all %}
+                        {% if object.conseils.all %}
+                            {% for conseil in  object.conseils.all %}
                                 <a href= {% url 'mvp-conseil-details' object.company.id object.contract.id conseil.id %}>{{ conseil.description }}</a>
                                 <br>
                             {% endfor %}
@@ -47,8 +47,8 @@
                         {% endif %}
                     </td>
                     <td>
-                        {% if object.license_set.all %}
-                            {% for license in  object.license_set.all %}
+                        {% if object.licenses.all %}
+                            {% for license in  object.licenses.all %}
                                 <a href= {% url 'mvp-license-details' object.company.id object.contract.id license.id %}>{{ license.description }}</a>
                                 <br>
                             {% endfor %}

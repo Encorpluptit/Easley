@@ -42,10 +42,10 @@
                      data-parent="#accordionSidebar">
                     <div class="bg-white py-2 collapse-inner rounded">
                         <h6 class="collapse-header">Gérez vos contrats:</h6>
-                        <a {% if create_client %}class="collapse-item active" {% else %}class="collapse-item"{% endif %}
+                        <a {% if create_contract %}class="collapse-item active" {% else %}class="collapse-item"{% endif %}
                            href= {% url 'mvp-contract-new' user.manager.company.id %}>
                             <i class="fas fa-file-signature"></i> Créer un contrat</a>
-                        <a {% if list_client %}class="collapse-item active" {% else %}class="collapse-item"{% endif %}
+                        <a {% if list_contract %}class="collapse-item active" {% else %}class="collapse-item"{% endif %}
                            href= {% url 'mvp-contract-list' user.manager.company.id %}>
                             Tous mes contrats.</a>
                     </div>
@@ -77,12 +77,19 @@
             </li><!-- End Nav Item - Client Collapse menu -->
 
         {% elif user.manager.role == 3 %}
+            <!-- Nav Item - Contract -->
+            <li {% if section == "contract" %}class="nav-item active" {% else %}class="nav-item"{% endif %}>
+                <a class="nav-link"
+                   href= {% url 'mvp-contract-list' user.manager.company.id %}>
+                    <i class="fas fa-file-contract"></i>
+                    <span>Contract</span></a>
+            </li>
 
             <!-- Nav Item - Client -->
             <li {% if section == "client" %}class="nav-item active" {% else %}class="nav-item"{% endif %}>
                 <a class="nav-link"
                    href= {% url 'mvp-client-list' user.manager.company.id user.manager.id %}>
-                    <i class="fas fa-building"></i>
+                    <i class="fas fa-user"></i>
                     <span>Clients</span></a>
             </li>
 
@@ -101,78 +108,53 @@
 
     {% elif user.commercial %}
 
+            <!-- Nav Item - Contract Collapse Menu -->
+            <li {% if section == "contract" %}class="nav-item active" {% else %}class="nav-item"{% endif %}>
+                <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseContract"
+                   aria-expanded="true" aria-controls="collapseContract">
+                    <i class="fas fa-file-contract"></i>
+                    <span>Contrats</span>
+                </a>
 
-        <!-- Nav Item - Contract Collapse Menu -->
-        <li {% if section == "contract" %}class="nav-item active" {% else %}class="nav-item"{% endif %}>
-            <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseContract"
-               aria-expanded="true" aria-controls="collapseContract">
-                <i class="fas fa-file-contract"></i>
-                <span>Contrats</span>
-            </a>
-
-            <!-- Nav Item - Contract Collapse content -->
-            <div id="collapseContract" class="collapse" aria-labelledby="headingContract"
-                 data-parent="#accordionSidebar">
-                <div class="bg-white py-2 collapse-inner rounded">
-                    <h6 class="collapse-header">Gérez vos contrats:</h6>
-                    <a {% if create_client %}class="collapse-item active" {% else %}class="collapse-item"{% endif %}
-                       href= {% url 'mvp-contract-new' user.commercial.company.id %}>
-                        <i class="fas fa-file-signature"></i> Créer un contrat</a>
-                    <a {% if list_client %}class="collapse-item active" {% else %}class="collapse-item"{% endif %}
-                       href= {% url 'mvp-contract-list' user.commercial.company.id %}>
-                        Tous mes contrats.</a>
-                </div>
-            </div><!-- End Nav Item - Contract Collapse content -->
-        </li><!-- End Nav Item - Contract Collapse menu -->
-
-
-        {#        <!-- Nav Item - Dashboard -->#}
-        {#        <li class="nav-item">#}
-        {#            <a class="nav-link" href= {% url 'mvp-contract-new' user.commercial.company.id %}>#}
-        {#                <i class="fas fa-fw fa-plus-circle"></i>#}
-        {#                <span>Create contract</span></a>#}
-        {#        </li>#}
+                <!-- Nav Item - Contract Collapse content -->
+                <div id="collapseContract" class="collapse" aria-labelledby="headingContract"
+                     data-parent="#accordionSidebar">
+                    <div class="bg-white py-2 collapse-inner rounded">
+                        <h6 class="collapse-header">Gérez vos contrats:</h6>
+                        <a {% if create_contract %}class="collapse-item active" {% else %}class="collapse-item"{% endif %}
+                           href= {% url 'mvp-contract-new' user.commercial.company.id %}>
+                            <i class="fas fa-file-signature"></i> Créer un contrat</a>
+                        <a {% if list_contract %}class="collapse-item active" {% else %}class="collapse-item"{% endif %}
+                           href= {% url 'mvp-contract-list' user.commercial.company.id %}>
+                            Tous mes contrats.</a>
+                    </div>
+                </div><!-- End Nav Item - Contract Collapse content -->
+            </li><!-- End Nav Item - Contract Collapse menu -->
 
 
-        <!-- Nav Item - Client Collapse Menu -->
-        <li {% if section == "client" %} class="nav-item active" {% else %} class="nav-item" {% endif %}>
-            <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseClient"
-               aria-expanded="true" aria-controls="collapseClient">
-                <i class="fas fa-building"></i>
-                <span>Clients</span>
-            </a>
+            <!-- Nav Item - Client Collapse Menu -->
+            <li {% if section == "client" %}class="nav-item active" {% else %}class="nav-item"{% endif %}>
+                <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseClient"
+                   aria-expanded="true" aria-controls="collapseClient">
+                    <i class="fas fa-user-friends"></i>
+                    <span>Clients</span>
+                </a>
 
-            <!-- Nav Item - Client Collapse content -->
-            <div id="collapseClient" class="collapse" aria-labelledby="headingClient"
-                 data-parent="#accordionSidebar">
-                <div class="bg-white py-2 collapse-inner rounded">
-                    <h6 class="collapse-header">Gérez vos clients:</h6>
-                    <a {% if create_client %}class="collapse-item active" {% else %}class="collapse-item"{% endif %}
-                       href= {% url 'mvp-client-new' user.commercial.company.id %}>
-                        <i class="fas fa-user-plus"></i> Créer un client</a>
-                    <a {% if list_client %}class="collapse-item active" {% else %}class="collapse-item"{% endif %}
-                       href= {% url 'mvp-client-list' user.commercial.company.id user.commercial.id %}>
-                        Tous mes clients</a>
+                <!-- Nav Item - Client Collapse content -->
+                <div id="collapseClient" class="collapse" aria-labelledby="headingClient"
+                     data-parent="#accordionSidebar">
+                    <div class="bg-white py-2 collapse-inner rounded">
+                        <h6 class="collapse-header">Gérez vos clients:</h6>
+                        <a {% if create_client %}class="collapse-item active" {% else %}class="collapse-item"{% endif %}
+                           href= {% url 'mvp-client-new' user.commercial.company.id %}>
+                            <i class="fas fa-user-plus"></i> Créer un client</a>
+                        <a {% if list_client %}class="collapse-item active" {% else %}class="collapse-item"{% endif %}
+                           href= {% url 'mvp-client-list' user.commercial.company.id user.commercial.id %}>
+                            Tous mes clients</a>
+                    </div>
+
                 </div><!-- End Nav Item - Client Collapse content -->
-
-            </div><!-- End Nav Item - Client Collapse menu -->
-        </li>
-
-        {#        <!-- Divider -->#}
-        {#        <hr class="sidebar-divider">#}
-        {##}
-        {#        <!-- Heading -->#}
-        {#        <div class="sidebar-heading">#}
-        {#            Site mapping#}
-        {#        </div>#}
-        {##}
-        {#        <!-- Nav Item - Dashboard -->#}
-        {#        <li class="nav-item">#}
-        {#            <a class="nav-link" href= {% url 'mvp-contract-new' user.commercial.company.id %}>#}
-        {#                <i class="fas fa-fw fa-plus-circle"></i>#}
-        {#                <span>Create contract</span></a>#}
-        {#        </li>#}
-
+            </li><!-- End Nav Item - Client Collapse menu -->
 
     {% endif %}
 

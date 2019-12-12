@@ -4,14 +4,7 @@ from .commercials import CreateAllCommercials
 from .clients import CreateAllClients
 from .managers import CreateAllManagers
 from .prestas import CreateAllPresta
-#
-# def test():
-#     global A
-#     fct(A)
-#     print(A)
-#
 
-# boucle while en dehors fct sous la forme du dessus
 
 def PrintGlobalDict(DATA):
     print("<----------------------------GLOBAL_DICT----------------------->")
@@ -45,10 +38,8 @@ def init():
         ("c", create_database),
         ("w", wipe_database),
     ]
-
-
     user_input = input()
-    while (user_input != "x"):
+    while user_input != "x":
         for i in range(len(NfctTab)):
             if user_input == NfctTab[i][0]:
                 NfctTab[i][1](DATA)
@@ -56,5 +47,6 @@ def init():
         user_input = input()
     wipe_database(DATA)
     PrintGlobalDict(DATA)
+
 
 init()

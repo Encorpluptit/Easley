@@ -91,6 +91,7 @@ def CreateCompanyCommercials(CompanyData, commercial_index, DATA):
         )
     return commercial_index
 
+
 def CreateAllCommercials(DATA):
     commercial_index = 1
     AllDatas = get_data(DATA)

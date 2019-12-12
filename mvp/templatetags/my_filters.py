@@ -4,7 +4,7 @@ register = template.Library()
 
 
 def currency(money):
-    return '{:20,.2f} €'.format(money)
+    return "{0:2,.2f} €".format(money).replace(",", " ")
 
 
 register.filter('currency', currency)

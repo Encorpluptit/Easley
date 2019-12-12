@@ -12,69 +12,17 @@
                 <th scope="col">#</th>
                 <th scope="col">Conseil</th>
                 <th scope="col">Client</th>
-                <th scope="col">Price</th>
+                <th scope="col">Prix</th>
                 <th scope="col">Conseils</th>
                 <th scope="col">Licenses</th>
-                <th scope="col">Account Manager</th>
+                <th scope="col">Date de début</th>
+                <th scope="col">Date de fin</th>
+                <th scope="col">Responsable Facturation</th>
             </tr>
             </thead>
             <tbody>
             {% for contract in not_validated_contracts %}
                 <tr>
-                <th scope="row">{{ forloop.counter }}</th>
-                <td>
-                    <a href= {% url 'mvp-contract-details' contract.company.id contract.id %}>{{ contract.description }}</a>
-                </td>
-                <td>{{ contract.client|truncatechars:20 }}</td>
-                <td>{{ contract.price|safe }}</td>
-                <td>
-                    {% if contract.conseil_set.all %}
-                        {% for conseil in  contract.conseil_set.all %}
-                            <a href= {% url 'mvp-conseil-details' contract.company.id contract.id conseil.id %}>{{ conseil.description }}</a>
-                            <br>
-                        {% endfor %}
-                    {% else %}
-                        Aucun Conseil associé.
-                    {% endif %}
-                </td>
-                <td>
-                    {% if contract.license_set.all %}
-                        {% for license in  contract.license_set.all %}
-                            <a href= {% url 'mvp-license-details' contract.company.id contract.id license.id %}>{{ license.description }}</a>
-                            <br>
-                        {% endfor %}
-                    {% else %}
-                        Aucune License associée.
-                    {% endif %}
-                </td>
-                <td>{{ contract.factu_manager|safe }}</td>
-            {% endfor %}
-            </tr>
-            </tbody>
-        </table>
-    {% endif %}
-
-    <hr>
-    <h5>Contrat(s) en cours.</h5>
-    {% if not validated_contracts %}
-        Vous n'avez actuellement aucun contrat en cours.
-    {% else %}
-        <div class="table-responsive">
-            <table class="table table-bordered table-hover" id="dataTable" style="width: 100%">
-                <thead class="thead-dark">
-                <tr>
-                    <th scope="col">#</th>
-                    <th scope="col">Conseil</th>
-                    <th scope="col">Client</th>
-                    <th scope="col">Price</th>
-                    <th scope="col">Conseils</th>
-                    <th scope="col">Licenses</th>
-                    <th scope="col">Account Manager</th>
-                </tr>
-                </thead>
-                <tbody>
-                {% for contract in validated_contracts %}
-                    <tr>
                     <th scope="row">{{ forloop.counter }}</th>
                     <td>
                         <a href= {% url 'mvp-contract-details' contract.company.id contract.id %}>{{ contract.description }}</a>
@@ -101,9 +49,69 @@
                             Aucune License associée.
                         {% endif %}
                     </td>
+                    <td>{{ contract.start_date }}</td>
+                    <td>{{ contract.end_date }}</td>
                     <td>{{ contract.factu_manager|safe }}</td>
-                {% endfor %}
                 </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    {% endif %}
+
+    <hr>
+    <h5>Contrat(s) en cours.</h5>
+    {% if not validated_contracts %}
+        Vous n'avez actuellement aucun contrat en cours.
+    {% else %}
+        <div class="table-responsive">
+            <table class="table table-bordered table-hover" id="dataTable" style="width: 100%">
+                <thead class="thead-dark">
+                <tr>
+                    <th scope="col">#</th>
+                    <th scope="col">Conseil</th>
+                    <th scope="col">Client</th>
+                    <th scope="col">Price</th>
+                    <th scope="col">Conseils</th>
+                    <th scope="col">Licenses</th>
+                    <th scope="col">Date de début</th>
+                    <th scope="col">Date de fin</th>
+                    <th scope="col">Responsable Facturation</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for contract in validated_contracts %}
+                    <tr>
+                        <th scope="row">{{ forloop.counter }}</th>
+                        <td>
+                            <a href= {% url 'mvp-contract-details' contract.company.id contract.id %}>{{ contract.description }}</a>
+                        </td>
+                        <td>{{ contract.client|truncatechars:30 }}</td>
+                        <td>{{ contract.price|safe }}</td>
+                        <td>
+                            {% if contract.conseil_set.all %}
+                                {% for conseil in  contract.conseil_set.all %}
+                                    <a href= {% url 'mvp-conseil-details' contract.company.id contract.id conseil.id %}>{{ conseil.description }}</a>
+                                    <br>
+                                {% endfor %}
+                            {% else %}
+                                Aucun Conseil associé.
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if contract.license_set.all %}
+                                {% for license in  contract.license_set.all %}
+                                    <a href= {% url 'mvp-license-details' contract.company.id contract.id license.id %}>{{ license.description }}</a>
+                                    <br>
+                                {% endfor %}
+                            {% else %}
+                                Aucune License associée.
+                            {% endif %}
+                        </td>
+                        <td>{{ contract.start_date }}</td>
+                        <td>{{ contract.end_date }}</td>
+                        <td>{{ contract.factu_manager|safe }}</td>
+                    </tr>
+                {% endfor %}
                 </tbody>
             </table>
         </div>

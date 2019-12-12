@@ -42,17 +42,6 @@ def UpdateDeleteLicensePermissions(self, company_pk, contract_pk, license_pk):
     return False
 
 
-# def FillLicenseForm(self, model_view, *args, **kwargs):
-#     kwargs = super(model_view, self).get_form_kwargs()
-#     kwargs['user'] = self.request.user
-#     if hasattr(self.request.user, 'manager'):
-#         kwargs['company'] = self.request.user.manager.company
-#     elif hasattr(self.request.user, 'commercial'):
-#         kwargs['company'] = self.request.user.commercial.company
-#     kwargs['contract'] = get_object_or_404(Contract, pk=self.kwargs.get(self.pk_url_kwarg))
-#     return kwargs
-
-
 class LicenseCreateView(LoginRequiredMixin, UserPassesTestMixin, CreateView):
     model = License
     form_class = LicenseForm
@@ -75,7 +64,6 @@ class LicenseCreateView(LoginRequiredMixin, UserPassesTestMixin, CreateView):
 
     def get_form_kwargs(self, *args, **kwargs):
         return FillConseilLicenseForm(self, LicenseCreateView, *args, **kwargs)
-        # return FillLicenseForm(self, LicenseCreateView, *args, **kwargs)
 
     def handle_no_permission(self):
         return redirectWorkspaceFail(self.request, self.permission_denied_message)

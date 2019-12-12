@@ -18,74 +18,96 @@
                 <b class="text-gray-900">Contrat: {{ object.contract }}</b><br>
             </div>
             <hr>
-            <h4>Services</h4>
-            {% if object.service_set.all %}
-                <table class="table table-hover table-bordered">
-                    <thead class="thead-dark">
+            <table class="table table-hover table-bordered">
+                <thead class="thead-dark">
+                <tr>
+                    <th scope="col">Prix</th>
+                    <th scope="col">Nombre de services</th>
+                    <th scope="col">Date de début</th>
+                    <th scope="col">Durée</th>
+                    <th scope="col">Date de fin</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr>
+                    <td class="article-content">{{ object.price }}</td>
+                    <td class="col-md-1">{{ object.service_set.count }}</td>
+                    <td class="article-content">{{ object.start_date}}</td>
+                    <td class="article-content">{{ object.duration }}</td>
+                    <td class="article-content">{{ object.end_date }}</td>
+                </tr>
+                </tbody>
+            </table>
+
+        <hr>
+        <h4>Services</h4>
+        {% if object.service_set.all %}
+            <table class="table table-hover table-bordered">
+                <thead class="thead-dark">
+                <tr>
+                    <th scope="col">Prix</th>
+                    <th scope="col">Date de début</th>
+                    <th scope="col">Date prévue</th>
+                    <th scope="col">Date effective</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for service in object.service_set.all %}
                     <tr>
-                        <th scope="col">Prix</th>
-                        <th scope="col">Date de début</th>
-                        <th scope="col">Start Date</th>
-                        <th scope="col">Actual Date</th>
+                        <th scope="row">{{ forloop.counter }}</th>
+                        <td>URL VERS SERVICES {{ service.description }}
+                            {#                        <a href= {% url 'mvp-ser-details' object.company.id object.id %}>{{ object.description }}</a>#}
+                        </td>
+                        <td>{{ service.estimated_date|date:"d F, Y" }}</td>
+                        <td>{{ service.actual_date|date:"d F, Y" }}</td>
                     </tr>
-                    </thead>
-                    <tbody>
-                    {% for service in object.service_set.all %}
-                        <tr>
-                            <th scope="row">{{ forloop.counter }}</th>
-                            <td>URL VERS SERVICES {{ service.description }}
-                                {#                        <a href= {% url 'mvp-ser-details' object.company.id object.id %}>{{ object.description }}</a>#}
-                            </td>
-                            <td>{{ service.estimated_date|date:"d F, Y" }}</td>
-                            <td>{{ service.actual_date|date:"d F, Y" }}</td>
-                        </tr>
-                    {% endfor %}
-                    </tbody>
-                </table>
-            {% else %}
-                Ce conseil n'as pas de services pour l'instant.<br>
-            {% endif %}
-            <a class="btn btn-secondary btn-icon-split"
-               href= {% url 'mvp-contract-details' object.contract.company.id object.contract.id %}>
-                <span class="icon text-white-50"><i class="fas fa-arrow-right"></i></span>
-                <span class="text">Retour</span>
-            </a>
-            {% if object.contract.validated == False %}
-                <!-- Collapsible Client Form -->
-                <div class="card shadow mb-4">
-                    <!-- Client Form - Accordion -->
-                    <a href="#collapseServiceForm" class="d-block card-header py-3" data-toggle="collapse" role="button"
-                       aria-expanded="true" aria-controls="collapseServiceForm">
-                        <button class="btn btn-primary btn-icon-split" type="submit">
-                            <span class="icon text-white-50"><i class="fas fa-plus-circle"></i></span>
-                            <span class="text">Nouveau Service</span>
-                        </button>
-                    </a>
-                    <!-- Card Client Form - Collapse -->
-                    <div class="collapse hide" id="collapseServiceForm">
-                        <div class="card-body">
-                            <form method="post">
-                                {% csrf_token %}
-                                {% include 'mvp/generic/form.html' %}
-                                <button class="btn btn-success btn-icon-split" type="submit">
-                                    <span class="icon text-white-50"><i class="fas fa-check"></i></span>
-                                    <span class="text">Ajouter un service</span>
-                                </button>
-                            </form>
-                        </div>
+                {% endfor %}
+                </tbody>
+            </table>
+        {% else %}
+            Ce conseil n'as pas de services pour l'instant.<br>
+        {% endif %}
+        <a class="btn btn-secondary btn-icon-split"
+           href= {% url 'mvp-contract-details' object.contract.company.id object.contract.id %}>
+            <span class="icon text-white-50"><i class="fas fa-arrow-right"></i></span>
+            <span class="text">Retour</span>
+        </a>
+        {% if object.contract.validated == False %}
+            <!-- Collapsible Client Form -->
+            <div class="card shadow mb-4">
+                <!-- Client Form - Accordion -->
+                <a href="#collapseServiceForm" class="d-block card-header py-3" data-toggle="collapse" role="button"
+                   aria-expanded="true" aria-controls="collapseServiceForm">
+                    <button class="btn btn-primary btn-icon-split" type="submit">
+                        <span class="icon text-white-50"><i class="fas fa-plus-circle"></i></span>
+                        <span class="text">Nouveau Service</span>
+                    </button>
+                </a>
+                <!-- Card Client Form - Collapse -->
+                <div class="collapse hide" id="collapseServiceForm">
+                    <div class="card-body">
+                        <form method="post">
+                            {% csrf_token %}
+                            {% include 'mvp/generic/form.html' %}
+                            <button class="btn btn-success btn-icon-split" type="submit">
+                                <span class="icon text-white-50"><i class="fas fa-check"></i></span>
+                                <span class="text">Ajouter un service</span>
+                            </button>
+                        </form>
                     </div>
                 </div>
-            {% endif %}
-            <a class="btn btn-primary btn-icon-split"
-               href= {% url 'mvp-contract-details' object.contract.company.id object.contract.id %}>
-                <span class="icon text-white-50"><i class="fas fa-info-circle"></i></span>
-                <span class="text">Voir le contrat parent.</span>
-            </a>
-            <a class="btn btn-secondary btn-icon-split"
-               href= {{ request.META.HTTP_REFERER }}>
-                <span class="icon text-white-50"><i class="fas fa-arrow-right"></i></span>
-                <span class="text">Retour</span>
-            </a><br>
+            </div>
+        {% endif %}
+        <a class="btn btn-primary btn-icon-split"
+           href= {% url 'mvp-contract-details' object.contract.company.id object.contract.id %}>
+            <span class="icon text-white-50"><i class="fas fa-info-circle"></i></span>
+            <span class="text">Voir le contrat parent.</span>
+        </a>
+        <a class="btn btn-secondary btn-icon-split"
+           href= {{ request.META.HTTP_REFERER }}>
+            <span class="icon text-white-50"><i class="fas fa-arrow-right"></i></span>
+            <span class="text">Retour</span>
+        </a><br>
         </div>
     </article>
     <hr>

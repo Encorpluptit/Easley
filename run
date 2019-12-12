@@ -8,8 +8,8 @@ from time import sleep
 def migrate():
     system("./manage.py makemigrations mvp")
     sleep(0.4)
-    system("./manage.py makemigrations")
-    sleep(0.4)
+    # system("./manage.py makemigrations")
+    # sleep(0.4)
     system("./manage.py migrate")
     sleep(0.4)
 
@@ -24,6 +24,8 @@ def clean_directory(path):
     for f in file:
         print("Removing file: %s" % f)
         remove(join(path, f))
+    system("./manage.py makemigrations")
+    sleep(0.4)
 
 
 def clean_directories():

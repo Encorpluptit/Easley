@@ -1,6 +1,9 @@
 from django import forms
 from django.contrib.auth.models import User
 from django.contrib.auth.forms import UserCreationForm
+from dateutil.relativedelta import relativedelta
+from django.utils.formats import localize
+
 from .models import Company, Commercial, Manager, Client, Conseil, License, Invoice, Service, Contract
 
 
@@ -38,12 +41,23 @@ class CompanyForm(forms.ModelForm):
         self.instance.ceo = ceo
         for key in self.fields:
             self.fields[key].widget.attrs.update({'class': 'form-control'})
-            self.fields[key].widget.attrs.update({'placeholder': key})
+            self.fields[key].widget.attrs.update({'placeholder': self.fields[key].help_text})
+            # self.fields[key].widget.attrs.update({'placeholder': key})
             self.fields[key].widget.attrs.update({'title': self.fields[key].help_text})
 
     class Meta:
         model = Company
-        exclude = ('ceo',)
+        exclude = ('ceo', 'invoice_nb')
+
+    def clean_siret(self):
+        data = self.cleaned_data['siret']
+        print(type(data))
+        print(len(data))
+        if len(data) != 14:
+            raise forms.ValidationError("Le numéro SIRET doit comporter 14 chiffres.")
+        elif not data.isdigit():
+            raise forms.ValidationError("Le numéro SIRET ne doit comporter que des chiffres.")
+        return data
 
 
 class ClientForm(forms.ModelForm):
@@ -71,7 +85,7 @@ class ClientForm(forms.ModelForm):
 class ContractForm(forms.ModelForm):
     facturation = forms.ChoiceField(choices=CONTRACT_FACTURATION)
 
-    def __init__(self, *args, user=None, client=None, company=None, **kwargs):
+    def __init__(self, *args, user=None, client=None, company=None, contract=None, **kwargs):
         super().__init__(*args, **kwargs)
         if hasattr(user, 'commercial'):
             self.fields['commercial'].widget = forms.HiddenInput()
@@ -79,21 +93,20 @@ class ContractForm(forms.ModelForm):
         elif hasattr(user, 'manager'):
             self.fields['commercial'].queryset = company.commercial_set.all()
         if not kwargs.get('instance', None):
-            self.fields['commercial'].initial = client.commercial
+            self.fields['commercial'].initial = client.commercial.id
         self.instance.company = company
         self.instance.client = client
-        # self.fields['factu_manager'].queryset = company.manager_set.filter(role=3)
         self.instance.factu_manager = company.manager_set.filter(role=3).first()
         for key in self.fields:
             self.fields[key].widget.attrs.update({'class': 'form-control'})
             self.fields[key].widget.attrs.update({'placeholder': key})
             self.fields[key].widget.attrs.update({'title': self.fields[key].help_text})
         self.fields['start_date'].widget.attrs.update({'data-toggle': 'datepicker'})
-        self.fields['end_date'].widget.attrs.update({'data-toggle': 'datepicker'})
+        # self.fields['end_date'].widget.attrs.update({'data-toggle': 'datepicker'})
 
     class Meta:
         model = Contract
-        exclude = ('client', 'company', 'price', 'validated', 'payed', 'factu_manager')
+        exclude = ('client', 'company', 'price', 'validated', 'payed', 'factu_manager', 'end_date')
         widgets = {
         }
 
@@ -109,14 +122,14 @@ class ConseilForm(forms.ModelForm):
             self.fields[key].widget.attrs.update({'class': 'form-control'})
             self.fields[key].widget.attrs.update({'placeholder': key})
             self.fields[key].widget.attrs.update({'title': self.fields[key].help_text})
+        self.fields['start_date'].widget.attrs.update({'data-toggle': 'datepicker'})
 
     class Meta:
         model = Conseil
-        exclude = ('contract', 'payed', 'invoice')
-        # exclude = ('company', 'contract', 'client', )
+        exclude = ('contract', 'payed', 'end_date')
         widgets = {
-            'start_date': forms.SelectDateWidget,
-            'end_date': forms.SelectDateWidget,
+            # 'start_date': forms.SelectDateWidget,
+            # 'end_date': forms.SelectDateWidget,
         }
 
 
@@ -132,7 +145,6 @@ class ServiceForm(forms.ModelForm):
 
     class Meta:
         model = Service
-        # exclude = ('company', 'conseil',)
         exclude = ('conseil',)
         widgets = {
             'estimated_date': forms.SelectDateWidget,
@@ -149,12 +161,22 @@ class LicenseForm(forms.ModelForm):
             self.fields[key].widget.attrs.update({'class': 'form-control'})
             self.fields[key].widget.attrs.update({'placeholder': key})
             self.fields[key].widget.attrs.update({'title': self.fields[key].help_text})
+        self.fields['start_date'].widget.attrs.update({'data-toggle': 'datepicker'})
 
     class Meta:
         model = License
-        exclude = ('contract', 'payed', 'invoice')
-        # exclude = ('company', 'contract', 'client', )
-        # widgets = {'start_date': forms.SelectDateWidget, 'duration': forms.NumberInput}
+        exclude = ('contract', 'payed', 'end_date')
+
+    def clean(self):
+        cleaned_data = super().clean()
+        start_date = cleaned_data.get("start_date")
+        end_date = start_date + relativedelta(months=+cleaned_data['duration'])
+        if start_date < self.instance.contract.start_date:
+            self.add_error('start_date', "la date de début est inférieure à la date de début du contrat")
+        elif end_date > self.instance.contract.end_date:
+            self.add_error('duration', 'la date de fin est après à la date de fin du contrat')
+            self.add_error('duration', 'License: %s' % localize(end_date))
+            self.add_error('duration', 'Contrat: %s' % localize(self.instance.contract.end_date))
 
 
 class InvoiceFrom(forms.ModelForm):

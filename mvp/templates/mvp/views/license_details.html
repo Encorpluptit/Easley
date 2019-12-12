@@ -15,7 +15,8 @@
                 <tr>
                     <th scope="col">Prix</th>
                     <th scope="col">Date de début</th>
-                    <th scope="col">Duréee</th>
+                    <th scope="col">Durée</th>
+                    <th scope="col">Date de fin</th>
                 </tr>
                 </thead>
                 <tbody>
@@ -23,6 +24,7 @@
                     <td class="article-content">{{ object.price }}</td>
                     <td class="article-content">{{ object.start_date|date:"d F, Y" }}</td>
                     <td class="article-content">{{ object.duration }}</td>
+                    <td class="article-content">{{ object.end_date }}</td>
                 </tr>
                 </tbody>
             </table>

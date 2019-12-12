@@ -34,13 +34,12 @@ def register(request):
     form = UserRegisterForm(request.POST or None)
     if request.method == "POST" and form.is_valid():
         if customRegisterUser(request, form):
-            return redirect('mvp-join-company')
+            return redirect('mvp-company-register')
         else:
             return redirect(request, 'mvp-home')
     return render(request, 'mvp/misc/register.html', {'form': form})
 
 
-# @ TODO: A Refaire avec CreateView ? OUI
 @login_required
 def companyCreation(request):
     form = CompanyForm(request.POST or None, ceo=request.user)
@@ -52,7 +51,8 @@ def companyCreation(request):
             messages.success(request, f'Company {company.name} Created, Welcome {ceo} !')
         except:
             messages.warning(request, f'An Error occurred ! Please try again later')
-        return redirect('mvp-home')
+        # @ TODO: faire les invitations des commerciaux
+        return redirect('mvp-workspace')
     return render(request, 'mvp/misc/company_creation.html', {'form': form})
 
 
@@ -89,11 +89,9 @@ def CreateContractForm(request, cpny_pk=None, client_pk=None):
     client = get_object_or_404(Client, pk=client_pk)
     company = get_object_or_404(Company, pk=cpny_pk)
     form = ContractForm(request.POST or None, user=request.user, client=client, company=company)
-    form.fields['commercial'].initial = client.commercial.id
     if request.method == "POST":
         if form.is_valid():
-            contract = form.save(commit=False)
-            contract.save()
+            contract = form.save()
             messages.success(request, f'Contrat créé.')
             return redirect('mvp-contract-details', company.id, contract.id, )
     return render(request, 'mvp/views/contract_form.html', {'form': form})
@@ -111,6 +109,8 @@ def ContractDetails(request, cpny_pk=None, contract_pk=None, conseil_pk=None):
     contract = get_object_or_404(Contract, pk=contract_pk)
     conseils = contract.conseil_set.all()
     licenses = contract.license_set.all()
+    # conseils = contract.conseil_set.all().order_by('price')
+    # licenses = contract.license_set.all().order_by('price')
 
     context['object'] = contract
     context['licenses'] = licenses
@@ -122,9 +122,13 @@ def ContractDetails(request, cpny_pk=None, contract_pk=None, conseil_pk=None):
             context['progression'] = int((date_now - contract.start_date) / (contract.end_date - contract.start_date) * 100)
         except ZeroDivisionError:
             pass
+    if request.method == "POST" and ('delete_contract' in request.POST):
+        contract.delete()
+        return redirect('mvp-contract-list', cpny_pk=contract.company.id)
     if contract.validated:
         return render(request, 'mvp/views/contract_details.html', context)
     if request.method == "POST" and not contract.validated:
+        # print(request.POST)
         if conseils.count() <= 0 and licenses.count() <= 0:
             messages.info(request, f"Le contrat est vide. Veuillez rentrer une license ou un conseil.")
         else:
@@ -184,7 +188,22 @@ def join_company(request):
 
 @login_required
 def commercialWorkspace(request):
-    return render(request, 'mvp/workspace/bizdev.html')
+    context = {
+        'section': 'workspace',
+        'month_prime': 0,
+        'year_prime': 0,
+    }
+    contracts = request.user.commercial.contract_set.all()
+    month_prime = contracts.filter(start_date__month=today().month, validated=True).aggregate(Sum('price'))['price__sum']
+    year_prime = contracts.filter(start_date__year=today().year, validated=True).aggregate(Sum('price'))['price__sum']
+    unfinished_contracts = contracts.filter(validated=False).count()
+    if month_prime:
+        context['month_prime'] = month_prime / 10
+    if year_prime:
+        context['year_prime'] = year_prime / 10
+    context['unfinished_contracts'] = unfinished_contracts
+    print(context)
+    return render(request, 'mvp/workspace/bizdev.html', context)
 
 
 @login_required
@@ -199,7 +218,7 @@ def workspace(request):
     elif hasattr(request.user, 'manager'):
         return redirect('mvp-manager-workspace')
     else:
-        return redirect('mvp-join-company')
+        return redirect('mvp-company-register')
 
 # @login_required
 # def serviceCreation(request):

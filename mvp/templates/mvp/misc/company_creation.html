@@ -6,7 +6,19 @@
         {% include 'mvp/generic/form.html' %}
         <button class="btn btn-success btn-icon-split" type="submit">
             <span class="icon text-white-50"><i class="fas fa-check"></i></span>
-            <span class="text">{% if button %}{{ button }}{% else %}Confirmer{% endif %}</span>
+            <span class="text">Créer mon entreprise</span>
         </button>
     </form>
+{% endblock %}
+
+{% block page_heading %}
+    Créer une Entreprise.
+{% endblock %}
+
+{% block page_title %}
+    Easley - Créer une Entreprise.
+{% endblock %}
+
+{% block content_heading %}
+    Les informations de mon entreprise.
 {% endblock %}

@@ -4,11 +4,9 @@ from django.conf.urls.static import static
 from django.contrib.auth import views as auth_views
 from . import views
 from .genericsViews import (
-    InvoiceCreateView,
-    InvoiceUpdateView,
+    ContractUpdateView,
     InvoiceListView,
     InvoiceDetailView,
-    InvoiceDeleteView,
 )
 from mvp.modelviews.conseil import ConseilCreateView, ConseilUpdateView, ConseilDeleteView
 from mvp.modelviews.license import LicenseCreateView, LicenseUpdateView, LicenseDetailView, LicenseDeleteView
@@ -35,7 +33,6 @@ urlpatterns = [
          auth_views.PasswordResetConfirmView.as_view(template_name='mvp/misc/password_reset_confirm.html'),
          name='password_reset_confirm'),
     path('password-reset/complete/', auth_views.PasswordResetCompleteView.as_view(template_name='mvp/misc/login.html')),
-    # path('register/', auth_views., name='mvp-register'),
     path('company/join', views.join_company, name='mvp-join-company'),
     path('company/register', views.companyCreation, name='mvp-company-register'),
     path('workspace/', views.workspace, name="mvp-workspace"),
@@ -48,6 +45,8 @@ urlpatterns = [
          views.CreateContractForm, name='mvp-contract-form'),
     path('<int:cpny_pk>/contract/<int:contract_pk>/details/',
          views.ContractDetails, name='mvp-contract-details'),
+    path('<int:cpny_pk>/contract/<int:contract_pk>/update/',
+         ContractUpdateView.as_view(), name='mvp-contract-update'),
     path('<int:cpny_pk>/contract/<int:contract_pk>/conseil/new/',
          ConseilCreateView.as_view(), name='mvp-conseil-new'),
     path('<int:cpny_pk>/contract/<int:contract_pk>/conseil/<int:conseil_pk>/details/',
@@ -58,8 +57,10 @@ urlpatterns = [
          LicenseCreateView.as_view(), name='mvp-license-new'),
     path('<int:cpny_pk>/contract/<int:contract_pk>/license/<int:license_pk>/details/',
          LicenseDetailView.as_view(), name='mvp-license-details'),
-    path('<int:cpny_pk>/contract/<int:contract_pk>/license/update/<int:license_pk>/',
+    path('<int:cpny_pk>/contract/<int:contract_pk>/license/<int:license_pk>/update/',
          LicenseUpdateView.as_view(), name='mvp-license-update'),
+    path('<int:cpny_pk>/invoice/list/', InvoiceListView.as_view(), name='mvp-invoice-list'),
+    path('<int:cpny_pk>/invoice/details/<int:invoice_pk>/', InvoiceDetailView.as_view(), name='mvp-invoice-details'),
     # path('<int:cpny_pk>/contract/<int:contract_pk>/license/update/<int:license_pk>/', views.LicenseUpdate, name='mvp-license-update'),
     # path('<int:cpny_pk>/contract/<int:contract_pk>/details/', ContractDetailView.as_view(), name='mvp-contract-details'),
     # path('<int:cpny_pk>/contract/<int:contract_pk>/conseil/<int:conseil_pk>/details/', ConseilDetailView.as_view(), name='mvp-conseil-details'),
@@ -97,11 +98,9 @@ urlpatterns = [
     # path('<int:cpny_pk>/license/list/<int:com_pk>/', LicenseListView.as_view(), name='mvp-license-list'),
     # path('<int:cpny_pk>/license/details/<int:license_pk>/', LicenseDetailView.as_view(), name='mvp-license-details'),
     path('<int:cpny_pk>/license/delete/<int:license_pk>/', LicenseDeleteView.as_view(), name='mvp-license-delete'),
-    path('<int:cpny_pk>/invoice/new/', InvoiceCreateView.as_view(), name='mvp-invoice-new'),
-    path('<int:cpny_pk>/invoice/update/<int:invoice_pk>', InvoiceUpdateView.as_view(), name='mvp-invoice-update'),
-    path('<int:cpny_pk>/invoice/list/', InvoiceListView.as_view(), name='mvp-invoice-list'),
-    path('<int:cpny_pk>/invoice/details/<int:invoice_pk>/', InvoiceDetailView.as_view(), name='mvp-invoice-details'),
-    path('<int:cpny_pk>/invoice/delete/<int:invoice_pk>/', InvoiceDeleteView.as_view(), name='mvp-invoice-delete'),
+    # path('<int:cpny_pk>/invoice/new/', InvoiceCreateView.as_view(), name='mvp-invoice-new'),
+    # path('<int:cpny_pk>/invoice/update/<int:invoice_pk>', InvoiceUpdateView.as_view(), name='mvp-invoice-update'),
+    # path('<int:cpny_pk>/invoice/delete/<int:invoice_pk>/', InvoiceDeleteView.as_view(), name='mvp-invoice-delete'),
     # path('register/', .register, name='mvp-register'),
 ]
 

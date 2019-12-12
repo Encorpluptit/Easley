@@ -1,17 +1,102 @@
-{% extends 'mvp/generic/blank.html'%}
-{#{% extends 'mvp/generic/content.html' %}#}
+{% extends 'mvp/generic/content.html' %}
 {% load static %}
+{% load my_filters %}
 
-{#{% block content_heading %}#}
-{#    lol#}
-{#{% endblock %}#}
-{##}
-{#{% block content %}#}
-{#    Faire le workpace de bizdev#}
-{#{% endblock %}#}
+{% block content %}
+    <!-- Content Row -->
+    <div class="row">
 
-{% block page %}
-    Faire le workpace de bizdev
+        <!-- Prime (par mois) Card -->
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-primary shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">Prime (mois en cours)
+                            </div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ month_prime|currency }}</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-calendar fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Prime (par année) Card -->
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-success shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-success text-uppercase mb-1">Prime (Cette année)
+                            </div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ year_prime|currency }}</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-dollar-sign fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Prile (par année) Card -->
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-info shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-success text-uppercase mb-1">Nombre de nouveau
+                                client ce mois-ci
+                            </div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ year_prime|currency }}</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-dollar-sign fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Pending Requests Card Example -->
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-warning shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">Contrats non validés
+                            </div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ unfinished_contracts }}</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-comments fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block content_heading %}
+    <div class="row row justify-content-between">
+        <div class="col-auto mr-auto"><h1 class="h3 mb-4 text-primary">Mon Résumé</h1></div>
+        <div class="col-auto">
+            <a class="btn btn-dark btn-icon-split btn-lg" href= {% url 'mvp-contract-new' user.commercial.company.id %}>
+                <span class="icon text-white-50"><i class="fas fa-plus-circle"></i></span>
+                <span class="text">Nouveau Contrat</span>
+            </a>
+        </div>
+        <div class="col-auto">
+            <a class="btn btn-primary btn-icon-split btn-lg" href= {% url 'mvp-client-new' user.commercial.company.id %}>
+                <span class="icon text-white-50"><i class="fas fa-plus-circle"></i></span>
+                <span class="text text-white">Nouveau Client</span>
+            </a>
+        </div>
+    </div>
 {% endblock %}
 
 {% block page_title %}

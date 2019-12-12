@@ -1,4 +1,5 @@
 {% extends 'mvp/generic/content.html' %}
+{% load static %}
 
 {% block content %}
     <form method="post">
@@ -16,4 +17,17 @@
             </a>
         {% endif %}
     </form>
+{% endblock %}
+
+{% block scripts %}
+<link rel="stylesheet" href= {% static 'mvp/datepicker/datepicker.css' %} >
+<script src= {% static 'mvp/datepicker/datepicker.js' %}></script>
+<script src= {% static 'mvp/datepicker/datepicker.fr-FR.js' %}></script>
+<script>
+    $('[data-toggle="datepicker"]').datepicker({
+        language: 'fr-FR',
+        autoHide: true,
+        inline: true,
+    });
+</script>
 {% endblock %}

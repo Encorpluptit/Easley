@@ -98,7 +98,7 @@ class ConseilUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
             if manager.company.id == cpny_pk and manager.role == 1:
                 return True
         elif hasattr(self.request.user, 'commercial'):
-            contrat = get_object_or_404(Contract, pk=self.kwargs.get(self.pk_url_kwarg))
+            contrat = get_object_or_404(Contract, pk=self.kwargs.get('contract_pk'))
             commercial = self.request.user.commercial
             if commercial.company.id == cpny_pk and commercial.id == contrat.commercial.id:
                 return True

@@ -6,3 +6,4 @@ class MvpConfig(AppConfig):
 
     def ready(self):
         import mvp.signals
+        import mvp.templatetags

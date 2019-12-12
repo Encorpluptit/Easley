@@ -5,6 +5,28 @@
     <article class="media content-section">
         <div class="media-body">
             <h2 class="article-title">{{ object.description }}</h2>
+            {% if object.contact.validated == False or user.manager and user.manager.role == 1 %}
+                <a class="btn btn-warning btn-icon-split"
+                   href= {% url 'mvp-contract-update' object.company.id object.id %}>
+                    <span class="icon text-white-50"><i class="fas fa-exclamation-triangle"></i></span>
+                    <span class="text">Modifier ce contrat</span>
+                </a>
+                <a class="btn btn-danger btn-icon-split" href="#" data-toggle="modal"
+                   data-target="#ContractDeleteModal">
+                    <span class="icon text-white-50"><i class="fas fa-trash"></i></span>
+                    <span class="text">Supprimer le contrat</span>
+                </a>
+                {#                <a class="btn btn-warning btn-icon-split" href="#" data-toggle="modal"#}
+                {#                   data-target="#ContractDeleteModal">#}
+                {#                    <i class="btn btn-danger btn-icon-split"></i>#}
+                {#                    Supprimer le contrat#}
+                {#                </a>#}
+                {#                <a class="btn btn-danger btn-icon-split"#}
+                {#                   href= {% url 'mvp-client-delete' object.company.id object.id %}>#}
+                {#                    <span class="icon text-white-50"><i class="fas fa-trash"></i></span>#}
+                {#                    <span class="text">Supprimer le contrat</span>#}
+                {#                </a>#}
+            {% endif %}
             <hr>
             <div class="article-metadata">
                 <b class="text-gray-900">Client: {{ object.client }}</b><br>
@@ -18,7 +40,7 @@
                         </div>
                     </div>
                     <div class="col">{{ object.end_date }}</div>
-                    </div>
+                </div>
             </div>
             <hr>
             <table class="table table-hover table-bordered">
@@ -98,11 +120,16 @@
                 <form method="post">
                     {% csrf_token %}
                     {% include 'mvp/generic/form.html' %}
-                    <button class="btn btn-success btn-icon-split" type="submit">
+                    <button class="btn btn-success btn-icon-split" type="submit" name="validate">
                         <span class="icon text-white-50"><i class="fas fa-check"></i></span>
                         <span class="text">Valider le contrat.</span>
                     </button>
                 </form>
+                <a class="btn btn-danger btn-icon-split" href="#" data-toggle="modal"
+                   data-target="#ContractDeleteModal">
+                    <span class="icon text-white-50"><i class="fas fa-trash"></i></span>
+                    <span class="text">Supprimer le contrat</span>
+                </a>
             {% else %}
                 <a class="btn btn-secondary btn-icon-split"
                    href= {{ request.META.HTTP_REFERER }}>
@@ -112,5 +139,54 @@
             {% endif %}
         </div>
     </article>
+
+    <!-- Contract Delete Modal-->
+    <div class="modal fade" id="ContractDeleteModal" tabindex="-1" role="dialog"
+         aria-labelledby="ContractDeleteModalLabel"
+         aria-hidden="true">
+        <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="ContractDeleteModalLabel">Supprimer ce contrat ?</h5>
+                    <button class="close" type="button" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">×</span>
+                    </button>
+                </div>
+                <div class="modal-body">Êtes-vous sûr de vouloir supprimer ce contrat ? (cette action est
+                    irréversible)
+                </div>
+                {% if licenses or conseils %}
+                    <div class="modal-content modal-body">Cela supprimera les éléments suivants :<br>
+                        {% for license in licenses %}
+                            {{ license.description }}<br>
+                        {% endfor %}
+                        {% for conseil in conseils %}
+                            {{ conseil.description }}<br>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+                <div class="modal-footer">
+                    <button class="btn btn-secondary" type="button" data-dismiss="modal">Annuler</button>
+                    <form id="delete_form" method="post">
+                        {% csrf_token %}
+                        <button class="btn btn-danger btn-icon-split" onclick="myFunction()" type="submit">
+                            <input type="hidden" id="delete_contract" name="delete_contract" value="false">
+                            <span class="icon text-white-50"><i class="fas fa-trash"></i></span>
+                            <span class="text">Suprimer le contrat.</span>
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
 {% endblock %}
 
+{% block scripts %}
+    <script>
+        function myFunction() {
+            document.getElementById("delete_contract").value = true;
+            document.getElementById("delete_form").submit();
+        }
+    </script>
+{% endblock %}

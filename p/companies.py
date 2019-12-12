@@ -3,6 +3,7 @@ from mvp.models import Manager
 from django.contrib.auth.models import User
 from .dict_global import PASSWORD
 
+
 def CreateCeoManager(user, company, role, dictio, index):
     m = Manager(user=user, company=company, role=role)
     m.save()

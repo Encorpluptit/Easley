@@ -1,48 +1,46 @@
-from mvp.models import Client, Commercial
-
+from mvp.models import Client
 
 
 def get_data(DATA):
-
     Enis = {
         'Company': DATA['Companies'][1],
         'Clients': [
             {
                 'Name': "Client_1[Commercial 1]",
-                'Commercial' : "Commercial_Enis_1",
-                'AccountManager': "Account_Enis",},
+                'Commercial': "Commercial_Enis_1",
+                'AccountManager': "Account_Enis", },
             {
                 'Name': "Client_2[Commercial 1]",
-                'Commercial' : "Commercial_Enis_1",
-                'AccountManager': "Account_Enis",},
+                'Commercial': "Commercial_Enis_1",
+                'AccountManager': "Account_Enis", },
             {
                 'Name': "Client_3[Commercial 1]",
-                'Commercial' : "Commercial_Enis_1",
-                'AccountManager': "Account_Enis",},
+                'Commercial': "Commercial_Enis_1",
+                'AccountManager': "Account_Enis", },
             {
                 'Name': "Client_1[Commercial 2]",
-                'Commercial' : "Commercial_Enis_2",
-                'AccountManager': "Account_Enis",},
+                'Commercial': "Commercial_Enis_2",
+                'AccountManager': "Account_Enis", },
             {
                 'Name': "Client_2[Commercial 2]",
-                'Commercial' : "Commercial_Enis_2",
-                'AccountManager': "Account_Enis",},
+                'Commercial': "Commercial_Enis_2",
+                'AccountManager': "Account_Enis", },
             {
                 'Name': "Client_3[Commercial 2]",
-                'Commercial' : "Commercial_Enis_2",
-                'AccountManager': "Account_Enis",},
+                'Commercial': "Commercial_Enis_2",
+                'AccountManager': "Account_Enis", },
             {
                 'Name': "Client_1[Commercial 3]",
-                'Commercial' : "Commercial_Enis_3",
-                'AccountManager': "Account_Enis",},
+                'Commercial': "Commercial_Enis_3",
+                'AccountManager': "Account_Enis", },
             {
                 'Name': "Client_2[Commercial 3]",
-                'Commercial' : "Commercial_Enis_3",
-                'AccountManager': "Account_Enis",},
+                'Commercial': "Commercial_Enis_3",
+                'AccountManager': "Account_Enis", },
             {
                 'Name': "Client_3[Commercial 3]",
-                'Commercial' : "Commercial_Enis_3",
-                'AccountManager': "Account_Enis",},
+                'Commercial': "Commercial_Enis_3",
+                'AccountManager': "Account_Enis", },
         ],
     }
 
@@ -51,40 +49,40 @@ def get_data(DATA):
         'Clients': [
             {
                 'Name': "Client_1[Commercial 1]",
-                'Commercial' : "Commercial_Eliot_1",
-                'AccountManager': "Account_Eliot",},
+                'Commercial': "Commercial_Eliot_1",
+                'AccountManager': "Account_Eliot", },
             {
                 'Name': "Client_2[Commercial 1]",
-                'Commercial' : "Commercial_Eliot_1",
-                'AccountManager': "Account_Eliot",},
+                'Commercial': "Commercial_Eliot_1",
+                'AccountManager': "Account_Eliot", },
             {
                 'Name': "Client_3[Commercial 1]",
-                'Commercial' : "Commercial_Eliot_1",
-                'AccountManager': "Account_Eliot",},
+                'Commercial': "Commercial_Eliot_1",
+                'AccountManager': "Account_Eliot", },
             {
                 'Name': "Client_1[Commercial 2]",
-                'Commercial' : "Commercial_Eliot_2",
-                'AccountManager': "Account_Eliot",},
+                'Commercial': "Commercial_Eliot_2",
+                'AccountManager': "Account_Eliot", },
             {
                 'Name': "Client_2[Commercial 2]",
-                'Commercial' : "Commercial_Eliot_2",
-                'AccountManager': "Account_Eliot",},
+                'Commercial': "Commercial_Eliot_2",
+                'AccountManager': "Account_Eliot", },
             {
                 'Name': "Client_3[Commercial 2]",
-                'Commercial' : "Commercial_Eliot_2",
-                'AccountManager': "Account_Eliot",},
+                'Commercial': "Commercial_Eliot_2",
+                'AccountManager': "Account_Eliot", },
             {
                 'Name': "Client_1[Commercial 3]",
-                'Commercial' : "Commercial_Eliot_3",
-                'AccountManager': "Account_Eliot",},
+                'Commercial': "Commercial_Eliot_3",
+                'AccountManager': "Account_Eliot", },
             {
                 'Name': "Client_2[Commercial 3]",
-                'Commercial' : "Commercial_Eliot_3",
-                'AccountManager': "Account_Eliot",},
+                'Commercial': "Commercial_Eliot_3",
+                'AccountManager': "Account_Eliot", },
             {
                 'Name': "Client_3[Commercial 3]",
-                'Commercial' : "Commercial_Eliot_3",
-                'AccountManager': "Account_Eliot",},
+                'Commercial': "Commercial_Eliot_3",
+                'AccountManager': "Account_Eliot", },
         ],
     }
 
@@ -93,45 +91,44 @@ def get_data(DATA):
         'Clients': [
             {
                 'Name': "Client_1[Commercial 1]",
-                'Commercial' : "Commercial_Damien_1",
-                'AccountManager': "Account_Damien",},
+                'Commercial': "Commercial_Damien_1",
+                'AccountManager': "Account_Damien", },
             {
                 'Name': "Client_2[Commercial 1]",
-                'Commercial' : "Commercial_Damien_1",
-                'AccountManager': "Account_Damien",},
+                'Commercial': "Commercial_Damien_1",
+                'AccountManager': "Account_Damien", },
             {
                 'Name': "Client_3[Commercial 1]",
-                'Commercial' : "Commercial_Damien_1",
-                'AccountManager': "Account_Damien",},
+                'Commercial': "Commercial_Damien_1",
+                'AccountManager': "Account_Damien", },
             {
                 'Name': "Client_1[Commercial 2]",
-                'Commercial' : "Commercial_Damien_2",
-                'AccountManager': "Account_Damien",},
+                'Commercial': "Commercial_Damien_2",
+                'AccountManager': "Account_Damien", },
             {
                 'Name': "Client_2[Commercial 2]",
-                'Commercial' : "Commercial_Damien_2",
-                'AccountManager': "Account_Damien",},
+                'Commercial': "Commercial_Damien_2",
+                'AccountManager': "Account_Damien", },
             {
                 'Name': "Client_3[Commercial 2]",
-                'Commercial' : "Commercial_Damien_2",
-                'AccountManager': "Account_Damien",},
+                'Commercial': "Commercial_Damien_2",
+                'AccountManager': "Account_Damien", },
             {
                 'Name': "Client_1[Commercial 3]",
-                'Commercial' : "Commercial_Damien_3",
-                'AccountManager': "Account_Damien",},
+                'Commercial': "Commercial_Damien_3",
+                'AccountManager': "Account_Damien", },
             {
                 'Name': "Client_2[Commercial 3]",
-                'Commercial' : "Commercial_Damien_3",
-                'AccountManager': "Account_Damien",},
+                'Commercial': "Commercial_Damien_3",
+                'AccountManager': "Account_Damien", },
             {
                 'Name': "Client_3[Commercial 3]",
-                'Commercial' : "Commercial_Damien_3",
-                'AccountManager': "Account_Damien",},
+                'Commercial': "Commercial_Damien_3",
+                'AccountManager': "Account_Damien", },
         ],
     }
 
     return [Enis, Eliot, Damien]
-
 
 
 def CreateClient(commercial, name, dictio_client, account_manager, client_index):

@@ -4,13 +4,16 @@
     {% if not client_list %}
         Vous n'avez actuellement aucun client.
     {% else %}
-        <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
+        <table class="table table-bordered" id="dataTable">
             <thead class="thead-dark">
             <tr>
                 <th scope="col">#</th>
                 <th scope="col">Name</th>
                 <th scope="col">Email</th>
+                <th scope="col" style="width: 200px">Nombre de contrats</th>
                 <th scope="col">Commercial</th>
+                <th scope="col">Client depuis:</th>
+                <th scope="col">Responsable clientèle</th>
             </tr>
             </thead>
             <tfoot class="thead-dark">
@@ -18,7 +21,10 @@
                 <th scope="col">#</th>
                 <th scope="col">Name</th>
                 <th scope="col">Email</th>
+                <th scope="col" style="width: 200px">Nombre de contrats</th>
                 <th scope="col">Commercial</th>
+                <th scope="col">Client depuis:</th>
+                <th scope="col">Responsable clientèle</th>
             </tr>
             </tfoot>
             <tbody>
@@ -27,7 +33,10 @@
                     <th scope="row">{{ forloop.counter }}</th>
                     <td><a href= {% url 'mvp-client-details' client.company.id client.id %}>{{ client.name }}</a></td>
                     <td>{{ client.email }}</td>
+                    <td>{{ client.contract_set.count }}</td>
                     <td>{{ client.commercial }}</td>
+                    <td>{{ client.created_at }}</td>
+                    <td>{{ client.account_manager }}</td>
                 </tr>
             {% endfor %}
             </tbody>

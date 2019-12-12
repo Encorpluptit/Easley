@@ -2,9 +2,10 @@ from mvp.models import Manager
 from .dict_global import PASSWORD
 from django.contrib.auth.models import User
 
+
 def CreateOthersManager(company, descr, role, dictio_user, dictio_manager, dictio_index):
     u = User(
-        username= "%s_%s" % (descr, company.ceo.first_name),
+        username="%s_%s" % (descr, company.ceo.first_name),
         password=PASSWORD,
         email="%s_%s@Manager.fr" % (descr, company.ceo.first_name),
         first_name=descr,
@@ -87,7 +88,6 @@ def get_data(DATA):
 def CreateAllManagers(DATA):
     dictio_index = 4
     managers_datas = get_data(DATA)
-
 
     for manager in managers_datas:
         try:

@@ -6,55 +6,19 @@
     <!-- Content Row -->
     <div class="row">
 
-        <!-- Prime (par mois) Card -->
-        <div class="col-xl-3 col-md-6 mb-4">
+        <!-- Nouveau clients Card -->
+        <div class="col-xl-2 col-md-6 mb-4">
             <div class="card border-left-primary shadow h-100 py-2">
                 <div class="card-body">
                     <div class="row no-gutters align-items-center">
                         <div class="col mr-2">
-                            <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">Prime (mois en cours)
-                            </div>
-                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ month_prime|currency }}</div>
-                        </div>
-                        <div class="col-auto">
-                            <i class="fas fa-calendar fa-2x text-gray-300"></i>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Prime (par année) Card -->
-        <div class="col-xl-3 col-md-6 mb-4">
-            <div class="card border-left-success shadow h-100 py-2">
-                <div class="card-body">
-                    <div class="row no-gutters align-items-center">
-                        <div class="col mr-2">
-                            <div class="text-xs font-weight-bold text-success text-uppercase mb-1">Prime (Cette année)
-                            </div>
-                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ year_prime|currency }}</div>
-                        </div>
-                        <div class="col-auto">
-                            <i class="fas fa-dollar-sign fa-2x text-gray-300"></i>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Prile (par année) Card -->
-        <div class="col-xl-3 col-md-6 mb-4">
-            <div class="card border-left-info shadow h-100 py-2">
-                <div class="card-body">
-                    <div class="row no-gutters align-items-center">
-                        <div class="col mr-2">
-                            <div class="text-xs font-weight-bold text-success text-uppercase mb-1">Nombre de nouveau
+                            <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">Nombre de nouveau
                                 client ce mois-ci
                             </div>
-                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ year_prime|currency }}</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ new_clients }}</div>
                         </div>
                         <div class="col-auto">
-                            <i class="fas fa-dollar-sign fa-2x text-gray-300"></i>
+                            <i class="fas fa-user fa-2x text-gray-300"></i>
                         </div>
                     </div>
                 </div>
@@ -62,22 +26,77 @@
         </div>
 
         <!-- Pending Requests Card Example -->
-        <div class="col-xl-3 col-md-6 mb-4">
-            <div class="card border-left-warning shadow h-100 py-2">
+        <div class="col-xl-2 col-md-6 mb-4">
+            <div class="card border-left-success shadow h-100 py-2">
                 <div class="card-body">
                     <div class="row no-gutters align-items-center">
                         <div class="col mr-2">
-                            <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">Contrats non validés
+                            <div class="text-xs font-weight-bold text-success text-uppercase mb-1">Contrats validés
                             </div>
-                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ unfinished_contracts }}</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ finished_contracts }}</div>
                         </div>
                         <div class="col-auto">
-                            <i class="fas fa-comments fa-2x text-gray-300"></i>
+                            <i class="fas fa-file-signature fa-2x text-gray-300"></i>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
+
+        <!-- Pending Requests Card Example -->
+        <div class="col-xl-2 col-md-6 mb-4">
+            <div class="card border-left-danger shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-danger text-uppercase mb-1">Contrats non validés
+                            </div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ unfinished_contracts }}</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-file-excel fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Prime (par mois) Card -->
+        <div class="col-xl-2 col-md-6 mb-4">
+            <div class="card border-left-info shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-info text-uppercase mb-1">Prime (mois en cours)
+                            </div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ month_prime|currency }}</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-dollar-sign fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Prime (par année) Card -->
+        <div class="col-xl-2 col-md-6 mb-4">
+            <div class="card border-left-dark shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-dark text-uppercase mb-1">Prime (Cette année)
+                            </div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ year_prime|currency }}</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-dollar-sign fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
     </div>
 {% endblock %}
 
@@ -91,7 +110,8 @@
             </a>
         </div>
         <div class="col-auto">
-            <a class="btn btn-primary btn-icon-split btn-lg" href= {% url 'mvp-client-new' user.commercial.company.id %}>
+            <a class="btn btn-primary btn-icon-split btn-lg"
+               href= {% url 'mvp-client-new' user.commercial.company.id %}>
                 <span class="icon text-white-50"><i class="fas fa-plus-circle"></i></span>
                 <span class="text text-white">Nouveau Client</span>
             </a>

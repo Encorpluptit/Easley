@@ -16,6 +16,15 @@ from .forms import (
 
 
 # Create your views here.
+from django.core.mail import send_mail
+from django.conf import settings
+def email(request):
+    subject = 'Thank you for registering to our site'
+    message = ' it  means a world to us '
+    email_from = settings.EMAIL_HOST_USER
+    recipient_list = ['damien.bernard@epitech.eu', ]
+    send_mail(subject, message, email_from, recipient_list)
+    return redirect('mvp-home')
 
 
 def home(request):
@@ -62,6 +71,8 @@ def CreateContractClient(request, **kwargs):
     context = {
         'page': 'contract_client',
         'post': False,
+        'section': 'contract',
+        'create_contract': True
     }
     company, manager = None, False
 
@@ -104,17 +115,16 @@ def CreateContractForm(request, cpny_pk=None, client_pk=None):
 def ContractDetails(request, cpny_pk=None, contract_pk=None, conseil_pk=None):
     context = {
         "page_title": "Easley - Contrat Details", "page_heading": "Gestion des Contrats",
-        "section": "contrat", "content_heading": "Détail Contrat"
+        "section": "contract", "content_heading": "Détail Contrat",
     }
     contract = get_object_or_404(Contract, pk=contract_pk)
-    conseils = contract.conseil_set.all()
-    licenses = contract.license_set.all()
-    # conseils = contract.conseil_set.all().order_by('price')
-    # licenses = contract.license_set.all().order_by('price')
+    conseils = contract.conseil_set.all().order_by('start_date', '-price')
+    licenses = contract.license_set.all().order_by('start_date', '-price')
 
     context['object'] = contract
     context['licenses'] = licenses
     context['conseils'] = conseils
+    context['invoices'] = contract.invoice_set.all()
     context['progression'] = 0
     date_now = today().date()
     if contract.start_date <= date_now:
@@ -162,15 +172,15 @@ def ConseilDetails(request, cpny_pk=None, contract_pk=None, conseil_pk=None):
 
 
 def ContractListView(request, cpny_pk=None):
-    context = {'validated_contracts': None}
+    context = {'validated_contracts': None, 'section': 'contract', 'list_contract': True}
     if hasattr(request.user, 'commercial'):
         contracts = request.user.commercial.contract_set.all()
-        context['validated_contracts'] = contracts.filter(validated=True)
-        context['not_validated_contracts'] = contracts.filter(validated=False)
+        context['validated_contracts'] = contracts.filter(validated=True).order_by('start_date', '-price')
+        context['not_validated_contracts'] = contracts.filter(validated=False).order_by('start_date', '-price')
     elif hasattr(request.user, 'manager'):
         contracts = request.user.manager.company.contract_set.all()
-        context['validated_contracts'] = contracts.filter(validated=True)
-        context['not_validated_contracts'] = contracts.filter(validated=False)
+        context['validated_contracts'] = contracts.filter(validated=True).order_by('start_date', '-price')
+        context['not_validated_contracts'] = contracts.filter(validated=False).order_by('start_date', '-price')
     return render(request, 'mvp/views/contract_list.html', context)
 
 
@@ -187,38 +197,67 @@ def join_company(request):
 
 
 @login_required
-def commercialWorkspace(request):
+def CommercialWorkspace(request):
     context = {
         'section': 'workspace',
         'month_prime': 0,
         'year_prime': 0,
     }
-    contracts = request.user.commercial.contract_set.all()
+    commercial = request.user.commercial
+    contracts = commercial.contract_set.all()
     month_prime = contracts.filter(start_date__month=today().month, validated=True).aggregate(Sum('price'))['price__sum']
     year_prime = contracts.filter(start_date__year=today().year, validated=True).aggregate(Sum('price'))['price__sum']
-    unfinished_contracts = contracts.filter(validated=False).count()
     if month_prime:
         context['month_prime'] = month_prime / 10
     if year_prime:
         context['year_prime'] = year_prime / 10
-    context['unfinished_contracts'] = unfinished_contracts
-    print(context)
+    context['unfinished_contracts'] = contracts.filter(validated=False).count()
+    context['finished_contracts'] = contracts.filter(validated=True).count()
+    context['new_clients'] = commercial.client_set.filter(created_at__gte=today().date() - relativedelta(months=1)).count()
     return render(request, 'mvp/workspace/bizdev.html', context)
 
 
 @login_required
-def ceoWorkspace(request):
-    return render(request, 'mvp/workspace/manager.html')
+def ManagerWorkspace(request):
+    context = {
+        'section': 'workspace',
+    }
+    return render(request, 'mvp/workspace/manager.html', context)
+
+
+@login_required
+def FactuWorkspace(request):
+    context = {
+        'section': 'workspace',
+    }
+
+    factu = request.user.manager
+    company = factu.company
+    invoices = company.invoice_set.all()
+    context['invoice_to_facture'] = invoices.filter(
+        contract__factu_manager=factu, facturated=False,
+        date__month__lte=today().month, date__year__lte=today().year)
+    context['invoice_late'] = invoices.filter(
+        contract__factu_manager=factu, facturated=True, payed=False,
+        date__month__lte=today().month, date__year__lte=today().year)
+
+    return render(request, 'mvp/workspace/factu.html', context)
 
 
 @login_required
 def workspace(request):
-    if hasattr(request.user, 'commercial'):
-        return redirect('mvp-commercial-workspace')
-    elif hasattr(request.user, 'manager'):
-        return redirect('mvp-manager-workspace')
-    else:
-        return redirect('mvp-company-register')
+    user = request.user
+    if hasattr(user, 'commercial'):
+        return CommercialWorkspace(request)
+    elif hasattr(user, 'manager'):
+        if user.manager.role == 1:
+            return ManagerWorkspace(request)
+        elif user.manager.role == 2:
+            return redirect('mvp-manager-workspace')
+        elif user.manager.role == 3:
+            return FactuWorkspace(request)
+    return redirect('mvp-company-register')
+
 
 # @login_required
 # def serviceCreation(request):

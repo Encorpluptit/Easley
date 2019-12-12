@@ -5,27 +5,26 @@
     <article class="media content-section">
         <div class="media-body">
             <h2 class="article-title">{{ object.description }}</h2>
-            {% if object.contact.validated == False or user.manager and user.manager.role == 1 %}
-                <a class="btn btn-warning btn-icon-split"
-                   href= {% url 'mvp-contract-update' object.company.id object.id %}>
-                    <span class="icon text-white-50"><i class="fas fa-exclamation-triangle"></i></span>
-                    <span class="text">Modifier ce contrat</span>
-                </a>
-                <a class="btn btn-danger btn-icon-split" href="#" data-toggle="modal"
-                   data-target="#ContractDeleteModal">
-                    <span class="icon text-white-50"><i class="fas fa-trash"></i></span>
-                    <span class="text">Supprimer le contrat</span>
-                </a>
-                {#                <a class="btn btn-warning btn-icon-split" href="#" data-toggle="modal"#}
-                {#                   data-target="#ContractDeleteModal">#}
-                {#                    <i class="btn btn-danger btn-icon-split"></i>#}
-                {#                    Supprimer le contrat#}
-                {#                </a>#}
-                {#                <a class="btn btn-danger btn-icon-split"#}
-                {#                   href= {% url 'mvp-client-delete' object.company.id object.id %}>#}
-                {#                    <span class="icon text-white-50"><i class="fas fa-trash"></i></span>#}
-                {#                    <span class="text">Supprimer le contrat</span>#}
-                {#                </a>#}
+            {% if not object.validated or user.manager and user.manager.role == 1 %}
+                <form method="post">
+                    {% if not object.validated %}
+                        {% csrf_token %}
+                        <button class="btn btn-success btn-icon-split" type="submit" name="validate">
+                            <span class="icon text-white-50"><i class="fas fa-check"></i></span>
+                            <span class="text">Valider le contrat.</span>
+                        </button>
+                    {% endif %}
+                    <a class="btn btn-warning btn-icon-split"
+                       href= {% url 'mvp-contract-update' object.company.id object.id %}>
+                        <span class="icon text-white-50"><i class="fas fa-exclamation-triangle"></i></span>
+                        <span class="text">Modifier ce contrat</span>
+                    </a>
+                    <a class="btn btn-danger btn-icon-split" href="#" data-toggle="modal"
+                       data-target="#ContractDeleteModal">
+                        <span class="icon text-white-50"><i class="fas fa-trash"></i></span>
+                        <span class="text">Supprimer le contrat</span>
+                    </a>
+                </form>
             {% endif %}
             <hr>
             <div class="article-metadata">
@@ -116,27 +115,12 @@
                 </tr>
                 </tbody>
             </table>
-            {% if not object.validated %}
-                <form method="post">
-                    {% csrf_token %}
-                    {% include 'mvp/generic/form.html' %}
-                    <button class="btn btn-success btn-icon-split" type="submit" name="validate">
-                        <span class="icon text-white-50"><i class="fas fa-check"></i></span>
-                        <span class="text">Valider le contrat.</span>
-                    </button>
-                </form>
-                <a class="btn btn-danger btn-icon-split" href="#" data-toggle="modal"
-                   data-target="#ContractDeleteModal">
-                    <span class="icon text-white-50"><i class="fas fa-trash"></i></span>
-                    <span class="text">Supprimer le contrat</span>
-                </a>
-            {% else %}
-                <a class="btn btn-secondary btn-icon-split"
-                   href= {{ request.META.HTTP_REFERER }}>
-                    <span class="icon text-white-50"><i class="fas fa-arrow-right"></i></span>
-                    <span class="text">Retour</span>
-                </a>
-            {% endif %}
+            <hr>
+            <a class="btn btn-secondary btn-icon-split"
+               href= {% url 'mvp-contract-list' object.company.id %}>
+                <span class="icon text-white-50"><i class="fas fa-arrow-right"></i></span>
+                <span class="text">Retour à la liste des Contrats</span>
+            </a>
         </div>
     </article>
 
@@ -162,6 +146,9 @@
                         {% endfor %}
                         {% for conseil in conseils %}
                             {{ conseil.description }}<br>
+                        {% endfor %}
+                        {% for invoice in invoices %}
+                            {{ invoice.description }}<br>
                         {% endfor %}
                     </div>
                 {% endif %}

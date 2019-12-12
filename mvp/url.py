@@ -19,6 +19,7 @@ from mvp.modelviews.client import (
 )
 
 urlpatterns = [
+    path('email/', views.email, name='mvp-email'),
     path('', views.home, name='mvp-home'),
     path('home/', views.home, name='mvp-home'),
     path('login/', auth_views.LoginView.as_view(template_name='mvp/misc/login.html'), name='mvp-login'),

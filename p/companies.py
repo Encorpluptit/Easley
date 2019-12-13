@@ -40,7 +40,7 @@ def CreateCompany(user, siret, junior_day, senior_day, name, dictio, index):
 
 def CreateAllCompanies(DATA):
     datas = [
-        ["Enis", "Msry", "enis@easleyfin.io",
+        ["Enis", "Msyr", "enis@easleyfin.io",
          "00000000000000", 250, 500, "Entreprise d'Enis"],
         ["Eliot", "Barragne", "eliot@easleyfin.io",
          "11111111111111", 125, 250, "Entreprise d'Eliot"],

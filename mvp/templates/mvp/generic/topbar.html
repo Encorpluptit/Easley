@@ -1,3 +1,4 @@
+{% load static %}
 <!-- Topbar -->
 <nav class="navbar navbar-expand navbar-light bg-easley-blue topbar mb-4 static-top shadow">
 
@@ -5,6 +6,13 @@
     <button id="sidebarToggleTop" class="btn btn-link d-md-none rounded-circle mr-3">
         <i class="fa fa-bars"></i>
     </button>
+    <a href= {% url 'mvp-home' %}>
+    <img style="height: 70px" alt="EasleyLogo" src= {% static 'mvp/Easley_logo.png' %}></a>
+{#    <div class="topbar-divider d-none d-sm-block"></div>#}
+{#    <!-- Sidebar - Brand -->#}
+{#    <a class="sidebar-brand d-flex align-items-center justify-content-center bg-easley-blue" href= {% url 'mvp-home' %}>#}
+{#        <img alt="Accueil" style="width: 10%; position: fixed; left: 0" src={% static 'mvp/Easley_logo.png' %}>#}
+{#    </a>#}
 
     <!-- Topbar Search -->
     <form class="d-none d-sm-inline-block form-inline mr-auto ml-md-3 my-2 my-md-0 mw-100 navbar-search">

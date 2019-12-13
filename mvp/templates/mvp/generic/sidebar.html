@@ -2,13 +2,18 @@
 <!-- Sidebar -->
 <ul class="navbar-nav bg-easley-blue sidebar toggled sidebar-dark accordion" id="accordionSidebar">
 
-    <!-- Sidebar - Brand -->
-    <a class="sidebar-brand d-flex align-items-center justify-content-center bg-easley-blue" href= {% url 'mvp-home' %}>
-        <img alt="Accueil" style="width: 100%" src={% static 'mvp/Easley_logo.png' %}>
-    </a>
+{#    <!-- Sidebar - Brand -->#}
+{#    <a class="sidebar-brand d-flex align-items-center justify-content-center bg-easley-blue" href= {% url 'mvp-home' %}>#}
+{#        <img alt="Accueil" style="width: 100%; border-block-end-width: 500px" src={% static 'mvp/Easley_logo.png' %}>#}
+{#    </a>#}
 
     <!-- Divider -->
-    <hr class="sidebar-divider my-0">
+    <hr class="sidebar-divider">
+
+    <!-- Heading -->
+    <div class="sidebar-heading">
+        Mon espace
+    </div>
 
     <!-- Nav Item - Dashboard -->
     <li {% if section == 'workspace' %}class="nav-item active"{% else %} class="nav-item" {% endif %}>

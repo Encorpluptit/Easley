@@ -17,7 +17,7 @@
                 <th scope="col">Licenses</th>
                 <th scope="col">Date de début</th>
                 <th scope="col">Date de fin</th>
-                <th scope="col">Responsable Facturation</th>
+                <th scope="col">Responsable Clientièle</th>
             </tr>
             </thead>
             <tbody>
@@ -27,7 +27,7 @@
                     <td>
                         <a href= {% url 'mvp-contract-details' contract.company.id contract.id %}>{{ contract.description }}</a>
                     </td>
-                    <td>{{ contract.client|truncatechars:20 }}</td>
+                    <td>{{ contract.client|safe }}</td>
                     <td>{{ contract.price|safe }}</td>
                     <td>
                         {% if contract.conseil_set.all %}
@@ -51,7 +51,7 @@
                     </td>
                     <td>{{ contract.start_date }}</td>
                     <td>{{ contract.end_date }}</td>
-                    <td>{{ contract.factu_manager|safe }}</td>
+                    <td>{{ contract.client.account_manager|safe }}</td>
                 </tr>
             {% endfor %}
             </tbody>
@@ -75,7 +75,7 @@
                     <th scope="col">Licenses</th>
                     <th scope="col">Date de début</th>
                     <th scope="col">Date de fin</th>
-                    <th scope="col">Responsable Facturation</th>
+                    <th scope="col">Responsable Clientièle</th>
                 </tr>
                 </thead>
                 <tbody>
@@ -85,7 +85,7 @@
                         <td>
                             <a href= {% url 'mvp-contract-details' contract.company.id contract.id %}>{{ contract.description }}</a>
                         </td>
-                        <td>{{ contract.client|truncatechars:30 }}</td>
+                        <td>{{ contract.client|safe }}</td>
                         <td>{{ contract.price|safe }}</td>
                         <td>
                             {% if contract.conseil_set.all %}
@@ -109,7 +109,7 @@
                         </td>
                         <td>{{ contract.start_date }}</td>
                         <td>{{ contract.end_date }}</td>
-                        <td>{{ contract.factu_manager|safe }}</td>
+                        <td>{{ contract.client.account_manager|safe }}</td>
                     </tr>
                 {% endfor %}
                 </tbody>

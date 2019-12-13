@@ -33,8 +33,8 @@ urlpatterns = [
     path('password-reset-confirm/<uidb64>/<token>/',
          auth_views.PasswordResetConfirmView.as_view(template_name='mvp/misc/password_reset_confirm.html'),
          name='password_reset_confirm'),
-    path('password-reset/complete/', auth_views.PasswordResetCompleteView.as_view(template_name='mvp/misc/login.html'),
-         name='password_reset_complete'),
+    path('password-reset/complete/', auth_views.PasswordResetCompleteView.as_view(
+        template_name='mvp/misc/password_reset_complete.html'), name='password_reset_complete'),
     path('company/join', views.join_company, name='mvp-join-company'),
     path('company/register', views.companyCreation, name='mvp-company-register'),
     path('workspace/', views.workspace, name="mvp-workspace"),

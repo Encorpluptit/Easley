@@ -26,13 +26,14 @@
 
 </head>
 
+
 <body id="page-top">
 
 <!-- Page Wrapper -->
 <div id="wrapper">
 
     <!-- Content Wrapper -->
-    <div id="content-wrapper" class="d-flex flex-column bg-easley-flesh">
+    <div id="content-wrapper" class="d-flex flex-column bg-easley-flesh" style="position: fixed; bottom: 0; top: 0;">
 
         <!-- Main Content -->
         <div id="content">
@@ -62,12 +63,11 @@
 
         </div>
         <!-- End of Main Content -->
-
         <!-- Footer -->
-        <footer class="sticky-footer bg-easley-flesh">
+        <footer class="sticky-footer bg-easley-blue" style="position: fixed; bottom: 0; width: 100%">
             <div class="container my-auto">
                 <div class="copyright text-center my-auto">
-                    <span>Copyright &copy; Easley 2019</span>
+                    <span style="color: aqua; font-size: medium">Copyright &copy; Easley 2019</span>
                 </div>
             </div>
         </footer>
@@ -91,16 +91,6 @@
 <script src={% static 'mvp/js/sb-admin-2.min.js' %}></script>
 
 {% block scripts %}{% endblock %}
-<script>
-    $(document).ready(function () {
-        // messages timeout for 10 sec
-        setTimeout(function () {
-            $('.alert').fadeOut('slow');
-        }, 5000); // <-- time in milliseconds, 1000 =  1 sec
-    });
-</script>
-</body>
-<body class="bg-easley-flesh">
 </body>
 
 </html>

@@ -54,9 +54,9 @@ def CreateAllInvoice(contract, licenses, conseils):
         print("%s\t%s\n%s" % (invoice, invoice.price, loc(invoice.date)))
         print(invoice.conseils.all(), invoice.licenses.all())
         total_price += unity_price
-    if total_price != contract.price:
-        invoice.price = contract.price - total_price
-        invoice.save()
+    # if total_price != contract.price:
+    #     invoice.price = contract.price - total_price
+    #     invoice.save()
 
 
 def customCompanyRegister(request, form):

@@ -1,5 +1,6 @@
 {% extends 'mvp/generic/content.html' %}
 {% load static %}
+{% load my_filters %}
 
 {% block content %}
     <article class="media content-section">
@@ -30,7 +31,8 @@
             <div class="article-metadata">
                 <b class="text-gray-900">Client: {{ object.client }}</b><br>
                 <b class="text-gray-900">BizDev: {{ object.commercial }}</b><br>
-                <b class="text-gray-900">Factu: {{ object.factu_manager }}</b><br>
+                <b class="text-gray-900">Responsable Clientèle: {{ object.client.account_manager }}</b><br>
+                <b class="text-gray-900">Responsable Facturation: {{ object.factu_manager }}</b><br>
                 <div class="row">
                     <div class="col">{{ object.start_date }}</div>
                     <div class="col-9">
@@ -54,7 +56,7 @@
                 <tbody>
                 <tr>
                     <td class="article-content">{{ object.price }}</td>
-                    <td class="article-content">{{ object.facturation }}</td>
+                    <td class="article-content">{{ object.facturation|Fduration }}</td>
                     <td class="article-content">{{ object.start_date }}</td>
                     <td class="article-content">{{ object.end_date }}</td>
                 </tr>

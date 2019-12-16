@@ -1,0 +1,199 @@
+{% extends 'mvp/generic/content.html' %}
+{% load static %}
+
+
+{% block content %}
+    <div class="container-fluid">
+        <h4 class="h4 mb-4 text-gray-800">Vos Employés</h4>
+        <table class="table table-bordered table-hover" id="dataTable" style="width: 100%">
+            <thead class="thead-dark">
+            <tr>
+                <th scope="col">BizDevs</th>
+                <th scope="col">Responsable Clientèle</th>
+                <th scope="col">Responsable facturation</th>
+                <th scope="col">Managers</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr>
+                <td>
+                    {% if not commercials%}
+                        Aucun commercial dans cette entreprise.
+                    {% else %}
+                        {% for commercial in commercials %}
+                            <p>{{ commercial }}</p>
+                        {% endfor %}
+                    {% endif %}
+                </td>
+                <td>
+                    {% if not accounts %}
+                        Aucun Responsable Clientèle dans cette entreprise.
+                    {% else %}
+                        {% for account in accounts %}
+                            <p>{{ account }}</p>
+                        {% endfor %}
+                    {% endif %}
+                </td>
+                <td>
+                    {% if not factus %}
+                        Aucun Responsable Facturation dans cette entreprise.
+                    {% else %}
+                        {% for factu in factus %}
+                            <p>{{ factu }}</p>
+                        {% endfor %}
+                    {% endif %}
+                </td>
+                <td>
+                    {% if not managers %}
+                        Aucun Manager dans cette entreprise.
+                    {% else %}
+                        {% for manager in managers %}
+                            <p>{{ manager }}</p>
+                        {% endfor %}
+                    {% endif %}
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+    <hr>
+    <div class="container-fluid">
+        <h4 class="h4 mb-4 text-gray-800">Invitations En cours</h4>
+        <table class="table table-bordered table-hover" id="dataTable" style="width: 100%">
+            <thead class="thead-dark">
+            <tr>
+                <th scope="col">BizDevs</th>
+                <th scope="col">Responsable Clientèle</th>
+                <th scope="col">Responsable facturation</th>
+                <th scope="col">Managers</th>
+            </tr>
+            </thead>
+            <tbody class="dataTables_scrollBody">
+            <tr>
+                <td>
+                    {% for commercial in invite_commercials %}
+                        <p>{{ commercial }}</p>
+                    {% endfor %}
+                </td>
+                <td>
+                    {% for account in invite_accounts %}
+                        <p>{{ account }}</p>
+                    {% endfor %}
+                </td>
+                <td>
+                    {% for factu in invite_factus %}
+                        <p>{{ factu }}</p>
+                    {% endfor %}
+                </td>
+                <td>
+                    {% for manager in invite_managers %}
+                        <p>{{ manager }}</p>
+                    {% endfor %}
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+    <hr>
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col">
+                <h6 class="m-0 font-weight-bold text-primary">Inviter un Manager</h6>
+                <form method="post">
+                    {% csrf_token %}
+                    <div class="row ">
+                        <div class="col">
+                            {{ formset.management_form }}
+                            {{ formset.0.id }}
+                            {% include 'mvp/generic/form.html' with form=formset.0 %}
+                        </div>
+                        <div class="col-sm-3">
+                            <button class="btn btn-success btn-icon-split" type="submit"
+                                    style="position: absolute; bottom: 25px">
+                                <span class="icon text-white-50"><i class="fas fa-check"></i></span>
+                                <span class="text">Envoyer</span>
+                            </button>
+                        </div>
+                    </div>
+                </form>
+                <hr>
+            </div>
+            <div class="col">
+                <h6 class="m-0 font-weight-bold text-primary">Inviter un Responsable Clientèle</h6>
+                <form method="post">
+                    {% csrf_token %}
+                    <div class="row ">
+                        <div class="col">
+                            {{ formset.management_form }}
+                            {{ formset.1.id }}
+                            {% include 'mvp/generic/form.html' with form=formset.1 %}
+                        </div>
+                        <div class="col-sm-3">
+                            <button class="btn btn-success btn-icon-split" type="submit"
+                                    style="position: absolute; bottom: 25px">
+                                <span class="icon text-white-50"><i class="fas fa-check"></i></span>
+                                <span class="text">Envoyer</span>
+                            </button>
+                        </div>
+                    </div>
+                </form>
+                <hr>
+            </div>
+            <div class="w-100"></div>
+            <div class="col">
+                <h6 class="m-0 font-weight-bold text-primary">Inviter un Responsable Facturation</h6>
+                <form method="post">
+                    {% csrf_token %}
+                    <div class="row ">
+                        <div class="col">
+                            {{ formset.management_form }}
+                            {{ formset.2.id }}
+                            {% include 'mvp/generic/form.html' with form=formset.2 %}
+                        </div>
+                        <div class="col-sm-3">
+                            <button class="btn btn-success btn-icon-split" type="submit"
+                                    style="position: absolute; bottom: 25px">
+                                <span class="icon text-white-50"><i class="fas fa-check"></i></span>
+                                <span class="text">Envoyer</span>
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="col">
+                <h6 class="m-0 font-weight-bold text-primary">Inviter un BizDev</h6>
+                <form method="post">
+                    {% csrf_token %}
+                    <div class="row ">
+                        <div class="col">
+                            {{ formset.management_form }}
+                            {{ formset.3.id }}
+                            {% include 'mvp/generic/form.html' with form=formset.3 %}
+                        </div>
+                        <div class="col-sm-3">
+                            <button class="btn btn-success btn-icon-split" type="submit"
+                                    style="position: absolute; bottom: 25px">
+                                <span class="icon text-white-50"><i class="fas fa-check"></i></span>
+                                <span class="text">Envoyer</span>
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block content_heading %}
+    Staff
+{% endblock %}
+
+
+{% block page_title %}
+    Easley - Staff
+{% endblock %}
+
+{% block page_heading %}
+    Vos Employés
+{% endblock %}
+

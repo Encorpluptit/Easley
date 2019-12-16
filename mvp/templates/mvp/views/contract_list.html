@@ -2,6 +2,19 @@
 {% load static %}
 
 {% block content %}
+    {% if user.commercial %}
+        <a class="btn btn-success btn-icon-split btn-lg" href= {% url 'mvp-contract-new' user.commercial.company.id %}>
+            <span class="icon text-white-50"><i class="fas fa-plus-circle"></i></span>
+            <span class="text">Nouveau Contrat</span>
+        </a>
+        <hr>
+    {% elif user.manager and user.manager.role != 3 %}
+        <a class="btn btn-success btn-icon-split btn-lg" href= {% url 'mvp-contract-new' user.manager.company.id %}>
+            <span class="icon text-white-50"><i class="fas fa-plus-circle"></i></span>
+            <span class="text">Nouveau Contrat</span>
+        </a>
+        <hr>
+    {% endif %}
     <h5>Contrat(s) en attente de validation.</h5>
     {% if not not_validated_contracts %}
         Vous n'avez actuellement aucun à valider.
@@ -14,7 +27,7 @@
                 <th scope="col">Client</th>
                 <th scope="col">Prix</th>
                 <th scope="col">Conseils</th>
-                <th scope="col">Licenses</th>
+                <th scope="col">Licences</th>
                 <th scope="col">Date de début</th>
                 <th scope="col">Date de fin</th>
                 <th scope="col">Responsable Clientièle</th>
@@ -46,7 +59,7 @@
                                 <br>
                             {% endfor %}
                         {% else %}
-                            Aucune License associée.
+                            Aucune Licence associée.
                         {% endif %}
                     </td>
                     <td>{{ contract.start_date }}</td>
@@ -72,7 +85,7 @@
                     <th scope="col">Client</th>
                     <th scope="col">Price</th>
                     <th scope="col">Conseils</th>
-                    <th scope="col">Licenses</th>
+                    <th scope="col">Licences</th>
                     <th scope="col">Date de début</th>
                     <th scope="col">Date de fin</th>
                     <th scope="col">Responsable Clientièle</th>
@@ -104,7 +117,7 @@
                                     <br>
                                 {% endfor %}
                             {% else %}
-                                Aucune License associée.
+                                Aucune Licence associée.
                             {% endif %}
                         </td>
                         <td>{{ contract.start_date }}</td>

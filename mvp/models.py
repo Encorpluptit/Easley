@@ -2,10 +2,14 @@ from django.db import models
 from django.contrib.auth.models import User
 from django.urls import reverse
 from django.utils import timezone
-from dateutil.relativedelta import relativedelta
-
 
 # Create your models here.
+InviteChoice = {
+    (1, 'Manager'),
+    (2, 'Responsable Clientèle'),
+    (3, 'Responsable Facturation'),
+    (4, 'Commercial'),
+}
 
 
 def GetDate():
@@ -179,8 +183,8 @@ class Contract(models.Model):
     )
     duration = models.PositiveIntegerField(
         default=1,
-        verbose_name="durée totale du contrat.",
-        help_text="précisez la durée totale du contrat (en mois)",
+        verbose_name="durée totale du contrat (en mois).",
+        help_text="précisez la durée totale du contrat (en mois).",
     )
     end_date = models.DateField(
         default=GetDate,
@@ -250,8 +254,8 @@ class Contract(models.Model):
 
 
 class Conseil(models.Model):
-    description = models.TextField(
-        max_length=300,
+    description = models.CharField(
+        max_length=150,
         verbose_name="conseil's description",
         help_text="description du conseil",
     )
@@ -279,7 +283,7 @@ class Conseil(models.Model):
     )
     duration = models.PositiveIntegerField(
         default=1,
-        verbose_name="durée totale du conseil.",
+        verbose_name="durée totale du conseil (en mois).",
         help_text="précisez la durée totale du conseil (en mois).",
     )
     end_date = models.DateField(
@@ -303,50 +307,50 @@ class Conseil(models.Model):
 class Service(models.Model):
     description = models.CharField(
         max_length=150,
-        verbose_name="description du service",
-        help_text="description du service",
+        verbose_name="Description du service",
+        help_text="Description du service",
     )
     price = models.PositiveIntegerField(
         default=0,
-        verbose_name="pricing du service",
-        help_text="pricing du service (EN EUROS)",
+        verbose_name="Pricing du service",
+        help_text="Pricing du service (€)",
     )
     conseil = models.ForeignKey(
         Conseil,
         default=None,
         on_delete=models.CASCADE,
-        verbose_name="conseil relatif au service",
-        help_text="conseil relatif au service",
+        verbose_name="Conseil relatif au service",
+        help_text="Conseil relatif au service",
     )
     estimated_date = models.DateField(
         default=timezone.now,
-        verbose_name="date prévisionelle ???",
-        help_text="date prévisionelle ???(en mois/jours)."
+        verbose_name="Date prévisionelle",
+        help_text="Sélectionnez une date prévisionelle."
     )
     actual_date = models.DateField(
         default=None,
-        verbose_name="fin du service (ACTUEL ???)",
-        help_text="fin du service (ACTUEL)(en mois/jours).",
+        verbose_name="Fin du service",
+        help_text="Fin du service",
         null=True
     )
     payed = models.BooleanField(
         default=False,
-        verbose_name="si le service est payé.",
-        help_text="précisez si le service est déjà payé.",
+        verbose_name="Si le service est payé.",
+        help_text="Précisez si le service est déjà payé.",
     )
     junior_day = models.DecimalField(
         default=0,
         max_digits=5,
         decimal_places=2,
-        verbose_name="jour homme junior nécessaire pour ce service.",
-        help_text="précisez le Jour homme junior nécessaire pour ce service.",
+        verbose_name="Jour-hommes junior nécessaire pour ce service.",
+        help_text="Précisez le Jour homme junior nécessaire pour ce service.",
     )
     senior_day = models.DecimalField(
         default=0,
         max_digits=5,
         decimal_places=2,
-        verbose_name="jour homme senior nécessaire pour ce service.",
-        help_text="précisez le Jour homme senior nécessaire pour ce service.",
+        verbose_name="Jour-hommes senior nécessaire pour ce service.",
+        help_text="Précisez le Jour homme senior nécessaire pour ce service.",
     )
     done = models.SmallIntegerField(
         # @TODO: si non mettre la date du jour dans acual date et si oui permettre de rentrer la date à la main
@@ -356,8 +360,8 @@ class Service(models.Model):
             (1, 'Effectué'),
             (2, 'Ne sera jamais effectué'),
         },
-        verbose_name="si le service est effectué.",
-        help_text="précisez si le service est effectué.",
+        verbose_name="Si le service est effectué.",
+        help_text="Précisez si le service est effectué.",
     )
 
     class Meta:
@@ -372,40 +376,40 @@ class Service(models.Model):
 class License(models.Model):
     description = models.CharField(
         max_length=150,
-        verbose_name="description de la license.",
-        help_text="description de la license."
+        verbose_name="Description de la license.",
+        help_text="Description de la license."
     )
     contract = models.ForeignKey(
         Contract,
         default=None,
         on_delete=models.CASCADE,
-        verbose_name="le contrat dans lequel est inclus ce conseil.",
-        help_text="préciser le contrat dans lequel est inclus ce conseil.",
+        verbose_name="Le contrat dans lequel est inclus cette licence.",
+        help_text="Préciser le contrat dans lequel est inclus cette licence.",
     )
     price = models.PositiveIntegerField(
         default=0,
-        verbose_name="coût de la license",
-        help_text="coût de la license (€)."
+        verbose_name="Coût de la licence",
+        help_text="Coût de la licence (€)."
     )
     start_date = models.DateField(
         default=GetDate,
-        verbose_name="date de début de la license.",
-        help_text="date de début de la license."
+        verbose_name="Date de début de la licence.",
+        help_text="Date de début de la licence."
     )
     duration = models.PositiveIntegerField(
         default=1,
-        verbose_name="durée totale de la license.",
-        help_text="précisez la durée totale de la license (en mois).",
+        verbose_name="Durée totale de la licence.",
+        help_text="Précisez la durée totale de la licence (en mois).",
     )
     end_date = models.DateField(
         default=GetDate,
-        verbose_name="date de fin de la license.",
-        help_text="date de fin de la license."
+        verbose_name="Date de fin de la licence.",
+        help_text="Date de fin de la licence."
     )
     payed = models.BooleanField(
         default=False,
-        verbose_name="si la license est payée.",
-        help_text="précisez si la license est déjà payée.",
+        verbose_name="Si la licence est payée.",
+        help_text="Précisez si la licence est déjà payée.",
     )
 
     class Meta:
@@ -423,53 +427,53 @@ class License(models.Model):
 class Invoice(models.Model):
     description = models.CharField(
         max_length=300,
-        verbose_name="invoice's description",
-        help_text="description de la facture",
+        verbose_name="Invoice's description",
+        help_text="Description de la facture",
     )
     price = models.PositiveIntegerField(
         default=0,
-        verbose_name="montant total de la facture.",
-        help_text="montant total de la facture (EN EUROS).",
+        verbose_name="Montant total de la facture.",
+        help_text="Montant total de la facture (EN EUROS).",
     )
     date = models.DateField(
         default=GetDate,
-        verbose_name="date de la facture",
-        help_text="date de la facture."
+        verbose_name="Date de la facture",
+        help_text="Date de la facture."
     )
     facturated = models.BooleanField(
         default=False,
-        verbose_name="si la facture est facturée.",
-        help_text="précisez si la facture est facturée",
+        verbose_name="Si la facture est facturée.",
+        help_text="Précisez si la facture est facturée",
     )
     payed = models.BooleanField(
         default=False,
-        verbose_name="si la facture est payée.",
-        help_text="précisez si la facture est payée",
+        verbose_name="Si la facture est payée.",
+        help_text="Précisez si la facture est payée",
     )
     contract = models.ForeignKey(
         Contract,
         default=None,
         on_delete=models.CASCADE,
-        verbose_name="le contrat relatif à cette facture.",
-        help_text="préciser le contrat relatif à cette facture.",
+        verbose_name="Le contrat relatif à cette facture.",
+        help_text="Préciser le contrat relatif à cette facture.",
     )
     company = models.ForeignKey(
         Company,
         on_delete=models.CASCADE,
-        verbose_name="l'entreprise de cette facture.",
-        help_text="préciser l'entreprise de cette facture.",
+        verbose_name="L'entreprise de cette facture.",
+        help_text="Préciser l'entreprise de cette facture.",
     )
     conseils = models.ManyToManyField(
         Conseil,
         default=None,
-        verbose_name="le ou les conseil(s) relatif(s) à cette facture.",
-        help_text="préciser le ou les conseil(s) à facturer.",
+        verbose_name="Le ou les conseil(s) relatif(s) à cette facture.",
+        help_text="Préciser le ou les conseil(s) à facturer.",
     )
     licenses = models.ManyToManyField(
         License,
         default=None,
-        verbose_name="le ou les licenses(s) relatif(s) à cette facture.",
-        help_text="préciser le ou les licenses(s) à facturer.",
+        verbose_name="Le ou les licenses(s) relatif(s) à cette facture.",
+        help_text="Préciser le ou les licenses(s) à facturer.",
     )
 
     class Meta:
@@ -483,6 +487,34 @@ class Invoice(models.Model):
     def get_absolute_url(self, comp_id):
         return reverse('mvp-invoice-details', args=[comp_id, str(self.id)])
 
+
+class Invite(models.Model):
+    email = models.EmailField(
+        max_length=150,
+        default=None,
+        verbose_name="Email du destinataire.",
+        help_text="L'email du destinataire.",
+    )
+    company = models.ForeignKey(
+        Company,
+        on_delete=models.CASCADE,
+        verbose_name="L'entreprise de cette invitation.",
+        help_text="Préciser l'entreprise de cette invitation.",
+    )
+    role = models.PositiveSmallIntegerField(
+        default=4,
+        verbose_name="Rôle de la personne",
+        help_text="Préciser le rôle de la personne",
+        choices=InviteChoice,
+    )
+
+    class Meta:
+        verbose_name = "invitation"
+        verbose_name_plural = "invitations"
+        ordering = ['company__id', 'role', ]
+
+    def __str__(self):
+        return self.email
 
 # - invoices
 # - company_id

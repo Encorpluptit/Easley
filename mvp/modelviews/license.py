@@ -3,7 +3,6 @@ from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.shortcuts import get_object_or_404
 from django.urls import reverse
 from django.views.generic import CreateView, UpdateView, DetailView, DeleteView
-
 from mvp.models import License, Contract
 from mvp.forms import LicenseForm
 from mvp.modelviews import PERMISSION_DENIED
@@ -48,11 +47,11 @@ class LicenseCreateView(LoginRequiredMixin, UserPassesTestMixin, CreateView):
     template_name = 'mvp/views/license_form.html'
     object = None
     pk_url_kwarg = 'contract_pk'
-    extra_context = {"create_license": True, "button": "Ajouter une license",
-                     "page_title": "Easley - Create License", "page_heading": "Gestion des licenses",
-                     "section": "license", "content_heading": "Créer une license"}
+    extra_context = {"create_license": True, "button": "Ajouter une licence",
+                     "page_title": "Easley - Create License", "page_heading": "Gestion des licences",
+                     "section": "license", "content_heading": "Créer une licence"}
     permission_denied_message = PERMISSION_DENIED
-    success_message = f'License Créée !'
+    success_message = f'Licence Créée !'
 
     def test_func(self):
         return CreateLicensePermissions(self, self.kwargs.get('cpny_pk'), self.kwargs.get(self.pk_url_kwarg))
@@ -75,11 +74,11 @@ class LicenseUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
     template_name = 'mvp/views/license_form.html'
     object = None
     pk_url_kwarg = 'license_pk'
-    extra_context = {"update_license": True, "button": "Modifier la license",
-                     "page_title": "Easley - Update License", "page_heading": "Gestion des licenses",
-                     "section": "license", "content_heading": "Modifier la license"}
+    extra_context = {"update_license": True, "button": "Modifier la licence",
+                     "page_title": "Easley - Update License", "page_heading": "Gestion des licences",
+                     "section": "license", "content_heading": "Modifier la licence"}
     permission_denied_message = PERMISSION_DENIED
-    success_message = f'License Modifiée'
+    success_message = f'Licence Modifiée'
 
     def test_func(self):
         return UpdateDeleteLicensePermissions(self,
@@ -101,8 +100,8 @@ class LicenseDetailView(LoginRequiredMixin, UserPassesTestMixin, DetailView):
     template_name = 'mvp/views/license_details.html'
     pk_url_kwarg = 'license_pk'
     extra_context = {"details": True,
-                     "page_title": "Easley - License Details", "page_heading": "Gestion des licenses",
-                     "section": "license", "content_heading": "Informations license"}
+                     "page_title": "Easley - License Details", "page_heading": "Détail de la licence.",
+                     "section": "license", "content_heading": "Informations licence"}
     permission_denied_message = PERMISSION_DENIED
 
     def get_queryset(self):
@@ -114,9 +113,9 @@ class LicenseDetailView(LoginRequiredMixin, UserPassesTestMixin, DetailView):
             if self.request.user.manager.company.id == cpny_pk:
                 return True
         elif hasattr(self.request.user, 'commercial'):
-            license = get_object_or_404(License, pk=self.kwargs.get(self.pk_url_kwarg))
+            licence = get_object_or_404(License, pk=self.kwargs.get(self.pk_url_kwarg))
             commercial = self.request.user.commercial
-            if commercial.company.id == cpny_pk and commercial.id == license.contract.commercial.id:
+            if commercial.company.id == cpny_pk and commercial.id == licence.contract.commercial.id:
                 return True
         return False
 
@@ -133,7 +132,7 @@ class LicenseDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
                      "page_title": "Easley - Delete License", "page_heading": "Gestion des licenses",
                      "section": "license", "content_heading": "Supprimer une license"}
     permission_denied_message = PERMISSION_DENIED
-    success_message = f'License Supprimée !'
+    success_message = f'Licence Supprimée !'
 
     def test_func(self):
         return UpdateDeleteLicensePermissions(self,

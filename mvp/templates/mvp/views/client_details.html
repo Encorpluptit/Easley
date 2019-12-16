@@ -17,34 +17,35 @@
 
     <div class="row">
         <div class="col-lg-6">
-            <!-- Service Card -->
+            <!-- License Card -->
             <div class="card shadow mb-4">
-                <div class="card-header py-3 border-bottom-danger">
-                    <h6 class="m-0 font-weight-bold text-primary">Conseil (a modif)</h6>
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Licences</h6>
                 </div>
-                <div class="card-body border-left-primary border-bottom-primary">
-                    {% if not conseils %}
-                        Ce client n'a pas de conseil.
+                <div class="card-body">
+                    {% if not licenses %}
+                        Ce client n'as pas de licence.
                     {% else %}
-                        {% for conseil in conseils %}
-                            {{ conseil }}<br>
+                        {% for license in licenses %}
+                            <a href= {% url 'mvp-license-details' object.company.id object.id license.id %}>{{ license }}</a>
+                            <br>
                         {% endfor %}
                     {% endif %}
                 </div>
             </div>
         </div>
         <div class="col-lg-6">
-            <!-- License Card -->
-            <div class="card shadow mb-4  border-bottom-dark">
+            <!-- Service Card -->
+            <div class="card shadow mb-4">
                 <div class="card-header py-3">
-                    <h6 class="m-0 font-weight-bold text-primary">Licenses</h6>
+                    <h6 class="m-0 font-weight-bold text-primary">Conseils</h6>
                 </div>
                 <div class="card-body">
-                    {% if not licenses %}
-                        Ce client n'as pas de license.
+                    {% if not conseils %}
+                        Ce client n'a pas de conseil.
                     {% else %}
-                        {% for license in licenses %}
-                            <a href= {% url 'mvp-license-details' object.company.id object.id license.id %}>{{ license }}</a>
+                        {% for conseil in conseils %}
+                            <a href= {% url 'mvp-conseil-details' object.company.id object.id conseil.id %}>{{ conseil }}</a>
                             <br>
                         {% endfor %}
                     {% endif %}
@@ -57,7 +58,7 @@
         <a class="btn btn-warning btn-icon-split"
            href= {% url 'mvp-client-update' object.company.id object.id %}>
             <span class="icon text-white-50"><i class="fas fa-exclamation-triangle"></i></span>
-            <span class="text">Modifier ces informations</span>
+            <span class="text">Modifier le client</span>
         </a>
         <a class="btn btn-danger btn-icon-split"
            href= {% url 'mvp-client-delete' object.company.id object.id %}>

@@ -1,10 +1,12 @@
 from django.contrib import messages
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required, user_passes_test
+from django.contrib.auth.models import User
+from django.forms import modelformset_factory
 from dateutil.relativedelta import relativedelta
 from dateutil.utils import today
 from django.db.models import Sum
-from .models import Company, Commercial, Manager, Client, Conseil, License, Contract, Invoice
+from .models import Company, Commercial, Manager, Client, Conseil, License, Contract, Invoice, InviteChoice, Invite
 from .controllers import customRegisterUser, CreateAllInvoice
 from .forms import (
     UserRegisterForm,
@@ -12,20 +14,21 @@ from .forms import (
     ContractForm,
     ClientForm,
     ServiceForm,
+    InviteForm,
 )
 
 
 # Create your views here.
-from django.core.mail import send_mail
-from django.conf import settings
-def email(request):
-    subject = 'Thank you for registering to our site'
-    message = ' it  means a world to us '
-    email_from = settings.EMAIL_HOST_USER
-    recipient_list = ['damien.bernard@epitech.eu', ]
-    send_mail(subject, message, email_from, recipient_list)
-    return redirect('mvp-home')
-
+# from django.core.mail import send_mail
+# from django.conf import settings
+# def email(request):
+#     subject = 'Thank you for registering to our site'
+#     message = ' it  means a world to us '
+#     email_from = settings.EMAIL_HOST_USER
+#     recipient_list = ['damien.bernard@epitech.eu', ]
+#     send_mail(subject, message, email_from, recipient_list)
+#     return redirect('mvp-home')
+#
 
 def home(request):
     return render(request, 'mvp/misc/home.html')
@@ -50,6 +53,52 @@ def register(request):
 
 
 @login_required
+def Employees(request):
+    company = request.user.manager.company
+    managers = company.manager_set.all()
+    invites = company.invite_set.all()
+    context = {
+        'section': "employees",
+        'commercials': company.commercial_set.all() or None,
+        'factus': managers.filter(role=3) or None,
+        'accounts': managers.filter(role=2) or None,
+        'managers': managers.filter(role=1) or None,
+    }
+
+    inviteformset = modelformset_factory(Invite, extra=4, exclude=('company', 'role'),)
+    formset = inviteformset(request.POST or None, queryset=Invite.objects.none())
+    for index, form in enumerate(formset):
+        for nb, string in InviteChoice:
+            if nb == (index + 1):
+                form.instance.role = nb
+                form.instance.company = company
+                form.fields['email'].widget.attrs.update({'class': 'form-control'})
+                break
+    if request.method == "POST":
+        print("POST\n", request.POST)
+        print(formset.is_valid())
+        instances = formset.save(commit=False)
+        print(instances)
+        for form in instances:
+            # print('form in instance', form, type(form))
+            if (Invite.objects.filter(email=form.email) or None) or (User.objects.filter(email=form.email) or None):
+                messages.warning(request, f"Une invitation a déjà été envoyée pour cette adresse email ou\
+                un utilsateur avec cette adresse existe déjà.")
+                break
+            # print('save')
+            form.save()
+            # formset.full_clean()
+            # formset._should_delete_form(form)
+            # formset.delete_existing(form)
+    context['invite_commercial'] = invites.filter(role=4) or None
+    context['invite_factus'] = invites.filter(role=3) or None
+    context['invite_accounts'] = invites.filter(role=2) or None
+    context['invite_managers'] = invites.filter(role=1) or None
+    context['formset'] = formset
+    return render(request, 'mvp/misc/employees.html', context)
+
+
+@login_required
 def companyCreation(request):
     form = CompanyForm(request.POST or None, ceo=request.user)
     if request.method == "POST" and form.is_valid():
@@ -58,9 +107,9 @@ def companyCreation(request):
             ceo = Manager.objects.create(user=request.user, company=company, role=1)
             ceo.save()
             messages.success(request, f'Company {company.name} Created, Welcome {ceo} !')
+            # @ TODO: faire les invitations des commerciaux
         except:
             messages.warning(request, f'An Error occurred ! Please try again later')
-        # @ TODO: faire les invitations des commerciaux
         return redirect('mvp-workspace')
     return render(request, 'mvp/misc/company_creation.html', {'form': form})
 
@@ -97,6 +146,7 @@ def CreateContractClient(request, **kwargs):
 # @ TODO: Faire permissions
 @login_required
 def CreateContractForm(request, cpny_pk=None, client_pk=None):
+    context = {}
     client = get_object_or_404(Client, pk=client_pk)
     company = get_object_or_404(Company, pk=cpny_pk)
     form = ContractForm(request.POST or None, user=request.user, client=client, company=company)
@@ -105,7 +155,8 @@ def CreateContractForm(request, cpny_pk=None, client_pk=None):
             contract = form.save()
             messages.success(request, f'Contrat créé.')
             return redirect('mvp-contract-details', company.id, contract.id, )
-    return render(request, 'mvp/views/contract_form.html', {'form': form})
+    context['form'] = form
+    return render(request, 'mvp/views/contract_form.html', context)
 
 
 # @ TODO: Faire permissions
@@ -118,8 +169,8 @@ def ContractDetails(request, cpny_pk=None, contract_pk=None, conseil_pk=None):
         "section": "contract", "content_heading": "Détail Contrat",
     }
     contract = get_object_or_404(Contract, pk=contract_pk)
-    conseils = contract.conseil_set.all().order_by('start_date', '-price')
-    licenses = contract.license_set.all().order_by('start_date', '-price')
+    conseils = contract.conseil_set.all().order_by('start_date', '-price') or None
+    licenses = contract.license_set.all().order_by('start_date', '-price') or None
 
     context['object'] = contract
     context['licenses'] = licenses
@@ -138,7 +189,6 @@ def ContractDetails(request, cpny_pk=None, contract_pk=None, conseil_pk=None):
     if contract.validated:
         return render(request, 'mvp/views/contract_details.html', context)
     if request.method == "POST" and not contract.validated:
-        # print(request.POST)
         if conseils.count() <= 0 and licenses.count() <= 0:
             messages.info(request, f"Le contrat est vide. Veuillez rentrer une license ou un conseil.")
         else:
@@ -150,7 +200,7 @@ def ContractDetails(request, cpny_pk=None, contract_pk=None, conseil_pk=None):
     return render(request, 'mvp/views/contract_details.html', context)
 
 
-# @ TODO: A refaire (avec BaseView ?) pour fichier de services / Faire permissions
+# @ TODO: Faire permissions, faire la gestion du changement d'excel
 @login_required
 def ConseilDetails(request, cpny_pk=None, contract_pk=None, conseil_pk=None):
     context = {
@@ -171,6 +221,7 @@ def ConseilDetails(request, cpny_pk=None, contract_pk=None, conseil_pk=None):
     return render(request, 'mvp/views/conseil_details.html', context)
 
 
+@login_required
 def ContractListView(request, cpny_pk=None):
     context = {'validated_contracts': None, 'section': 'contract', 'list_contract': True}
     if hasattr(request.user, 'commercial'):
@@ -184,16 +235,17 @@ def ContractListView(request, cpny_pk=None):
     return render(request, 'mvp/views/contract_list.html', context)
 
 
-@login_required
-def join_company(request):
-    if request.method == "POST":
-        try:
-            company = Company.objects.get(pk=int(request.POST['company_id']))
-            Commercial.objects.create(user=request.user, company=company)
-            return redirect('mvp-commercial-workspace')
-        except:
-            messages.warning(request, f'Wrong company ID')
-    return render(request, 'mvp/misc/join_company.html')
+def join_company(request, invite_email):
+    invite = get_object_or_404(Invite, email=invite_email)
+    form = UserRegisterForm(request.POST or None, email=invite_email)
+    if request.method == "POST" and form.is_valid():
+        if customRegisterUser(request, form):
+            manager = Manager.objects.create(user=request.user, company=invite.company, role=invite.role)
+            invite.delete()
+            return redirect('mvp-workspace')
+        else:
+            return redirect(request, 'mvp-home')
+    return render(request, 'mvp/misc/register.html', {'form': form})
 
 
 @login_required
@@ -205,8 +257,9 @@ def CommercialWorkspace(request):
     }
     commercial = request.user.commercial
     contracts = commercial.contract_set.all()
-    month_prime = contracts.filter(start_date__month=today().month, validated=True).aggregate(Sum('price'))['price__sum']
-    year_prime = contracts.filter(start_date__year=today().year, validated=True).aggregate(Sum('price'))['price__sum']
+    date = today()
+    month_prime = contracts.filter(start_date__month=date.month, validated=True).aggregate(Sum('price'))['price__sum']
+    year_prime = contracts.filter(start_date__year=date.year, validated=True).aggregate(Sum('price'))['price__sum']
     if month_prime:
         context['month_prime'] = month_prime / 10
     if year_prime:
@@ -231,17 +284,48 @@ def FactuWorkspace(request):
         'section': 'workspace',
     }
 
+    date = today()
     factu = request.user.manager
     company = factu.company
     invoices = company.invoice_set.all()
     context['invoice_to_facture'] = invoices.filter(
         contract__factu_manager=factu, facturated=False,
-        date__month__lte=today().month, date__year__lte=today().year)
+        date__month__lte=date.month, date__year__lte=date.year).order_by('contract__id', 'date').distinct('contract')
+    # invoices = company.invoice_set.order_by('contract__id', 'date').distinct('contract')
+    # context['invoice_to_facture'] = invoices.filter(
+    #     contract__factu_manager=factu, facturated=False,
+    #     date__month__lte=date.month, date__year__lte=date.year)
     context['invoice_late'] = invoices.filter(
         contract__factu_manager=factu, facturated=True, payed=False,
-        date__month__lte=today().month, date__year__lte=today().year)
-
+        date__month__lte=date.month, date__year__lte=date.year)
+    for inv in context['invoice_to_facture']:
+        qs = inv.contract.invoice_set.filter(
+            facturated=False, date__month__lt=date.month, date__year__lte=date.year) or None
+        print(inv)
+        print(qs)
+        if qs:
+            inv.late = qs.count()
     return render(request, 'mvp/workspace/factu.html', context)
+
+
+@login_required
+def AccountWorkspace(request):
+    context = {
+        'section': 'workspace',
+        'nb_services_to_validate': 0,
+    }
+    manager = request.user.manager
+    date = today()
+    services = manager.company.contract_set.filter(
+        validated=True,
+        client__account_manager=manager,
+        conseil__service__estimated_date__month__lte=date.month,
+        conseil__service__estimated_date__year__lte=date.year,
+    ) or None
+    if services:
+        context['nb_services_to_validate'] = services.count()
+    context['services'] = services
+    return render(request, 'mvp/workspace/account.html', context)
 
 
 @login_required
@@ -253,7 +337,7 @@ def workspace(request):
         if user.manager.role == 1:
             return ManagerWorkspace(request)
         elif user.manager.role == 2:
-            return redirect('mvp-manager-workspace')
+            return AccountWorkspace(request)
         elif user.manager.role == 3:
             return FactuWorkspace(request)
     return redirect('mvp-company-register')

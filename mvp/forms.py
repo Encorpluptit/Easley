@@ -4,17 +4,28 @@ from django.contrib.auth.forms import UserCreationForm
 from dateutil.relativedelta import relativedelta
 from django.utils.formats import localize
 
-from .models import Company, Commercial, Manager, Client, Conseil, License, Invoice, Service, Contract
+from .models import (
+    Company,
+    Commercial,
+    Manager,
+    Client,
+    Conseil,
+    License,
+    Invoice,
+    Service,
+    Contract,
+    Invite,
+)
 
 
 # Create your forms here.
 
 
 CONTRACT_FACTURATION = [
-    (1, 'Mensuel'),
-    (3, 'Trimestriel'),
-    (6, 'Semestriel'),
-    (12, 'Annuel'),
+    (1, 'Mensuelle'),
+    (3, 'Trimestrielle'),
+    (6, 'Semestrielle'),
+    (12, 'Annuellle'),
 ]
 
 
@@ -23,8 +34,12 @@ class UserRegisterForm(UserCreationForm):
     first_name = forms.CharField(max_length=150, )
     last_name = forms.CharField(max_length=150, )
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, email=None, **kwargs):
         super().__init__(*args, **kwargs)
+        if email:
+            self.fields['email'].widget = forms.HiddenInput()
+            self.fields['email'].initial = email
+            print(email)
         for key in self.fields:
             self.fields[key].widget.attrs.update({'class': 'form-control'})
             self.fields[key].widget.attrs.update({'placeholder': key})
@@ -42,7 +57,6 @@ class CompanyForm(forms.ModelForm):
         for key in self.fields:
             self.fields[key].widget.attrs.update({'class': 'form-control'})
             self.fields[key].widget.attrs.update({'placeholder': self.fields[key].help_text})
-            # self.fields[key].widget.attrs.update({'placeholder': key})
             self.fields[key].widget.attrs.update({'title': self.fields[key].help_text})
 
     class Meta:
@@ -102,7 +116,6 @@ class ContractForm(forms.ModelForm):
             self.fields[key].widget.attrs.update({'placeholder': key})
             self.fields[key].widget.attrs.update({'title': self.fields[key].help_text})
         self.fields['start_date'].widget.attrs.update({'data-toggle': 'datepicker'})
-        # self.fields['end_date'].widget.attrs.update({'data-toggle': 'datepicker'})
 
     class Meta:
         model = Contract
@@ -112,7 +125,12 @@ class ContractForm(forms.ModelForm):
 
 
 class ConseilForm(forms.ModelForm):
-    services_excels = forms.FileField(initial=None, required=False, show_hidden_initial=True)
+    prestas = forms.FileField(
+        initial=None,
+        required=False,
+        show_hidden_initial=True,
+        label="Détails des prestations."
+    )
 
     def __init__(self, *args, user=None, company=None, contract=None, **kwargs):
         super().__init__(*args, **kwargs)
@@ -127,10 +145,6 @@ class ConseilForm(forms.ModelForm):
     class Meta:
         model = Conseil
         exclude = ('contract', 'payed', 'end_date')
-        widgets = {
-            # 'start_date': forms.SelectDateWidget,
-            # 'end_date': forms.SelectDateWidget,
-        }
 
 
 class ServiceForm(forms.ModelForm):
@@ -141,13 +155,13 @@ class ServiceForm(forms.ModelForm):
             self.fields[key].widget.attrs.update({'class': 'form-control'})
             self.fields[key].widget.attrs.update({'placeholder': key})
             self.fields[key].widget.attrs.update({'title': self.fields[key].help_text})
+        self.fields['estimated_date'].widget.attrs.update({'data-toggle': 'datepicker'})
         self.user = user
 
     class Meta:
         model = Service
         exclude = ('conseil',)
         widgets = {
-            'estimated_date': forms.SelectDateWidget,
             'actual_date': forms.SelectDateWidget,
         }
 
@@ -185,8 +199,6 @@ class InvoiceFrom(forms.ModelForm):
         if hasattr(user, 'manager'):
             self.fields['commercial'].queryset = Commercial.objects.filter(company=user.manager.company)
             self.fields['client'].queryset = Client.objects.filter(company=user.manager.company)
-            # self.fields['client'].queryset = Client.objects.filter(company=user.manager.company)
-            # self.fields['client'].queryset = Client.objects.filter(company=user.manager.company)
         for key in self.fields:
             self.fields[key].widget.attrs.update({'class': 'form-control'})
             self.fields[key].widget.attrs.update({'placeholder': key})
@@ -196,7 +208,6 @@ class InvoiceFrom(forms.ModelForm):
     class Meta:
         model = Invoice
         exclude = ('company', '')
-        # exclude = ('company', 'contract',)
 
     def is_valid(self):
         if hasattr(self.user, 'commercial'):
@@ -223,6 +234,20 @@ class UserUpdateForm(UserCreationForm):
         fields = ['first_name', 'last_name', 'email', 'username', 'password1', 'password2']
 
 
+class InviteForm(forms.ModelForm):
+    def __init__(self, *args, user=None, role=4, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.instance.company = user.manager.company
+        self.instance.role = role
+        for key in self.fields:
+            self.fields[key].widget.attrs.update({'class': 'form-control'})
+            self.fields[key].widget.attrs.update({'placeholder': key})
+            self.fields[key].widget.attrs.update({'title': self.fields[key].help_text})
+        self.user = user
+
+    class Meta:
+        model = Invite
+        exclude = ('company', 'role')
 
 
 

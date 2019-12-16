@@ -1,4 +1,5 @@
 {% extends 'mvp/generic/content.html' %}
+{% load my_filters %}
 
 {% block content %}
     <article class="media content-section">
@@ -6,8 +7,8 @@
             <h2 class="article-title">{{ object.description }}</h2>
             <hr>
             <div class="article-metadata">
-                <b class="text-gray-900">Client: {{ object.client }}</b><br>
-                <b class="text-gray-900">BizDev: {{ object.commercial }}</b><br>
+                <b class="text-gray-900">Client: {{ object.contract.client }}</b><br>
+                <b class="text-gray-900">BizDev: {{ object.contract.commercial }}</b><br>
             </div>
             <hr>
             <table class="table table-hover table-bordered">
@@ -15,16 +16,14 @@
                 <tr>
                     <th scope="col">Prix</th>
                     <th scope="col">Date de début</th>
-                    <th scope="col">Durée</th>
                     <th scope="col">Date de fin</th>
                 </tr>
                 </thead>
                 <tbody>
                 <tr>
-                    <td class="article-content">{{ object.price }}</td>
+                    <td class="article-content">{{ object.price|currency }}</td>
                     <td class="article-content">{{ object.start_date|date:"d F, Y" }}</td>
-                    <td class="article-content">{{ object.duration }}</td>
-                    <td class="article-content">{{ object.end_date }}</td>
+                    <td class="article-content">{{ object.end_date|date:"d F, Y" }}</td>
                 </tr>
                 </tbody>
             </table>

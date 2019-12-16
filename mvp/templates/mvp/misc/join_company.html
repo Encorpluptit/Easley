@@ -3,7 +3,7 @@
 {% block content %}
     <form method="post">
         {% csrf_token %}
-        {#        {% include 'mvp/generic/form.html' %}#}
+                {% include 'mvp/generic/form.html' %}
         <th><label for="id_company">Please Enter your company code.
             <span class="text-danger">*</span></label></th>
         <td><input type="number" class="form-control" name="company_id" maxlength="150"

@@ -55,9 +55,7 @@
                 {% for service in object.service_set.all %}
                     <tr>
                         <th scope="row">{{ forloop.counter }}</th>
-                        <td>URL VERS SERVICES {{ service.description }}
-                            {#                        <a href= {% url 'mvp-ser-details' object.company.id object.id %}>{{ object.description }}</a>#}
-                        </td>
+                        <td>{{ service.description }}</td>
                         <td>{{ service.estimated_date|date:"d F, Y" }}</td>
                         <td>{{ service.actual_date|date:"d F, Y" }}</td>
                     </tr>
@@ -67,11 +65,7 @@
         {% else %}
             Ce conseil n'as pas de services pour l'instant.<br>
         {% endif %}
-        <a class="btn btn-secondary btn-icon-split"
-           href= {% url 'mvp-contract-details' object.contract.company.id object.contract.id %}>
-            <span class="icon text-white-50"><i class="fas fa-arrow-right"></i></span>
-            <span class="text">Retour</span>
-        </a>
+        <hr>
         {% if object.contract.validated == False %}
             <!-- Collapsible Client Form -->
             <div class="card shadow mb-4">
@@ -101,12 +95,12 @@
         <a class="btn btn-primary btn-icon-split"
            href= {% url 'mvp-contract-details' object.contract.company.id object.contract.id %}>
             <span class="icon text-white-50"><i class="fas fa-info-circle"></i></span>
-            <span class="text">Voir le contrat parent.</span>
+            <span class="text">Retour au Contrat</span>
         </a>
         <a class="btn btn-secondary btn-icon-split"
            href= {{ request.META.HTTP_REFERER }}>
             <span class="icon text-white-50"><i class="fas fa-arrow-right"></i></span>
-            <span class="text">Retour</span>
+            <span class="text">Page Précédente</span>
         </a><br>
         </div>
     </article>
@@ -121,7 +115,7 @@
 
 
 {% block page_heading %}
-    Gestion des Conseils
+    Détails des prestations.
 {% endblock %}
 
 

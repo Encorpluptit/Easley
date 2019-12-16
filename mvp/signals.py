@@ -1,8 +1,11 @@
 from django.db.models.signals import post_delete, post_save, pre_save
 from django.db.models import Sum
 from django.dispatch import receiver
-from .models import Company, Commercial, Manager, Client, Conseil, License, Contract
+from .models import Conseil, License, Contract, Invite
 from dateutil.relativedelta import relativedelta
+from django.core.mail import send_mail
+from django.conf import settings
+from django.urls import reverse
 
 
 # @receiver(post_delete, sender=Company)
@@ -46,3 +49,16 @@ def LicenseUpdateContractPrice(sender, instance, **kwargs):
 @receiver([post_save, post_delete], sender=Conseil)
 def ConseilUpdateContractPrice(sender, instance, **kwargs):
     UpdateContractPrice(instance.contract)
+
+
+@receiver(post_save, sender=Invite)
+def SendInvite(sender, instance, **kwargs):
+    subject = 'Invitation à rejoindre Easley'
+    message = "Une personne vous à invité à rejoindre son entreprise sur Easley.\n\n\
+Veuillez vous rendre sur cette page pour créer votre compte\n\n\
+https://easleymvp.herokuapp.com%s\n\n\
+Merci d'utiliser notre site !\n\n\
+L'équipe d'Easley\n" % reverse('mvp-join-company', args=[instance.email])
+    email_from = settings.EMAIL_HOST_USER
+    recipient_list = [instance.email, ]
+    send_mail(subject, message, email_from, recipient_list)

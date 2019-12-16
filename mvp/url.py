@@ -19,7 +19,6 @@ from mvp.modelviews.client import (
 )
 
 urlpatterns = [
-    path('email/', views.email, name='mvp-email'),
     path('', views.home, name='mvp-home'),
     path('home/', views.home, name='mvp-home'),
     path('login/', auth_views.LoginView.as_view(template_name='mvp/misc/login.html'), name='mvp-login'),
@@ -35,11 +34,10 @@ urlpatterns = [
          name='password_reset_confirm'),
     path('password-reset/complete/', auth_views.PasswordResetCompleteView.as_view(
         template_name='mvp/misc/password_reset_complete.html'), name='password_reset_complete'),
-    path('company/join', views.join_company, name='mvp-join-company'),
+    path('company/join/<str:invite_email>/', views.join_company, name='mvp-join-company'),
     path('company/register', views.companyCreation, name='mvp-company-register'),
     path('workspace/', views.workspace, name="mvp-workspace"),
-    path('workspace/commercial/', views.CommercialWorkspace, name="mvp-commercial-workspace"),
-    path('workspace/manager/', views.ManagerWorkspace, name="mvp-manager-workspace"),
+    path('company/employees', views.Employees, name="mvp-employees"),
     path('<int:cpny_pk>/contract/list/', views.ContractListView, name='mvp-contract-list'),
     path('<int:cpny_pk>/contract/new/',
          views.CreateContractClient, name='mvp-contract-new'),

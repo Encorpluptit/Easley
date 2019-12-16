@@ -143,9 +143,19 @@
                                             <th>
                                                 <a class="btn btn-success btn-icon-split"
                                                    href= {% url 'mvp-invoice-details' invoice.contract.company.id invoice.id %}>
-                                                    <span class="icon text-white-50"><i class="fas fa-file-invoice-dollar"></i></span>
+                                                    <span class="icon text-white-50"><i
+                                                            class="fas fa-file-invoice-dollar"></i></span>
                                                     <span class="text">Facturer</span>
+                                                    {% if invoice.late %}
+                                                        <span class="icon text-danger"
+                                                              title="Nombre de factures en retard">
+                                                        <i class="fas fa-file-invoice-dollar" onmouseover="">
+                                                            {{ invoice.late }}
+                                                        </i>
+                                                    </span>
+                                                    {% endif %}
                                                 </a>
+
                                             </th>
                                         </tr>
                                     {% endfor %}
@@ -159,7 +169,7 @@
 
             faire factu workspace
 
-            <!-- Collapsable Card À Facturer -->
+            <!-- Collapsable Card À la bourre -->
             <div class="card shadow mb-4">
                 <!-- Card Header - Accordion -->
                 <a href="#collapseCardLate" class="d-block card-header py-3" data-toggle="collapse" role="button"
@@ -220,7 +230,8 @@
                                             <th>
                                                 <a class="btn btn-success btn-icon-split"
                                                    href= {% url 'mvp-invoice-details' invoice.contract.company.id invoice.id %}>
-                                                    <span class="icon text-white-50"><i class="fas fa-file-invoice-dollar"></i></span>
+                                                    <span class="icon text-white-50"><i
+                                                            class="fas fa-file-invoice-dollar"></i></span>
                                                     <span class="text">Facturer</span>
                                                 </a>
                                             </th>
@@ -233,7 +244,6 @@
                     </div>
                 </div>
             </div>
-
 
 
         </div>

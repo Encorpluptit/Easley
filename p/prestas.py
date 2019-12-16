@@ -216,7 +216,7 @@ def GetClient_1Data(nb_contract=1, lic=False, cons=False):
                             'descr': "mileu service",
                             'price': 2000,
                             'estimated_date_offset': {
-                                'months': 0,
+                                'months': 2,
                                 'weeks': 2,
                                 'days': 0, },
                             'junior_day': 2,
@@ -227,7 +227,7 @@ def GetClient_1Data(nb_contract=1, lic=False, cons=False):
                             'descr': "fin service",
                             'price': 1000,
                             'estimated_date_offset': {
-                                'months': 1,
+                                'months': 4,
                                 'weeks': 2,
                                 'days': 0, },
                             'junior_day': 3,

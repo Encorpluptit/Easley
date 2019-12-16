@@ -6,26 +6,26 @@
     <article class="media content-section">
         <div class="media-body">
             <h2 class="article-title">{{ object.description }}</h2>
-            {% if not object.validated or user.manager and user.manager.role == 1 %}
-                <form method="post">
-                    {% if not object.validated %}
-                        {% csrf_token %}
-                        <button class="btn btn-success btn-icon-split" type="submit" name="validate">
-                            <span class="icon text-white-50"><i class="fas fa-check"></i></span>
-                            <span class="text">Valider le contrat.</span>
-                        </button>
-                    {% endif %}
-                    <a class="btn btn-warning btn-icon-split"
-                       href= {% url 'mvp-contract-update' object.company.id object.id %}>
-                        <span class="icon text-white-50"><i class="fas fa-exclamation-triangle"></i></span>
-                        <span class="text">Modifier ce contrat</span>
-                    </a>
-                    <a class="btn btn-danger btn-icon-split" href="#" data-toggle="modal"
-                       data-target="#ContractDeleteModal">
-                        <span class="icon text-white-50"><i class="fas fa-trash"></i></span>
-                        <span class="text">Supprimer le contrat</span>
-                    </a>
-                </form>
+            {% if not object.validated and user.commercial or user.manager and user.manager.role == 1 %}
+                {#                <form method="post">#}
+                {#                    {% if not object.validated %}#}
+                {#                        {% csrf_token %}#}
+                {#                        <button class="btn btn-success btn-icon-split btn-lg" type="submit" name="validate">#}
+                {#                            <span class="icon text-white-50"><i class="fas fa-check"></i></span>#}
+                {#                            <span class="text">Valider le contrat.</span>#}
+                {#                        </button>#}
+                {#                    {% endif %}#}
+                <a class="btn btn-warning btn-icon-split"
+                   href= {% url 'mvp-contract-update' object.company.id object.id %}>
+                    <span class="icon text-white-50"><i class="fas fa-exclamation-triangle"></i></span>
+                    <span class="text">Modifier ce contrat</span>
+                </a>
+                <a class="btn btn-danger btn-icon-split" href="#" data-toggle="modal"
+                   data-target="#ContractDeleteModal">
+                    <span class="icon text-white-50"><i class="fas fa-trash"></i></span>
+                    <span class="text">Supprimer le contrat</span>
+                </a>
+                {#                </form>#}
             {% endif %}
             <hr>
             <div class="article-metadata">
@@ -55,7 +55,7 @@
                 </thead>
                 <tbody>
                 <tr>
-                    <td class="article-content">{{ object.price }}</td>
+                    <td class="article-content">{{ object.price|currency }}</td>
                     <td class="article-content">{{ object.facturation|Fduration }}</td>
                     <td class="article-content">{{ object.start_date }}</td>
                     <td class="article-content">{{ object.end_date }}</td>
@@ -66,8 +66,8 @@
             <table class="table table-hover table-bordered">
                 <thead class="thead-dark">
                 <tr>
-                    <th scope="col">Licenses</th>
-                    <th scope="col">Conseil</th>
+                    <th scope="col">Licence(s)</th>
+                    <th scope="col">Conseil(s)</th>
                 </tr>
                 </thead>
                 <tbody>
@@ -75,30 +75,52 @@
                     <td>
                         {% if licenses %}
                             {% for license in licenses %}
-                                <a href= {% url 'mvp-license-details' object.company.id object.id license.id %}>
-                                    {{ license }} start:{{ license.start_date }} duration:{{ license.duration }}
-                                    price:{{ license.price }}</a>
+                                <div class="row" style="height: 15px">
+                                    <div class="col-md-4">
+                                        <h4>
+                                            <a href= {% url 'mvp-license-details' object.company.id object.id license.id %}>
+                                                {{ license|truncatechars:30 }}
+                                            </a></h4>
+                                    </div>
+                                    <div class="col-md-3 text-center">
+                                        {{ license.price|currency }}
+                                    </div>
+                                    <div class="col-md-4 align-right">
+                                        du {{ license.start_date }} au {{ license.end_date }}
+                                    </div>
+                                </div>
                                 <br>
                                 <hr>
                             {% endfor %}
                         {% else %}
-                            Ce contrat n'as pas de license actuellement.
+                            Ce contrat n'as pas de licence actuellement.
                             <hr><br>
                         {% endif %}
                         {% if not object.validated %}
                             <a class="btn btn-success btn-icon-split" href=
                                     {% url 'mvp-license-new' object.company.id object.id %}>
                                 <span class="icon text-white-50"><i class="fas fa-plus-square"></i></span>
-                                <span class="text">Ajouter une license</span>
+                                <span class="text">Ajouter une licence</span>
                             </a>
                         {% endif %}
                     </td>
                     <td>
                         {% if conseils %}
                             {% for conseil in conseils %}
-                                <a href= {% url 'mvp-conseil-details' object.company.id object.id conseil.id %}>
-                                    {{ conseil }} price: {{ conseil.price }} nb de
-                                    service:{{ conseil.service_set.all.count }}</a>
+                                <div class="row" style="height: 15px">
+                                    <div class="col-md-4">
+                                        <h4>
+                                            <a href= {% url 'mvp-conseil-details' object.company.id object.id conseil.id %}>
+                                                {{ conseil|truncatechars:30 }}
+                                            </a></h4>
+                                    </div>
+                                    <div class="col-md-3 text-center">
+                                        {{ conseil.price|currency }}
+                                    </div>
+                                    <div class="col-md-4">
+                                        du {{ conseil.start_date }} au {{ conseil.end_date }}
+                                    </div>
+                                </div>
                                 <br>
                                 <hr>
                             {% endfor %}
@@ -123,6 +145,18 @@
                 <span class="icon text-white-50"><i class="fas fa-arrow-right"></i></span>
                 <span class="text">Retour à la liste des Contrats</span>
             </a>
+            {% if not object.validated and user.commercial or user.manager and user.manager.role == 1 %}
+                <hr>
+                <form method="post">
+                    {% if not object.validated %}
+                        {% csrf_token %}
+                        <button class="btn btn-success btn-icon-split btn-lg" type="submit" name="validate">
+                            <span class="icon text-white-50"><i class="fas fa-check"></i></span>
+                            <span class="text">Valider le contrat.</span>
+                        </button>
+                    {% endif %}
+                </form>
+            {% endif %}
         </div>
     </article>
 
@@ -146,9 +180,11 @@
                         {% for license in licenses %}
                             {{ license.description }}<br>
                         {% endfor %}
+                        <hr>
                         {% for conseil in conseils %}
                             {{ conseil.description }}<br>
                         {% endfor %}
+                        <hr>
                         {% for invoice in invoices %}
                             {{ invoice.description }}<br>
                         {% endfor %}
@@ -168,7 +204,6 @@
             </div>
         </div>
     </div>
-
 {% endblock %}
 
 {% block scripts %}

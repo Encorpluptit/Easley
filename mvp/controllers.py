@@ -1,12 +1,11 @@
 from django.contrib import messages
 from django.contrib.auth import authenticate, login
-from django.utils import timezone
 from django.shortcuts import get_object_or_404, redirect
 from django.core.exceptions import ObjectDoesNotExist, ValidationError
 from dateutil.relativedelta import relativedelta
 from django.utils.formats import localize as loc
 
-from .models import Manager, Commercial, Contract, Client, Conseil, Invoice
+from .models import Manager, Commercial, Contract, Invoice
 
 
 def customRegisterUser(request, form):
@@ -81,20 +80,20 @@ def FillConseilLicenseForm(self, model_view, *args, **kwargs):
     return kwargs
 
 
-def validateCompanyInFormCreateUpdateView(self, form):
-    try:
-        if hasattr(self.request.user, 'commercial'):
-            form.instance.company = self.request.user.commercial.company
-        elif hasattr(self.request.user, 'manager'):
-            form.instance.company = self.request.user.manager.company
-    except ObjectDoesNotExist:
-        return redirectWorkspaceFail(self.request, f"Une erreur est survenue.")
-    try:
-        self.object = form.save()
-    except ValidationError:
-        return redirectWorkspaceFail(self.request, f"Une erreur est survenue.")
-    else:
-        return redirect(self.get_success_url())
+# def validateCompanyInFormCreateUpdateView(self, form):
+#     try:
+#         if hasattr(self.request.user, 'commercial'):
+#             form.instance.company = self.request.user.commercial.company
+#         elif hasattr(self.request.user, 'manager'):
+#             form.instance.company = self.request.user.manager.company
+#     except ObjectDoesNotExist:
+#         return redirectWorkspaceFail(self.request, f"Une erreur est survenue.")
+#     try:
+#         self.object = form.save()
+#     except ValidationError:
+#         return redirectWorkspaceFail(self.request, f"Une erreur est survenue.")
+#     else:
+#         return redirect(self.get_success_url())
 
 
 def routeCreatePermissions(self, cpny_pk, base_class):
@@ -168,24 +167,6 @@ def routeListPermissions(self, key_pk):
             return True
         else:
             return False
-
-
-def routeCreateUpdateInvoicePermissions(self, cpny_pk):
-    if hasattr(self.request.user, 'manager'):
-        manager = get_object_or_404(Manager, user=self.request.user)
-        if manager.company.id != cpny_pk or (manager.role != 1 and manager.role != 3):
-            return False
-        return True
-    else:
-        return False
-
-
-def routeListDetailsInvoicePermissions(self, cpny_pk):
-    if hasattr(self.request.user, 'manager'):
-        if self.kwargs.get('cpny_pk') != self.request.user.manager.company.id:
-            return False
-        return True
-    return False
 
 
 def redirectWorkspaceFail(request, message):

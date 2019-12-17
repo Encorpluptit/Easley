@@ -1,20 +1,16 @@
 from django.contrib import messages
 from django.shortcuts import render, redirect, get_object_or_404
-from django.contrib.auth.decorators import login_required, user_passes_test
+from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.forms import modelformset_factory
 from dateutil.relativedelta import relativedelta
 from dateutil.utils import today
 from django.db.models import Sum
-from .models import Company, Commercial, Manager, Client, Conseil, License, Contract, Invoice, InviteChoice, Invite
-from .controllers import customRegisterUser, CreateAllInvoice
+from .models import Manager, Commercial, Service, Invite, InviteChoice
+from .controllers import customRegisterUser
 from .forms import (
     UserRegisterForm,
     CompanyForm,
-    ContractForm,
-    ClientForm,
-    ServiceForm,
-    InviteForm,
 )
 
 
@@ -53,6 +49,49 @@ def register(request):
 
 
 @login_required
+def companyCreation(request):
+    form = CompanyForm(request.POST or None, ceo=request.user)
+    if request.method == "POST" and form.is_valid():
+        try:
+            company = form.save()
+            ceo = Manager.objects.create(user=request.user, company=company, role=1)
+            ceo.save()
+            messages.success(request, f'Company {company.name} Created, Welcome {ceo} !')
+            return redirect('mvp-employees')
+        except:
+            messages.warning(request, f'An Error occurred ! Please try again later')
+        return redirect('mvp-workspace')
+    return render(request, 'mvp/misc/company_creation.html', {'form': form})
+
+
+def join_company(request, invite_email):
+    invite = get_object_or_404(Invite, email=invite_email)
+    form = UserRegisterForm(request.POST or None, email=invite_email)
+    if request.method == "POST" and form.is_valid():
+        if customRegisterUser(request, form):
+            if 1 <= invite.role <= 3:
+                manager = Manager.objects.create(user=request.user, company=invite.company, role=invite.role)
+            elif invite.role == 3:
+                commercial = Commercial.objects.create(user=request.user, company=invite.company)
+            else:
+                messages.warning(request, f"Une erreur s'est produite !")
+                return render(request, 'mvp/misc/register.html', {'form': form})
+            invite.delete()
+            return redirect('mvp-workspace')
+        else:
+            return redirect(request, 'mvp-home')
+    return render(request, 'mvp/misc/register.html', {'form': form})
+
+
+@login_required
+def ManagerWorkspace(request):
+    context = {
+        'section': 'workspace',
+    }
+    return render(request, 'mvp/workspace/manager.html', context)
+
+
+@login_required
 def Employees(request):
     company = request.user.manager.company
     managers = company.manager_set.all()
@@ -75,10 +114,10 @@ def Employees(request):
                 form.fields['email'].widget.attrs.update({'class': 'form-control'})
                 break
     if request.method == "POST":
-        print("POST\n", request.POST)
-        print(formset.is_valid())
+        # print("POST\n", request.POST)
+        # print(formset.is_valid())
         instances = formset.save(commit=False)
-        print(instances)
+        # print(instances)
         for form in instances:
             # print('form in instance', form, type(form))
             if (Invite.objects.filter(email=form.email) or None) or (User.objects.filter(email=form.email) or None):
@@ -90,162 +129,13 @@ def Employees(request):
             # formset.full_clean()
             # formset._should_delete_form(form)
             # formset.delete_existing(form)
+    context['invites'] = invites
     context['invite_commercial'] = invites.filter(role=4) or None
     context['invite_factus'] = invites.filter(role=3) or None
     context['invite_accounts'] = invites.filter(role=2) or None
     context['invite_managers'] = invites.filter(role=1) or None
     context['formset'] = formset
     return render(request, 'mvp/misc/employees.html', context)
-
-
-@login_required
-def companyCreation(request):
-    form = CompanyForm(request.POST or None, ceo=request.user)
-    if request.method == "POST" and form.is_valid():
-        try:
-            company = form.save()
-            ceo = Manager.objects.create(user=request.user, company=company, role=1)
-            ceo.save()
-            messages.success(request, f'Company {company.name} Created, Welcome {ceo} !')
-            # @ TODO: faire les invitations des commerciaux
-        except:
-            messages.warning(request, f'An Error occurred ! Please try again later')
-        return redirect('mvp-workspace')
-    return render(request, 'mvp/misc/company_creation.html', {'form': form})
-
-
-# @ TODO: Faire permissions
-@login_required
-def CreateContractClient(request, **kwargs):
-    context = {
-        'page': 'contract_client',
-        'post': False,
-        'section': 'contract',
-        'create_contract': True
-    }
-    company, manager = None, False
-
-    if hasattr(request.user, 'commercial'):
-        context['client_list'] = request.user.commercial.client_set.all()
-        company = request.user.commercial.company
-    if hasattr(request.user, 'manager'):
-        context['client_list'] = request.user.manager.company.client_set.all()
-        company = request.user.manager.company
-        manager = True
-    form = ClientForm(request.POST or None, user=request.user, company=company, manager=manager)
-    if request.method == "POST":
-        context['post'] = True
-        if form.is_valid():
-            client = form.save()
-            messages.success(request, f'Client créé.')
-            return redirect('mvp-contract-form', company.id, client.id)
-    context['form'] = form
-    return render(request, 'mvp/views/contract_client.html', context)
-
-
-# @ TODO: Faire permissions
-@login_required
-def CreateContractForm(request, cpny_pk=None, client_pk=None):
-    context = {}
-    client = get_object_or_404(Client, pk=client_pk)
-    company = get_object_or_404(Company, pk=cpny_pk)
-    form = ContractForm(request.POST or None, user=request.user, client=client, company=company)
-    if request.method == "POST":
-        if form.is_valid():
-            contract = form.save()
-            messages.success(request, f'Contrat créé.')
-            return redirect('mvp-contract-details', company.id, contract.id, )
-    context['form'] = form
-    return render(request, 'mvp/views/contract_form.html', context)
-
-
-# @ TODO: Faire permissions
-
-
-@login_required
-def ContractDetails(request, cpny_pk=None, contract_pk=None, conseil_pk=None):
-    context = {
-        "page_title": "Easley - Contrat Details", "page_heading": "Gestion des Contrats",
-        "section": "contract", "content_heading": "Détail Contrat",
-    }
-    contract = get_object_or_404(Contract, pk=contract_pk)
-    conseils = contract.conseil_set.all().order_by('start_date', '-price') or None
-    licenses = contract.license_set.all().order_by('start_date', '-price') or None
-
-    context['object'] = contract
-    context['licenses'] = licenses
-    context['conseils'] = conseils
-    context['invoices'] = contract.invoice_set.all()
-    context['progression'] = 0
-    date_now = today().date()
-    if contract.start_date <= date_now:
-        try:
-            context['progression'] = int((date_now - contract.start_date) / (contract.end_date - contract.start_date) * 100)
-        except ZeroDivisionError:
-            pass
-    if request.method == "POST" and ('delete_contract' in request.POST):
-        contract.delete()
-        return redirect('mvp-contract-list', cpny_pk=contract.company.id)
-    if contract.validated:
-        return render(request, 'mvp/views/contract_details.html', context)
-    if request.method == "POST" and not contract.validated:
-        if conseils.count() <= 0 and licenses.count() <= 0:
-            messages.info(request, f"Le contrat est vide. Veuillez rentrer une license ou un conseil.")
-        else:
-            CreateAllInvoice(contract, licenses, conseils)
-            contract.validated = True
-            contract.save()
-            messages.success(request, f'Contrat Validé.')
-            return redirect(contract.get_absolute_url(contract.company.id))
-    return render(request, 'mvp/views/contract_details.html', context)
-
-
-# @ TODO: Faire permissions, faire la gestion du changement d'excel
-@login_required
-def ConseilDetails(request, cpny_pk=None, contract_pk=None, conseil_pk=None):
-    context = {
-        'content_heading': 'Rentrer les informations nécessaires à la création du conseil.',
-        'object': get_object_or_404(Conseil, pk=conseil_pk)
-    }
-    contract = get_object_or_404(Contract, pk=contract_pk)
-
-    if contract.validated:
-        context['content_heading'] = 'Détails du conseil'
-        return render(request, 'mvp/views/conseil_details.html', context)
-    company = get_object_or_404(Company, pk=cpny_pk)
-    form = ServiceForm(request.POST or None, user=request.user, company=company, conseil=context['object'])
-    if request.method == "POST" and form.is_valid():
-        form.save()
-        return render(request, 'mvp/views/conseil_details.html', context)
-    context['form'] = form
-    return render(request, 'mvp/views/conseil_details.html', context)
-
-
-@login_required
-def ContractListView(request, cpny_pk=None):
-    context = {'validated_contracts': None, 'section': 'contract', 'list_contract': True}
-    if hasattr(request.user, 'commercial'):
-        contracts = request.user.commercial.contract_set.all()
-        context['validated_contracts'] = contracts.filter(validated=True).order_by('start_date', '-price')
-        context['not_validated_contracts'] = contracts.filter(validated=False).order_by('start_date', '-price')
-    elif hasattr(request.user, 'manager'):
-        contracts = request.user.manager.company.contract_set.all()
-        context['validated_contracts'] = contracts.filter(validated=True).order_by('start_date', '-price')
-        context['not_validated_contracts'] = contracts.filter(validated=False).order_by('start_date', '-price')
-    return render(request, 'mvp/views/contract_list.html', context)
-
-
-def join_company(request, invite_email):
-    invite = get_object_or_404(Invite, email=invite_email)
-    form = UserRegisterForm(request.POST or None, email=invite_email)
-    if request.method == "POST" and form.is_valid():
-        if customRegisterUser(request, form):
-            manager = Manager.objects.create(user=request.user, company=invite.company, role=invite.role)
-            invite.delete()
-            return redirect('mvp-workspace')
-        else:
-            return redirect(request, 'mvp-home')
-    return render(request, 'mvp/misc/register.html', {'form': form})
 
 
 @login_required
@@ -271,14 +161,6 @@ def CommercialWorkspace(request):
 
 
 @login_required
-def ManagerWorkspace(request):
-    context = {
-        'section': 'workspace',
-    }
-    return render(request, 'mvp/workspace/manager.html', context)
-
-
-@login_required
 def FactuWorkspace(request):
     context = {
         'section': 'workspace',
@@ -301,8 +183,8 @@ def FactuWorkspace(request):
     for inv in context['invoice_to_facture']:
         qs = inv.contract.invoice_set.filter(
             facturated=False, date__month__lt=date.month, date__year__lte=date.year) or None
-        print(inv)
-        print(qs)
+        # print(inv)
+        # print(qs)
         if qs:
             inv.late = qs.count()
     return render(request, 'mvp/workspace/factu.html', context)
@@ -316,12 +198,14 @@ def AccountWorkspace(request):
     }
     manager = request.user.manager
     date = today()
-    services = manager.company.contract_set.filter(
-        validated=True,
-        client__account_manager=manager,
-        conseil__service__estimated_date__month__lte=date.month,
-        conseil__service__estimated_date__year__lte=date.year,
-    ) or None
+    services = Service.objects.filter(
+        conseil__contract__company=manager.company,
+        conseil__contract__validated=True,
+        conseil__contract__client__account_manager=manager,
+        estimated_date__month__lte=date.month,
+        estimated_date__year__lte=date.year,
+    )
+    print(services)
     if services:
         context['nb_services_to_validate'] = services.count()
     context['services'] = services
@@ -341,6 +225,16 @@ def workspace(request):
         elif user.manager.role == 3:
             return FactuWorkspace(request)
     return redirect('mvp-company-register')
+
+
+
+
+
+
+
+
+
+
 
 
 # @login_required

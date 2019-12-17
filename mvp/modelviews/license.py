@@ -1,6 +1,7 @@
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
-from django.shortcuts import get_object_or_404
+from django.contrib.auth.decorators import login_required
+from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 from django.views.generic import CreateView, UpdateView, DetailView, DeleteView
 from mvp.models import License, Contract
@@ -95,32 +96,48 @@ class LicenseUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
         return redirectWorkspaceFail(self.request, self.permission_denied_message)
 
 
-class LicenseDetailView(LoginRequiredMixin, UserPassesTestMixin, DetailView):
-    model = License
-    template_name = 'mvp/views/license_details.html'
-    pk_url_kwarg = 'license_pk'
-    extra_context = {"details": True,
-                     "page_title": "Easley - License Details", "page_heading": "Détail de la licence.",
-                     "section": "license", "content_heading": "Informations licence"}
-    permission_denied_message = PERMISSION_DENIED
+# class LicenseDetailView(LoginRequiredMixin, UserPassesTestMixin, DetailView):
+#     model = License
+#     template_name = 'mvp/views/license_details.html'
+#     pk_url_kwarg = 'license_pk'
+#     extra_context = {"details": True,
+#                      "page_title": "Easley - License Details", "page_heading": "Détail de la licence.",
+#                      "section": "license", "content_heading": "Informations licence"}
+#     permission_denied_message = PERMISSION_DENIED
+#
+#     def get_queryset(self):
+#         return License.objects.filter(pk=self.kwargs.get(self.pk_url_kwarg))
+#
+#     def test_func(self):
+#         cpny_pk = self.kwargs.get('cpny_pk')
+#         if hasattr(self.request.user, 'manager'):
+#             if self.request.user.manager.company.id == cpny_pk:
+#                 return True
+#         elif hasattr(self.request.user, 'commercial'):
+#             licence = get_object_or_404(License, pk=self.kwargs.get(self.pk_url_kwarg))
+#             commercial = self.request.user.commercial
+#             if commercial.company.id == cpny_pk and commercial.id == licence.contract.commercial.id:
+#                 return True
+#         return False
+#
+#     def handle_no_permission(self):
+#         return redirectWorkspaceFail(self.request, self.permission_denied_message)
 
-    def get_queryset(self):
-        return License.objects.filter(pk=self.kwargs.get(self.pk_url_kwarg))
+@login_required
+def LicenseDetails(request, cpny_pk=None, contract_pk=None, license_pk=None):
+    context = {
+        'content_heading': 'Rentrer les informations nécessaires à la création du licence.',
+        'object': get_object_or_404(License, pk=license_pk)
+    }
+    contract = get_object_or_404(Contract, pk=contract_pk)
 
-    def test_func(self):
-        cpny_pk = self.kwargs.get('cpny_pk')
-        if hasattr(self.request.user, 'manager'):
-            if self.request.user.manager.company.id == cpny_pk:
-                return True
-        elif hasattr(self.request.user, 'commercial'):
-            licence = get_object_or_404(License, pk=self.kwargs.get(self.pk_url_kwarg))
-            commercial = self.request.user.commercial
-            if commercial.company.id == cpny_pk and commercial.id == licence.contract.commercial.id:
-                return True
-        return False
-
-    def handle_no_permission(self):
-        return redirectWorkspaceFail(self.request, self.permission_denied_message)
+    if contract.validated:
+        context['content_heading'] = 'Détails de la licence'
+        return render(request, 'mvp/views/license_details.html', context)
+    if request.method == "POST" and ('delete_license' in request.POST):
+        context['object'].delete()
+        return redirect('mvp-contract-details', cpny_pk=contract.company.id, contract_pk=contract.id)
+    return render(request, 'mvp/views/license_details.html', context)
 
 
 class LicenseDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):

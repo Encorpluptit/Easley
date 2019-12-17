@@ -7,14 +7,6 @@
         <div class="media-body">
             <h2 class="article-title">{{ object.description }}</h2>
             {% if not object.validated and user.commercial or user.manager and user.manager.role == 1 %}
-                {#                <form method="post">#}
-                {#                    {% if not object.validated %}#}
-                {#                        {% csrf_token %}#}
-                {#                        <button class="btn btn-success btn-icon-split btn-lg" type="submit" name="validate">#}
-                {#                            <span class="icon text-white-50"><i class="fas fa-check"></i></span>#}
-                {#                            <span class="text">Valider le contrat.</span>#}
-                {#                        </button>#}
-                {#                    {% endif %}#}
                 <a class="btn btn-warning btn-icon-split"
                    href= {% url 'mvp-contract-update' object.company.id object.id %}>
                     <span class="icon text-white-50"><i class="fas fa-exclamation-triangle"></i></span>
@@ -25,7 +17,6 @@
                     <span class="icon text-white-50"><i class="fas fa-trash"></i></span>
                     <span class="text">Supprimer le contrat</span>
                 </a>
-                {#                </form>#}
             {% endif %}
             <hr>
             <div class="article-metadata">
@@ -172,8 +163,8 @@
                         <span aria-hidden="true">×</span>
                     </button>
                 </div>
-                <div class="modal-body">Êtes-vous sûr de vouloir supprimer ce contrat ? (cette action est
-                    irréversible)
+                <div class="modal-body">Êtes-vous sûr de vouloir supprimer ce contrat ?
+                    <span class="text-danger">(cette action est irréversible)</span>
                 </div>
                 {% if licenses or conseils %}
                     <div class="modal-content modal-body">Cela supprimera les éléments suivants :<br>

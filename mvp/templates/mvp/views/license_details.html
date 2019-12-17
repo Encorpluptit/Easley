@@ -5,6 +5,18 @@
     <article class="media content-section">
         <div class="media-body">
             <h2 class="article-title">{{ object.description }}</h2>
+            {% if object.contact.validated == False or user.manager and user.manager.role == 1 %}
+                <a class="btn btn-warning btn-icon-split"
+                   href= {% url 'mvp-license-update' object.contract.company.id object.contract.id object.id %}>
+                    <span class="icon text-white-50"><i class="fas fa-exclamation-triangle"></i></span>
+                    <span class="text">Modifier cette License</span>
+                </a>
+                <a class="btn btn-danger btn-icon-split" href="#" data-toggle="modal"
+                   data-target="#LicenseDeleteModal">
+                    <span class="icon text-white-50"><i class="fas fa-trash"></i></span>
+                    <span class="text">Supprimer la License</span>
+                </a>
+            {% endif %}
             <hr>
             <div class="article-metadata">
                 <b class="text-gray-900">Client: {{ object.contract.client }}</b><br>
@@ -29,17 +41,10 @@
             </table>
         </div>
     </article>
-    {% if object.contact.validated == False or user.manager and user.manager.role == 1 %}
-        <a class="btn btn-warning btn-icon-split"
-           href= {% url 'mvp-license-update' object.contract.company.id object.contract.id object.id %}>
-            <span class="icon text-white-50"><i class="fas fa-exclamation-triangle"></i></span>
-            <span class="text">Modifier ces informations</span>
-        </a>
-    {% endif %}
         <a class="btn btn-primary btn-icon-split"
            href= {% url 'mvp-contract-details' object.contract.company.id object.contract.id %}>
             <span class="icon text-white-50"><i class="fas fa-info-circle"></i></span>
-            <span class="text">Voir le contrat parent.</span>
+            <span class="text">Retour au Contrat</span>
         </a>
         <a class="btn btn-secondary btn-icon-split"
            href= {{ request.META.HTTP_REFERER }}>
@@ -47,4 +52,46 @@
             <span class="text">Retour</span>
         </a><br>
     <hr>
+
+
+
+    <!-- License Delete Modal-->
+    <div class="modal fade" id="LicenseDeleteModal" tabindex="-1" role="dialog"
+         aria-labelledby="LicenseDeleteModalLabel"
+         aria-hidden="true">
+        <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="LicenseDeleteModalLabel">Supprimer ce contrat ?</h5>
+                    <button class="close" type="button" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">×</span>
+                    </button>
+                </div>
+                <div class="modal-body">Êtes-vous sûr de vouloir supprimer cette Licence ?
+                    <span class="text-danger">(cette action est irréversible)</span>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-secondary" type="button" data-dismiss="modal">Annuler</button>
+                    <form id="delete_form" method="post">
+                        {% csrf_token %}
+                        <button class="btn btn-danger btn-icon-split" onclick="myFunction()" type="submit">
+                            <input type="hidden" id="delete_license" name="delete_license" value="false">
+                            <span class="icon text-white-50"><i class="fas fa-trash"></i></span>
+                            <span class="text">Suprimer cette License.</span>
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+{% endblock %}
+
+{% block scripts %}
+    <script>
+        function myFunction() {
+            document.getElementById("delete_license").value = true;
+            document.getElementById("delete_form").submit();
+        }
+    </script>
 {% endblock %}

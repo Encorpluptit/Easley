@@ -1,11 +1,11 @@
 from django.contrib import messages
+from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
-from django.shortcuts import get_object_or_404
+from django.shortcuts import get_object_or_404, render, redirect
 from django.urls import reverse
 from django.views.generic import CreateView, UpdateView, DetailView, DeleteView
-
-from mvp.models import Conseil, Contract
-from mvp.forms import ConseilForm
+from mvp.models import Conseil, Contract, Company
+from mvp.forms import ConseilForm, ServiceForm
 from mvp.modelviews import PERMISSION_DENIED
 from mvp.controllers import redirectWorkspaceFail, FillConseilLicenseForm, routeDeletePermissions
 
@@ -69,7 +69,6 @@ class ConseilCreateView(LoginRequiredMixin, UserPassesTestMixin, CreateView):
 
     def get_success_url(self):
         messages.success(self.request, self.success_message)
-        # @ TODO: redirect vers views conseil details + form license ?
         return self.object.get_absolute_url(self.object.contract.company.id, self.object.contract.id)
 
     def get_form_kwargs(self, *args, **kwargs):
@@ -143,6 +142,31 @@ class ConseilDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
         return redirectWorkspaceFail(self.request, self.permission_denied_message)
 
 
+# @ TODO: Faire permissions, faire la gestion du changement d'excel
+@login_required
+def ConseilDetails(request, cpny_pk=None, contract_pk=None, conseil_pk=None):
+    context = {
+        'content_heading': 'Rentrer les informations nécessaires à la création du conseil.',
+        'object': get_object_or_404(Conseil, pk=conseil_pk)
+    }
+    contract = get_object_or_404(Contract, pk=contract_pk)
+
+    if contract.validated:
+        context['content_heading'] = 'Détails du conseil'
+        return render(request, 'mvp/views/conseil_details.html', context)
+    form = ServiceForm(request.POST or None, user=request.user, company=contract.company, conseil=context['object'])
+    if request.method == "POST" and ('delete_conseil' in request.POST):
+        context['object'].delete()
+        return redirect('mvp-contract-details', cpny_pk=contract.company.id, contract_pk=contract.id)
+    if request.method == "POST" and form.is_valid():
+        # @ TODO faire excel management
+        form.save()
+        return render(request, 'mvp/views/conseil_details.html', context)
+    context['services'] = context['object'].service_set.all() or None
+    context['form'] = form
+    return render(request, 'mvp/views/conseil_details.html', context)
+
+
 # class ConseilDetailView(LoginRequiredMixin, UserPassesTestMixin, DetailView):
 #     model = Conseil
 #     template_name = 'mvp/views/conseil_details.html'
@@ -192,3 +216,4 @@ class ConseilDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
 #
 #     def handle_no_permission(self):
 #         return redirectWorkspaceFail(self.request, self.permission_denied_message)
+

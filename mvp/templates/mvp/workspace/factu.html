@@ -103,7 +103,7 @@
                                         <th scope="col">#</th>
                                         <th scope="col">Facture</th>
                                         <th scope="col">Client</th>
-                                        <th scope="col">Price</th>
+                                        <th scope="col">Prix</th>
                                         <th scope="col">Conseils</th>
                                         <th scope="col">Licenses</th>
                                         <th scope="col">Date de Facturation</th>
@@ -140,7 +140,7 @@
                                                 {% endif %}
                                             </td>
                                             <td>{{ invoice.date }}</td>
-                                            <th>
+                                            <th class="text-center">
                                                 <a class="btn btn-success btn-icon-split"
                                                    href= {% url 'mvp-invoice-details' invoice.contract.company.id invoice.id %}>
                                                     <span class="icon text-white-50"><i
@@ -149,7 +149,7 @@
                                                     {% if invoice.late %}
                                                         <span class="icon text-danger"
                                                               title="Nombre de factures en retard">
-                                                        <i class="fas fa-file-invoice-dollar" onmouseover="">
+                                                        <i class="fas fa-exclamation-triangle">
                                                             {{ invoice.late }}
                                                         </i>
                                                     </span>
@@ -190,7 +190,7 @@
                                         <th scope="col">#</th>
                                         <th scope="col">Facture</th>
                                         <th scope="col">Client</th>
-                                        <th scope="col">Price</th>
+                                        <th scope="col">Prix</th>
                                         <th scope="col">Conseils</th>
                                         <th scope="col">Licenses</th>
                                         <th scope="col">Date de Facturation</th>

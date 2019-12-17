@@ -1,6 +1,6 @@
 {% extends 'mvp/generic/blank.html' %}
 {% load static %}
-
+{% load my_filters %}
 
 {% block page %}
     <!-- Content Row -->
@@ -82,71 +82,56 @@
     <div class="card shadow mb-4 bg-gray-300">
         <div class="card-body">
 
-            <!-- Collapsable Card À Facturer -->
+            <!-- Collapsable Card Services À Valider -->
             <div class="card shadow mb-4">
                 <!-- Card Header - Accordion -->
                 <a href="#collapseCardToFacture" class="d-block card-header py-3" data-toggle="collapse" role="button"
                    aria-expanded="true" aria-controls="collapseCardtoFacture">
-                    <h6 class="m-0 font-weight-bold text-primary">À Facturer</h6>
+                    <h5 class="m-0 font-weight-bold text-primary">Services À Valider</h5>
                 </a>
 
                 <!-- Card Content À Facturer - Collapse -->
                 <div class="collapse show" id="collapseCardToFacture">
                     <div class="card-body">
-                        {% if not invoice_to_facture %}
-                            Vous n'avez actuellement aucune Facture à facturer.
+                        {% if not services %}
+                            Vous n'avez actuellement aucun Service à Valider.
                         {% else %}
-                            <div class="table-responsive">
+                            <div class="table-responsive text-center">
                                 <table class="table table-bordered table-hover" id="dataTable" style="width: 100%">
                                     <thead class="thead-dark">
                                     <tr>
                                         <th scope="col">#</th>
-                                        <th scope="col">Facture</th>
-                                        <th scope="col">Client</th>
-                                        <th scope="col">Price</th>
-                                        <th scope="col">Conseils</th>
-                                        <th scope="col">Licenses</th>
-                                        <th scope="col">Date de Facturation</th>
-                                        <th scope="col">Facturer</th>
+                                        <th class="col-md-3" scope="col">Service</th>
+                                        <th class="col-md-2" scope="col">Client</th>
+                                        <th class="col-md-1" scope="col">Prix</th>
+                                        <th class="col-md-2" scope="col">Date estimée</th>
+                                        <th class="col-md-1" scope="col">Voir le conseil</th>
+                                        <th class="col-auto" scope="col">Effectué ?</th>
                                     </tr>
                                     </thead>
                                     <tbody>
-                                    {% for invoice in invoice_to_facture %}
+                                    {% for service in services %}
                                         <tr>
                                             <th scope="row">{{ forloop.counter }}</th>
-                                            <td>
-                                                <a href= {% url 'mvp-invoice-details' invoice.company.id invoice.id %}>{{ invoice.description }}</a>
-                                            </td>
-                                            <td>{{ invoice.contract.client|truncatechars:30 }}</td>
-                                            <td>{{ invoice.price|safe }}</td>
-                                            <td>
-                                                {% if invoice.conseils.all %}
-                                                    {% for conseil in  invoice.conseils.all %}
-                                                        <a href= {% url 'mvp-conseil-details' invoice.contract.company.id invoice.contract.id conseil.id %}>{{ conseil.description }}</a>
-                                                        <br>
-                                                    {% endfor %}
-                                                {% else %}
-                                                    Aucun Conseil associé.
-                                                {% endif %}
-                                            </td>
-                                            <td>
-                                                {% if invoice.licenses.all %}
-                                                    {% for license in  invoice.licenses.all %}
-                                                        <a href= {% url 'mvp-license-details' invoice.contract.company.id invoice.contract.id license.id %}>{{ license.description }}</a>
-                                                        <br>
-                                                    {% endfor %}
-                                                {% else %}
-                                                    Aucune License associée.
-                                                {% endif %}
-                                            </td>
-                                            <td>{{ invoice.date }}</td>
-                                            <th>
-                                                <a class="btn btn-success btn-icon-split"
-                                                   href= {% url 'mvp-invoice-details' invoice.contract.company.id invoice.id %}>
-                                                    <span class="icon text-white-50"><i class="fas fa-file-invoice-dollar"></i></span>
-                                                    <span class="text">Facturer</span>
+                                            <td>{{ service.description }}</td>
+                                            <td>{{ service.conseil.contract.client|truncatechars:30 }}</td>
+                                            <td>{{ service.price|currency }}</td>
+                                            <td>{{ service.estimated_date }}</td>
+                                            <td class="text-center">
+                                                <a href=  {% url 'mvp-conseil-details' service.conseil.contract.company.id service.conseil.contract.id service.conseil.id %}>
+                                                    <i class="fas fa-check"></i>
                                                 </a>
-                                            </th>
+                                            </td>
+                                            {% if service.actual_date %}
+                                                <td>
+                                                    {{ service.done|ServiceStatusFilter }} le
+                                                    : {{ service.actual_date }}
+                                                </td>
+                                            {% else %}
+                                                <th>
+                                                    {{ service.done|ServiceStatusFilter }}
+                                                </th>
+                                            {% endif %}
                                         </tr>
                                     {% endfor %}
                                     </tbody>
@@ -155,85 +140,10 @@
                         {% endif %}
                     </div>
                 </div>
-            </div>
+            </div><!-- Card Content À Facturer - End -->
 
-            faire factu workspace
 
-            <!-- Collapsable Card À la bourre -->
-            <div class="card shadow mb-4">
-                <!-- Card Header - Accordion -->
-                <a href="#collapseCardLate" class="d-block card-header py-3" data-toggle="collapse" role="button"
-                   aria-expanded="true" aria-controls="collapseCardLate">
-                    <h6 class="m-0 font-weight-bold text-danger">À la bourre</h6>
-                </a>
-
-                <!-- Card Content À Facturer - Collapse -->
-                <div class="collapse show" id="collapseCardLate">
-                    <div class="card-body">
-                        {% if not invoice_late %}
-                            Vous n'avez actuellement aucune Facture en retard.
-                        {% else %}
-                            <div class="table-responsive">
-                                <table class="table table-bordered table-hover" id="dataTable" style="width: 100%">
-                                    <thead class="thead-dark">
-                                    <tr>
-                                        <th scope="col">#</th>
-                                        <th scope="col">Facture</th>
-                                        <th scope="col">Client</th>
-                                        <th scope="col">Price</th>
-                                        <th scope="col">Conseils</th>
-                                        <th scope="col">Licenses</th>
-                                        <th scope="col">Date de Facturation</th>
-                                        <th scope="col">Facturer</th>
-                                    </tr>
-                                    </thead>
-                                    <tbody>
-                                    {% for invoice in invoice_late %}
-                                        <tr>
-                                            <th scope="row">{{ forloop.counter }}</th>
-                                            <td>
-                                                <a href= {% url 'mvp-invoice-details' invoice.company.id invoice.id %}>{{ invoice.description }}</a>
-                                            </td>
-                                            <td>{{ invoice.contract.client|truncatechars:30 }}</td>
-                                            <td>{{ invoice.price|safe }}</td>
-                                            <td>
-                                                {% if invoice.conseils.all %}
-                                                    {% for conseil in  invoice.conseils.all %}
-                                                        <a href= {% url 'mvp-conseil-details' invoice.contract.company.id invoice.contract.id conseil.id %}>{{ conseil.description }}</a>
-                                                        <br>
-                                                    {% endfor %}
-                                                {% else %}
-                                                    Aucun Conseil associé.
-                                                {% endif %}
-                                            </td>
-                                            <td>
-                                                {% if invoice.licenses.all %}
-                                                    {% for license in  invoice.licenses.all %}
-                                                        <a href= {% url 'mvp-license-details' invoice.contract.company.id invoice.contract.id license.id %}>{{ license.description }}</a>
-                                                        <br>
-                                                    {% endfor %}
-                                                {% else %}
-                                                    Aucune License associée.
-                                                {% endif %}
-                                            </td>
-                                            <td>{{ invoice.date }}</td>
-                                            <th>
-                                                <a class="btn btn-success btn-icon-split"
-                                                   href= {% url 'mvp-invoice-details' invoice.contract.company.id invoice.id %}>
-                                                    <span class="icon text-white-50"><i class="fas fa-file-invoice-dollar"></i></span>
-                                                    <span class="text">Facturer</span>
-                                                </a>
-                                            </th>
-                                        </tr>
-                                    {% endfor %}
-                                    </tbody>
-                                </table>
-                            </div>
-                        {% endif %}
-                    </div>
-                </div>
-            </div>
-
+            <hr>
 
 
         </div>

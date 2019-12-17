@@ -2,14 +2,15 @@ from django.urls import path
 from django.conf import settings
 from django.conf.urls.static import static
 from django.contrib.auth import views as auth_views
+
+import mvp.modelviews.conseil
+import mvp.modelviews.contract
 from . import views
-from .genericsViews import (
-    ContractUpdateView,
-    InvoiceListView,
-    InvoiceDetailView,
-)
+from mvp.modelviews.invoice import InvoiceListView, InvoiceDetailView
+from mvp.modelviews.contract import ContractUpdateView
 from mvp.modelviews.conseil import ConseilCreateView, ConseilUpdateView, ConseilDeleteView
-from mvp.modelviews.license import LicenseCreateView, LicenseUpdateView, LicenseDetailView, LicenseDeleteView
+# from mvp.modelviews.license import LicenseCreateView, LicenseUpdateView, LicenseDetailView, LicenseDeleteView
+from mvp.modelviews.license import LicenseCreateView, LicenseUpdateView, LicenseDetails, LicenseDeleteView
 from mvp.modelviews.client import (
     ClientCreateView,
     ClientUpdateView,
@@ -38,25 +39,27 @@ urlpatterns = [
     path('company/register', views.companyCreation, name='mvp-company-register'),
     path('workspace/', views.workspace, name="mvp-workspace"),
     path('company/employees', views.Employees, name="mvp-employees"),
-    path('<int:cpny_pk>/contract/list/', views.ContractListView, name='mvp-contract-list'),
+    path('<int:cpny_pk>/contract/list/', mvp.modelviews.contract.ContractListView, name='mvp-contract-list'),
     path('<int:cpny_pk>/contract/new/',
-         views.CreateContractClient, name='mvp-contract-new'),
+         mvp.modelviews.contract.CreateContractClient, name='mvp-contract-new'),
     path('<int:cpny_pk>/contract/<int:client_pk>/new/',
-         views.CreateContractForm, name='mvp-contract-form'),
+         mvp.modelviews.contract.CreateContractForm, name='mvp-contract-form'),
     path('<int:cpny_pk>/contract/<int:contract_pk>/details/',
-         views.ContractDetails, name='mvp-contract-details'),
+         mvp.modelviews.contract.ContractDetails, name='mvp-contract-details'),
     path('<int:cpny_pk>/contract/<int:contract_pk>/update/',
          ContractUpdateView.as_view(), name='mvp-contract-update'),
     path('<int:cpny_pk>/contract/<int:contract_pk>/conseil/new/',
          ConseilCreateView.as_view(), name='mvp-conseil-new'),
     path('<int:cpny_pk>/contract/<int:contract_pk>/conseil/<int:conseil_pk>/details/',
-         views.ConseilDetails, name='mvp-conseil-details'),
+         mvp.modelviews.conseil.ConseilDetails, name='mvp-conseil-details'),
     path('<int:cpny_pk>/contract/<int:contract_pk>/conseil/<int:conseil_pk>/update/',
          ConseilUpdateView.as_view(), name='mvp-conseil-update'),
     path('<int:cpny_pk>/contract/<int:contract_pk>/license/new/',
          LicenseCreateView.as_view(), name='mvp-license-new'),
     path('<int:cpny_pk>/contract/<int:contract_pk>/license/<int:license_pk>/details/',
-         LicenseDetailView.as_view(), name='mvp-license-details'),
+         LicenseDetails, name='mvp-license-details'),
+    # path('<int:cpny_pk>/contract/<int:contract_pk>/license/<int:license_pk>/details/',
+    #      LicenseDetailView.as_view(), name='mvp-license-details'),
     path('<int:cpny_pk>/contract/<int:contract_pk>/license/<int:license_pk>/update/',
          LicenseUpdateView.as_view(), name='mvp-license-update'),
     path('<int:cpny_pk>/invoice/list/', InvoiceListView.as_view(), name='mvp-invoice-list'),

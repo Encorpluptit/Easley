@@ -1,6 +1,6 @@
 from django import template
 from mvp.forms import CONTRACT_FACTURATION
-from mvp.models import InviteChoice
+from mvp.models import InviteChoice, ServiceStatusChoice
 
 register = template.Library()
 
@@ -16,6 +16,13 @@ def Fduration(facturation):
     return "N/A"
 
 
+def ServiceStatusFilter(status):
+    for nb, string in ServiceStatusChoice:
+        if nb == status:
+            return string
+    return "N/A"
+
+
 def InviteFilter(role):
     for nb, string in InviteChoice:
         if nb == role:
@@ -26,3 +33,4 @@ def InviteFilter(role):
 register.filter('currency', currency)
 register.filter('Fduration', Fduration)
 register.filter('InviteFilter', InviteFilter)
+register.filter('ServiceStatusFilter', ServiceStatusFilter)

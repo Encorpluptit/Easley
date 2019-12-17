@@ -17,7 +17,7 @@
             <tbody>
             <tr>
                 <td>
-                    {% if not commercials%}
+                    {% if not commercials %}
                         Aucun commercial dans cette entreprise.
                     {% else %}
                         {% for commercial in commercials %}
@@ -58,44 +58,49 @@
     </div>
     <hr>
     <div class="container-fluid">
-        <h4 class="h4 mb-4 text-gray-800">Invitations En cours</h4>
-        <table class="table table-bordered table-hover" id="dataTable" style="width: 100%">
-            <thead class="thead-dark">
-            <tr>
-                <th scope="col">BizDevs</th>
-                <th scope="col">Responsable Clientèle</th>
-                <th scope="col">Responsable facturation</th>
-                <th scope="col">Managers</th>
-            </tr>
-            </thead>
-            <tbody class="dataTables_scrollBody">
-            <tr>
-                <td>
-                    {% for commercial in invite_commercials %}
-                        <p>{{ commercial }}</p>
-                    {% endfor %}
-                </td>
-                <td>
-                    {% for account in invite_accounts %}
-                        <p>{{ account }}</p>
-                    {% endfor %}
-                </td>
-                <td>
-                    {% for factu in invite_factus %}
-                        <p>{{ factu }}</p>
-                    {% endfor %}
-                </td>
-                <td>
-                    {% for manager in invite_managers %}
-                        <p>{{ manager }}</p>
-                    {% endfor %}
-                </td>
-            </tr>
-            </tbody>
-        </table>
+        {% if invite in invites %}
+            <h4 class="h4 mb-4 text-gray-800">Invitations En cours</h4>
+            <table class="table table-bordered table-hover" id="dataTable" style="width: 100%">
+                <thead class="thead-dark">
+                <tr>
+                    <th scope="col">BizDevs</th>
+                    <th scope="col">Responsable Clientèle</th>
+                    <th scope="col">Responsable facturation</th>
+                    <th scope="col">Managers</th>
+                </tr>
+                </thead>
+                <tbody class="dataTables_scrollBody">
+                <tr>
+                    <td>
+                        {% for commercial in invite_commercials %}
+                            <p>{{ commercial }}</p>
+                        {% endfor %}
+                    </td>
+                    <td>
+                        {% for account in invite_accounts %}
+                            <p>{{ account }}</p>
+                        {% endfor %}
+                    </td>
+                    <td>
+                        {% for factu in invite_factus %}
+                            <p>{{ factu }}</p>
+                        {% endfor %}
+                    </td>
+                    <td>
+                        {% for manager in invite_managers %}
+                            <p>{{ manager }}</p>
+                        {% endfor %}
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        {% else %}
+            <h5 class="text-gray-600">Aucune invitation en attente.</h5>
+        {% endif %}
     </div>
     <hr>
     <div class="container-fluid">
+        <h5 class="text-gray-600">Inviter</h5>
         <div class="row">
             <div class="col">
                 <h6 class="m-0 font-weight-bold text-primary">Inviter un Manager</h6>

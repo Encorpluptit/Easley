@@ -11,6 +11,12 @@ InviteChoice = {
     (4, 'Commercial'),
 }
 
+ServiceStatusChoice = {
+    (0, 'Pas encore effectué'),
+    (1, 'Effectué'),
+    (2, 'Ne sera jamais effectué'),
+}
+
 
 def GetDate():
     return timezone.now().date()
@@ -19,35 +25,35 @@ def GetDate():
 class Company(models.Model):
     name = models.CharField(
         max_length=150,
-        verbose_name="nom de l'entreprise.",
-        help_text="préciser le nom de l'entreprise.",
+        verbose_name="Nom de l'entreprise.",
+        help_text="Préciser le nom de l'entreprise.",
     )
     ceo = models.OneToOneField(
         User,
         on_delete=models.CASCADE,
         verbose_name="CEO de l'entreprise.",
-        help_text="préciser le CEO de l'entreprise.",
+        help_text="Préciser le CEO de l'entreprise.",
     )
     siret = models.CharField(
         default=None,
         max_length=14,
-        verbose_name="numéro SIRET de l'entreprise.",
-        help_text="numéro SIRET de l'entreprise.",
+        verbose_name="Numéro SIRET de l'entreprise.",
+        help_text="Numéro SIRET de l'entreprise.",
     )
     invoice_nb = models.PositiveIntegerField(
         default=1,
-        verbose_name="numéro de factures de l'entreprise.",
-        help_text="numéro de factures de l'entreprise.",
+        verbose_name="Numéro de factures de l'entreprise.",
+        help_text="Numéro de factures de l'entreprise.",
     )
     junior_day = models.PositiveIntegerField(
         default=0,
-        verbose_name="prix du Jour homme junior de cette entreprise.",
-        help_text="précisez le prix du jour homme junior de cette entreprise.",
+        verbose_name="Prix du Jour homme junior de cette entreprise.",
+        help_text="Précisez le prix du jour homme junior de cette entreprise.",
     )
     senior_day = models.PositiveIntegerField(
         default=0,
-        verbose_name="prix du Jour homme senior de cette entreprise.",
-        help_text="précisez le prix du jour homme senior de cette entreprise.",
+        verbose_name="Prix du Jour homme senior de cette entreprise.",
+        help_text="Précisez le prix du jour homme senior de cette entreprise.",
     )
 
     class Meta:
@@ -256,40 +262,40 @@ class Contract(models.Model):
 class Conseil(models.Model):
     description = models.CharField(
         max_length=150,
-        verbose_name="conseil's description",
-        help_text="description du conseil",
+        verbose_name="Description du conseil.",
+        help_text="Description du conseil",
     )
     contract = models.ForeignKey(
         Contract,
         default=None,
         on_delete=models.CASCADE,
-        verbose_name="le contrat dans lequel est inclus ce conseil.",
-        help_text="préciser le contrat dans lequel est inclus ce conseil.",
+        verbose_name="Le contrat dans lequel est inclus ce conseil.",
+        help_text="Préciser le contrat dans lequel est inclus ce conseil.",
     )
     price = models.PositiveIntegerField(
         default=0,
-        verbose_name="montant total du conseil.",
-        help_text="montant total du conseil (€)",
+        verbose_name="Montant total.",
+        help_text="Montant total (€)",
     )
     payed = models.BooleanField(
         default=False,
-        verbose_name="si le conseil est payé.",
-        help_text="précisez si le conseil est déjà payé.",
+        verbose_name="Si le conseil est payé.",
+        help_text="Précisez si le conseil est déjà payé.",
     )
     start_date = models.DateField(
         default=GetDate,
-        verbose_name="date de début du conseil.",
-        help_text="date de début du conseil."
+        verbose_name="Date de début.",
+        help_text="Date de début du conseil."
     )
     duration = models.PositiveIntegerField(
         default=1,
-        verbose_name="durée totale du conseil (en mois).",
-        help_text="précisez la durée totale du conseil (en mois).",
+        verbose_name="Durée totale (en mois).",
+        help_text="Précisez la durée totale du conseil (en mois).",
     )
     end_date = models.DateField(
         default=GetDate,
-        verbose_name="date de fin du conseil.",
-        help_text="date de fin du conseil."
+        verbose_name="Date de fin du conseil.",
+        help_text="Date de fin du conseil."
     )
 
     class Meta:
@@ -355,11 +361,7 @@ class Service(models.Model):
     done = models.SmallIntegerField(
         # @TODO: si non mettre la date du jour dans acual date et si oui permettre de rentrer la date à la main
         default=0,
-        choices={
-            (0, 'Pas encore effectué'),
-            (1, 'Effectué'),
-            (2, 'Ne sera jamais effectué'),
-        },
+        choices=ServiceStatusChoice,
         verbose_name="Si le service est effectué.",
         help_text="Précisez si le service est effectué.",
     )
@@ -388,23 +390,23 @@ class License(models.Model):
     )
     price = models.PositiveIntegerField(
         default=0,
-        verbose_name="Coût de la licence",
-        help_text="Coût de la licence (€)."
+        verbose_name="Montant",
+        help_text="Montant (€)."
     )
     start_date = models.DateField(
         default=GetDate,
-        verbose_name="Date de début de la licence.",
-        help_text="Date de début de la licence."
+        verbose_name="Date de début.",
+        help_text="Date de début."
     )
     duration = models.PositiveIntegerField(
         default=1,
-        verbose_name="Durée totale de la licence.",
-        help_text="Précisez la durée totale de la licence (en mois).",
+        verbose_name="Durée totale (en mois).",
+        help_text="Précisez la durée totale (en mois).",
     )
     end_date = models.DateField(
         default=GetDate,
-        verbose_name="Date de fin de la licence.",
-        help_text="Date de fin de la licence."
+        verbose_name="Date de fin.",
+        help_text="Date de fin."
     )
     payed = models.BooleanField(
         default=False,

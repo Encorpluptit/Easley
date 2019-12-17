@@ -4,7 +4,7 @@
     {% if not client_list %}
         Vous n'avez actuellement aucun client.
     {% else %}
-        <table class="table table-bordered" id="dataTable">
+        <table class="table table-bordered" id="dataTable" data-page-length="25">
             <thead class="thead-dark">
             <tr>
                 <th scope="col">#</th>
@@ -21,7 +21,7 @@
                 <th scope="col">#</th>
                 <th scope="col">Name</th>
                 <th scope="col">Email</th>
-                <th scope="col" style="width: 200px">Nombre de contrats</th>
+                <th scope="col" >Nombre de contrats</th>
                 <th scope="col">Commercial</th>
                 <th scope="col">Client depuis:</th>
                 <th scope="col">Responsable clientèle</th>

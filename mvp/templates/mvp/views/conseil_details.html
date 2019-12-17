@@ -8,7 +8,12 @@
                 <a class="btn btn-warning btn-icon-split"
                    href= {% url 'mvp-conseil-update' object.contract.company.id object.contract.id object.id %}>
                     <span class="icon text-white-50"><i class="fas fa-exclamation-triangle"></i></span>
-                    <span class="text">Modifier ces informations</span>
+                    <span class="text">Modifier ce Conseil</span>
+                </a>
+                <a class="btn btn-danger btn-icon-split" href="#" data-toggle="modal"
+                   data-target="#ConseilDeleteModal">
+                    <span class="icon text-white-50"><i class="fas fa-trash"></i></span>
+                    <span class="text">Supprimer le Conseil</span>
                 </a>
             {% endif %}
             <hr>
@@ -32,79 +37,120 @@
                 <tr>
                     <td class="article-content">{{ object.price }}</td>
                     <td class="col-md-1">{{ object.service_set.count }}</td>
-                    <td class="article-content">{{ object.start_date}}</td>
+                    <td class="article-content">{{ object.start_date }}</td>
                     <td class="article-content">{{ object.duration }}</td>
                     <td class="article-content">{{ object.end_date }}</td>
                 </tr>
                 </tbody>
             </table>
 
-        <hr>
-        <h4>Services</h4>
-        {% if object.service_set.all %}
-            <table class="table table-hover table-bordered">
-                <thead class="thead-dark">
-                <tr>
-                    <th scope="col">Prix</th>
-                    <th scope="col">Date de début</th>
-                    <th scope="col">Date prévue</th>
-                    <th scope="col">Date effective</th>
-                </tr>
-                </thead>
-                <tbody>
-                {% for service in object.service_set.all %}
+            <hr>
+            <h4>Services</h4>
+            {% if services %}
+                <table class="table table-hover table-bordered">
+                    <thead class="thead-dark">
                     <tr>
-                        <th scope="row">{{ forloop.counter }}</th>
-                        <td>{{ service.description }}</td>
-                        <td>{{ service.estimated_date|date:"d F, Y" }}</td>
-                        <td>{{ service.actual_date|date:"d F, Y" }}</td>
+                        <th scope="col">Prix</th>
+                        <th scope="col">Date de début</th>
+                        <th scope="col">Date prévue</th>
+                        <th scope="col">Date effective</th>
                     </tr>
-                {% endfor %}
-                </tbody>
-            </table>
-        {% else %}
-            Ce conseil n'as pas de services pour l'instant.<br>
-        {% endif %}
-        <hr>
-        {% if object.contract.validated == False %}
-            <!-- Collapsible Client Form -->
-            <div class="card shadow mb-4">
-                <!-- Client Form - Accordion -->
-                <a href="#collapseServiceForm" class="d-block card-header py-3" data-toggle="collapse" role="button"
-                   aria-expanded="true" aria-controls="collapseServiceForm">
-                    <button class="btn btn-primary btn-icon-split" type="submit">
-                        <span class="icon text-white-50"><i class="fas fa-plus-circle"></i></span>
-                        <span class="text">Nouveau Service</span>
-                    </button>
-                </a>
-                <!-- Card Client Form - Collapse -->
-                <div class="collapse hide" id="collapseServiceForm">
-                    <div class="card-body">
-                        <form method="post">
-                            {% csrf_token %}
-                            {% include 'mvp/generic/form.html' %}
-                            <button class="btn btn-success btn-icon-split" type="submit">
-                                <span class="icon text-white-50"><i class="fas fa-check"></i></span>
-                                <span class="text">Ajouter un service</span>
-                            </button>
-                        </form>
+                    </thead>
+                    <tbody>
+                    {% for service in services %}
+                        <tr>
+                            <th scope="row">{{ forloop.counter }}</th>
+                            <td>{{ service.description }}</td>
+                            <td>{{ service.estimated_date|date:"d F, Y" }}</td>
+                            <td>{{ service.actual_date|date:"d F, Y" }}</td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            {% else %}
+                Ce conseil n'as pas de services pour l'instant.<br>
+            {% endif %}
+            <hr>
+            {% if object.contract.validated == False %}
+                <!-- Collapsible Client Form -->
+                <div class="card shadow mb-4">
+                    <!-- Client Form - Accordion -->
+                    <a href="#collapseServiceForm" class="d-block card-header py-3" data-toggle="collapse" role="button"
+                       aria-expanded="true" aria-controls="collapseServiceForm">
+                        <button class="btn btn-primary btn-icon-split" type="submit">
+                            <span class="icon text-white-50"><i class="fas fa-plus-circle"></i></span>
+                            <span class="text">Nouveau Service</span>
+                        </button>
+                    </a>
+
+                    <!-- Card Client Form - Collapse -->
+                    <div class="collapse hide" id="collapseServiceForm">
+                        <div class="card-body">
+                            <form method="post">
+                                {% csrf_token %}
+                                {% include 'mvp/generic/form.html' %}
+                                <button class="btn btn-success btn-icon-split" type="submit">
+                                    <span class="icon text-white-50"><i class="fas fa-check"></i></span>
+                                    <span class="text">Ajouter un Service</span>
+                                </button>
+                            </form>
+                        </div>
                     </div>
                 </div>
-            </div>
-        {% endif %}
-        <a class="btn btn-primary btn-icon-split"
-           href= {% url 'mvp-contract-details' object.contract.company.id object.contract.id %}>
-            <span class="icon text-white-50"><i class="fas fa-info-circle"></i></span>
-            <span class="text">Retour au Contrat</span>
-        </a>
-        <a class="btn btn-secondary btn-icon-split"
-           href= {{ request.META.HTTP_REFERER }}>
-            <span class="icon text-white-50"><i class="fas fa-arrow-right"></i></span>
-            <span class="text">Page Précédente</span>
-        </a><br>
+            {% endif %}
+            <a class="btn btn-primary btn-icon-split"
+               href= {% url 'mvp-contract-details' object.contract.company.id object.contract.id %}>
+                <span class="icon text-white-50"><i class="fas fa-info-circle"></i></span>
+                <span class="text">Retour au Contrat</span>
+            </a>
+            <a class="btn btn-secondary btn-icon-split"
+               href= {{ request.META.HTTP_REFERER }}>
+                <span class="icon text-white-50"><i class="fas fa-arrow-right"></i></span>
+                <span class="text">Page Précédente</span>
+            </a><br>
         </div>
     </article>
     <hr>
+
+
+    <!-- Conseil Delete Modal-->
+    <div class="modal fade" id="ConseilDeleteModal" tabindex="-1" role="dialog"
+         aria-labelledby="ConseilDeleteModalLabel"
+         aria-hidden="true">
+        <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="ConseilDeleteModalLabel">Supprimer ce contrat ?</h5>
+                    <button class="close" type="button" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">×</span>
+                    </button>
+                </div>
+                <div class="modal-body">Êtes-vous sûr de vouloir supprimer ce Conseil ?
+                    <span class="text-danger">(cette action est irréversible)</span>
+                </div>
+                {% if services %}
+                    <div class="modal-content modal-body">Cela supprimera le(s) Service(s) suivant(s) :<br>
+                        <hr>
+                        {% for service in services %}
+                            <span class="text-danger">{{ service.description }}</span>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+                <div class="modal-footer">
+                    <button class="btn btn-secondary" type="button" data-dismiss="modal">Annuler</button>
+                    <form id="delete_form" method="post">
+                        {% csrf_token %}
+                        <button class="btn btn-danger btn-icon-split" onclick="myFunction()" type="submit">
+                            <input type="hidden" id="delete_conseil" name="delete_conseil" value="false">
+                            <span class="icon text-white-50"><i class="fas fa-trash"></i></span>
+                            <span class="text">Suprimer le conseil.</span>
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
 {% endblock %}
 
 
@@ -121,4 +167,14 @@
 
 {% block content_heading %}
     Rentrer les informations nécessaires à la création du conseil.
+{% endblock %}
+
+
+{% block scripts %}
+    <script>
+        function myFunction() {
+            document.getElementById("delete_conseil").value = true;
+            document.getElementById("delete_form").submit();
+        }
+    </script>
 {% endblock %}

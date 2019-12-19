@@ -15,16 +15,7 @@ from .forms import (
 
 
 # Create your views here.
-# from django.core.mail import send_mail
-# from django.conf import settings
-# def email(request):
-#     subject = 'Thank you for registering to our site'
-#     message = ' it  means a world to us '
-#     email_from = settings.EMAIL_HOST_USER
-#     recipient_list = ['damien.bernard@epitech.eu', ]
-#     send_mail(subject, message, email_from, recipient_list)
-#     return redirect('mvp-home')
-#
+
 
 def home(request):
     return render(request, 'mvp/misc/home.html')
@@ -71,7 +62,7 @@ def join_company(request, invite_email):
         if customRegisterUser(request, form):
             if 1 <= invite.role <= 3:
                 manager = Manager.objects.create(user=request.user, company=invite.company, role=invite.role)
-            elif invite.role == 3:
+            elif invite.role == 4:
                 commercial = Commercial.objects.create(user=request.user, company=invite.company)
             else:
                 messages.warning(request, f"Une erreur s'est produite !")
@@ -172,14 +163,15 @@ def FactuWorkspace(request):
     invoices = company.invoice_set.all()
     context['invoice_to_facture'] = invoices.filter(
         contract__factu_manager=factu, facturated=False,
-        date__month__lte=date.month, date__year__lte=date.year).order_by('contract__id', 'date').distinct('contract')
+        date__month__lte=date.month, date__year__lte=date.year
+    ).order_by('contract__id', 'price', 'date',).distinct('contract')
     # invoices = company.invoice_set.order_by('contract__id', 'date').distinct('contract')
     # context['invoice_to_facture'] = invoices.filter(
     #     contract__factu_manager=factu, facturated=False,
     #     date__month__lte=date.month, date__year__lte=date.year)
     context['invoice_late'] = invoices.filter(
         contract__factu_manager=factu, facturated=True, payed=False,
-        date__month__lte=date.month, date__year__lte=date.year)
+        date__month__lte=date.month, date__year__lte=date.year).order_by('price')
     for inv in context['invoice_to_facture']:
         qs = inv.contract.invoice_set.filter(
             facturated=False, date__month__lt=date.month, date__year__lte=date.year) or None

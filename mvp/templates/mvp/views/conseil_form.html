@@ -2,10 +2,60 @@
 {% load static %}
 
 {% block content %}
-    <form method="post">
+    <form method="post" enctype="multipart/form-data">
         {% csrf_token %}
-        {% include 'mvp/generic/form.html' %}
+        {# Include the hidden fields #}
+        {% for hidden in form.hidden_fields %}
+            {{ hidden }}
+        {% endfor %}
+        {# Include the visible fields #}
+        <span class="text-danger">{{ field.non_field_errors }}</span>
+        {% for field in form.visible_fields %}
+            {% if field.name != 'prestas' %}
+                <div class="fieldWrapper">
+                    <div class="top-margin">
+                        {{ field.label_tag }}
+                        {{ field }}
+                    </div>
+                </div>
+                <br>
+                {% if field.errors %}
+                    <span class="text-danger">{{ field.errors }}</span>
+                    {% if field.help_text %}
+                        <ul>
+                            <li><span class="help">{{ field.help_text|safe }}</span></li>
+                        </ul>
+                    {% endif %}
+                {% endif %}
+            {% else %}
+                <hr>
+                <h5 class="text-primary">Détails des prestations : Importer un Excel </h5>
+                <div class="top-margin">
+                    <a class="btn btn-dark btn-icon-split" href= {% static 'mvp/files/Reference/Prestas.xlsx' %}>
+                        <span class="icon text-white-50"><i class="fas fa-arrow-down"></i></span>
+                        <span class="text">Télécharger la référence</span>
+                    </a>
+                </div>
+                <br>
+                <div class="fieldWrapper">
+                    <div class="top-margin">
+                        {{ field }}
+                    </div>
+                </div>
+                <br>
+                {% if field.errors %}
+                    <span class="text-danger">{{ field.errors }}</span>
+                    {% if field.help_text %}
+                        <ul>
+                            <li><span class="help">{{ field.help_text|safe }}</span></li>
+                        </ul>
+                    {% endif %}
+                {% endif %}
+
+            {% endif %}
+        {% endfor %}
         {% if create_conseil == True or update_conseil == True %}
+            <hr>
             <button class="btn btn-success btn-icon-split" type="submit">
                 <span class="icon text-white-50"><i class="fas fa-check"></i></span>
                 <span class="text">{% if button %}{{ button }}{% else %}Confirmer{% endif %}</span>
@@ -19,15 +69,18 @@
     </form>
 {% endblock %}
 
+{% block links %}
+    <link rel="stylesheet" href={% static 'mvp/datepicker/datepicker.css' %}>
+{% endblock %}
+
 {% block scripts %}
-<link rel="stylesheet" href= {% static 'mvp/datepicker/datepicker.css' %} >
-<script src= {% static 'mvp/datepicker/datepicker.js' %}></script>
-<script src= {% static 'mvp/datepicker/datepicker.fr-FR.js' %}></script>
-<script>
-    $('[data-toggle="datepicker"]').datepicker({
-        language: 'fr-FR',
-        autoHide: true,
-        inline: true,
-    });
-</script>
+    <script src= {% static 'mvp/datepicker/datepicker.js' %}></script>
+    <script src= {% static 'mvp/datepicker/datepicker.fr-FR.js' %}></script>
+    <script>
+        $('[data-toggle="datepicker"]').datepicker({
+            language: 'fr-FR',
+            autoHide: true,
+            inline: true,
+        });
+    </script>
 {% endblock %}

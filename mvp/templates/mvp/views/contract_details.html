@@ -6,7 +6,7 @@
     <article class="media content-section">
         <div class="media-body">
             <h2 class="article-title">{{ object.description }}</h2>
-            {% if not object.validated and user.commercial or user.manager and user.manager.role == 1 %}
+            {% if not object.validated and user.commercial or user.manager and user.manager.role != 3 %}
                 <a class="btn btn-warning btn-icon-split"
                    href= {% url 'mvp-contract-update' object.company.id object.id %}>
                     <span class="icon text-white-50"><i class="fas fa-exclamation-triangle"></i></span>

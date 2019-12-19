@@ -514,7 +514,6 @@ def CreateService(conseil, ServiceData, service_index, dictio_service):
     date = ServiceData['estimated_date_offset']
     s = Service(
         description=ServiceData['descr'],
-        price=ServiceData['price'],
         estimated_date=conseil.start_date + relativedelta(
             months=date['months'],
             weeks=date['weeks'],

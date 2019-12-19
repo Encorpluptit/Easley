@@ -1,9 +1,11 @@
+from os import path as _path, remove as remove_file
+import xlrd
 from django import forms
 from django.contrib.auth.models import User
 from django.contrib.auth.forms import UserCreationForm
 from dateutil.relativedelta import relativedelta
 from django.utils.formats import localize
-
+from .controllers import ManageExcelForm
 from .models import (
     Company,
     Commercial,
@@ -17,7 +19,6 @@ from .models import (
     Invite,
 )
 
-
 # Create your forms here.
 
 
@@ -25,7 +26,7 @@ CONTRACT_FACTURATION = [
     (1, 'Mensuelle'),
     (3, 'Trimestrielle'),
     (6, 'Semestrielle'),
-    (12, 'Annuellle'),
+    (12, 'Annuelle'),
 ]
 
 
@@ -128,8 +129,6 @@ class ConseilForm(forms.ModelForm):
     prestas = forms.FileField(
         initial=None,
         required=False,
-        show_hidden_initial=True,
-        label="Détails des prestations."
     )
 
     def __init__(self, *args, user=None, company=None, contract=None, **kwargs):
@@ -141,10 +140,19 @@ class ConseilForm(forms.ModelForm):
             self.fields[key].widget.attrs.update({'placeholder': key})
             self.fields[key].widget.attrs.update({'title': self.fields[key].help_text})
         self.fields['start_date'].widget.attrs.update({'data-toggle': 'datepicker'})
+        self.fields['prestas'].widget.attrs.update({'style': 'height: auto'})
+        self.user = user
 
     class Meta:
         model = Conseil
         exclude = ('contract', 'payed', 'end_date')
+
+    def clean_prestas(self):
+        data = self.cleaned_data['prestas']
+        if not data:
+            return data
+        ManageExcelForm(self, data)
+        return data
 
 
 class ServiceForm(forms.ModelForm):
@@ -160,7 +168,7 @@ class ServiceForm(forms.ModelForm):
 
     class Meta:
         model = Service
-        exclude = ('conseil',)
+        exclude = ('conseil', 'payed', 'done', 'actual_date', 'price')
         widgets = {
             'actual_date': forms.SelectDateWidget,
         }
@@ -249,8 +257,6 @@ class InviteForm(forms.ModelForm):
         model = Invite
         exclude = ('company', 'role')
 
-
-
 # class ClientForm(forms.ModelForm):
 #     def __init__(self, *args, user=None, company=None, **kwargs):
 #         super().__init__(*args, **kwargs)
@@ -277,7 +283,6 @@ class InviteForm(forms.ModelForm):
 #             self.data['commercial'] = self.user.commercial.pk
 #             self.data._mutable = False
 #         return super().is_valid()
-
 
 
 # from django.core.validators import validate_email

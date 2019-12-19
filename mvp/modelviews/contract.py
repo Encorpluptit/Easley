@@ -132,7 +132,7 @@ def ContractListView(request, cpny_pk=None):
     if hasattr(request.user, 'commercial'):
         contracts = request.user.commercial.contract_set.all()
         context['validated_contracts'] = contracts.filter(validated=True).order_by('start_date', '-price')
-        context['not_validated_contracts'] = contracts.filter(validated=False).order_by('start_date', '-price')
+        context['not_validated_contracts'] = contracts.filter(validated=False).order_by('-price', 'start_date')
     elif hasattr(request.user, 'manager'):
         contracts = request.user.manager.company.contract_set.all()
         context['validated_contracts'] = contracts.filter(validated=True).order_by('start_date', '-price')

@@ -1,10 +1,13 @@
+from os import path as _path, remove as remove_file
+import xlrd
+import datetime
+from django import forms
 from django.contrib import messages
 from django.contrib.auth import authenticate, login
 from django.shortcuts import get_object_or_404, redirect
 from django.core.exceptions import ObjectDoesNotExist, ValidationError
 from dateutil.relativedelta import relativedelta
 from django.utils.formats import localize as loc
-
 from .models import Manager, Commercial, Contract, Invoice
 
 
@@ -29,8 +32,8 @@ def CreateAllInvoice(contract, licenses, conseils):
         invoice_delta += 1
     # @TODO: factu par mois ?
     total_price, unity_price = 0, int(contract.price / invoice_delta)
-    print(invoice_delta)
-    print(unity_price)
+    # print(invoice_delta)
+    # print(unity_price)
 
     while invoice_next_date < contract.end_date:
         invoice_date = invoice_next_date
@@ -50,13 +53,13 @@ def CreateAllInvoice(contract, licenses, conseils):
         if invoice_conseils:
             for conseil in invoice_conseils:
                 invoice.conseils.add(conseil)
-        print("%s\t%s\n%s" % (invoice, invoice.price, loc(invoice.date)))
-        print(invoice.conseils.all(), invoice.licenses.all())
+        # print("%s\t%s\n%s" % (invoice, invoice.price, loc(invoice.date)))
+        # print(invoice.conseils.all(), invoice.licenses.all())
         total_price += unity_price
     if total_price != contract.price:
         invoice.price = contract.price - (total_price - unity_price)
         invoice.save()
-        print("invoice amount correction", contract.price - (total_price - unity_price))
+        # print("invoice amount correction", contract.price - (total_price - unity_price))
 
 
 def customCompanyRegister(request, form):
@@ -80,6 +83,62 @@ def FillConseilLicenseForm(self, model_view, *args, **kwargs):
     return kwargs
 
 
+def ManageExcelForm(self, data):
+    name = "Services_%d_%s" % (self.instance.contract.id, self.user)
+    path = "mvp/static/mvp/files/Uploads/%s" % name
+    if _path.exists(path):
+        remove_file(path)
+    f = open(path, 'wb+')
+    f.write(data.read())
+    f.close()
+    excel = xlrd.open_workbook(path)
+    if len(excel.sheets()) != 1:
+        raise forms.ValidationError("Votre Excel est vide ou contient trop ou de feuilles.")
+    try:
+        sheet = excel.sheet_by_index(0)
+    except:
+        raise forms.ValidationError("Votre Excel recontre un problème.")
+    prestas_check_list = [
+        (1, 'Description', xlrd.sheet.XL_CELL_TEXT),
+        (2, 'Date Prévisionelle', xlrd.sheet.XL_CELL_DATE),
+        (3, 'Jour-Hommes Senior', xlrd.sheet.XL_CELL_NUMBER),
+        (4, 'Jour-Hommes Junior', xlrd.sheet.XL_CELL_NUMBER),
+    ]
+    self.servicelist = []
+    for rowInd in range(1, sheet.nrows):
+        values_list = []
+        for colInd in range(1, 5):
+            cell = sheet.cell(rowInd, colInd)
+            # print(cell.value)
+            if not cell.value and cell.value != 0:
+                if colInd > 1 and len(values_list):
+                    raise forms.ValidationError(
+                        "Votre excel contient une cellule vide dans la section \"%s\""
+                        "\nLigne: %d\tColonne: %c\n" % (
+                            prestas_check_list[colInd - 1][1], rowInd + 1, chr(64 + colInd + 1)))
+                else:
+                    continue
+            if cell.ctype != prestas_check_list[colInd - 1][2]:
+                raise forms.ValidationError(
+                    "Votre excel contient une erreur dans la section \"%s\""
+                    "\nLigne: %d\tColonne: %c\n" % (
+                        prestas_check_list[colInd - 1][1], rowInd + 1, chr(64 + colInd + 1)))
+            if colInd == 2:
+                date = datetime.datetime(*xlrd.xldate.xldate_as_tuple(cell.value, excel.datemode)).date()
+                values_list.append(date)
+                # print(date)
+            else:
+                values_list.append(cell.value)
+        length = len(values_list)
+        if length:
+            if length == 4:
+                self.servicelist.append(values_list)
+            else:
+                raise forms.ValidationError(
+                    "Votre excel contient une cellule vide dans la section \"Description\""
+                    "\nLigne: %d\tColonne: %c\n" % (rowInd + 1, chr(64 + 2)))
+
+
 # def validateCompanyInFormCreateUpdateView(self, form):
 #     try:
 #         if hasattr(self.request.user, 'commercial'):
@@ -96,35 +155,35 @@ def FillConseilLicenseForm(self, model_view, *args, **kwargs):
 #         return redirect(self.get_success_url())
 
 
-def routeCreatePermissions(self, cpny_pk, base_class):
-    try:
-        manager = Manager.objects.get(user=self.request.user)
-        if manager.company.id == cpny_pk:
-            if manager.role == 3:
-                return False
-            return True
-    except ObjectDoesNotExist:
-        commercial = get_object_or_404(Commercial, user=self.request.user)
-        if commercial.company.id == cpny_pk:
-            return True
-        else:
-            return False
+# def routeCreatePermissions(self, cpny_pk, base_class):
+#     try:
+#         manager = Manager.objects.get(user=self.request.user)
+#         if manager.company.id == cpny_pk:
+#             if manager.role == 3:
+#                 return False
+#             return True
+#     except ObjectDoesNotExist:
+#         commercial = get_object_or_404(Commercial, user=self.request.user)
+#         if commercial.company.id == cpny_pk:
+#             return True
+#         else:
+#             return False
 
 
-def routeUpdatePermissions(self, key_pk, base_class):
-    try:
-        manager = Manager.objects.get(user=self.request.user)
-        if manager.company.id == self.kwargs.get('cpny_pk') and manager.company == base_class.objects.get(
-                pk=self.kwargs.get(key_pk)).company:
-            if manager.role == 3:
-                return False
-            return True
-    except ObjectDoesNotExist:
-        base_class = get_object_or_404(base_class, pk=self.kwargs.get(key_pk))
-        if base_class.commercial == self.request.user.commercial:
-            return True
-        else:
-            return False
+# def routeUpdatePermissions(self, key_pk, base_class):
+#     try:
+#         manager = Manager.objects.get(user=self.request.user)
+#         if manager.company.id == self.kwargs.get('cpny_pk') and manager.company == base_class.objects.get(
+#                 pk=self.kwargs.get(key_pk)).company:
+#             if manager.role == 3:
+#                 return False
+#             return True
+#     except ObjectDoesNotExist:
+#         base_class = get_object_or_404(base_class, pk=self.kwargs.get(key_pk))
+#         if base_class.commercial == self.request.user.commercial:
+#             return True
+#         else:
+#             return False
 
 
 def routeDeletePermissions(self, key_pk, base_class):

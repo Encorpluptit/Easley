@@ -17,6 +17,15 @@ ServiceStatusChoice = {
     (2, 'Ne sera jamais effectué'),
 }
 
+CompanyFactuDelayChoice = {
+    (15, '15 Jours'),
+    (30, '30 Jours'),
+    (45, '45 Jours'),
+    (60, '60 Jours'),
+    (75, '75 Jours'),
+    (90, '90 Jours'),
+}
+
 
 def GetDate():
     return timezone.now().date()
@@ -54,6 +63,12 @@ class Company(models.Model):
         default=0,
         verbose_name="Prix du Jour homme senior de cette entreprise.",
         help_text="Précisez le prix du jour homme senior de cette entreprise.",
+    )
+    facturation_delay = models.PositiveSmallIntegerField(
+        default=45,
+        choices=CompanyFactuDelayChoice,
+        verbose_name="Délai de facturation.",
+        help_text="Précisez le délai à partir duquel un client est considéré en retard de paiement.",
     )
 
     class Meta:

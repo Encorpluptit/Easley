@@ -4,7 +4,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.shortcuts import get_object_or_404, render, redirect
 from django.urls import reverse
 from django.views.generic import CreateView, UpdateView, DetailView, DeleteView
-from mvp.models import Conseil, Contract, Company
+from mvp.models import Conseil, Contract, Company, Service
 from mvp.forms import ConseilForm, ServiceForm
 from mvp.modelviews import PERMISSION_DENIED
 from mvp.controllers import redirectWorkspaceFail, FillConseilLicenseForm, routeDeletePermissions
@@ -67,6 +67,10 @@ class ConseilCreateView(LoginRequiredMixin, UserPassesTestMixin, CreateView):
                 return True
         return False
 
+    def form_valid(self, form):
+        # print(form.instance)
+        return super().form_valid(form)
+
     def get_success_url(self):
         messages.success(self.request, self.success_message)
         return self.object.get_absolute_url(self.object.contract.company.id, self.object.contract.id)
@@ -94,7 +98,7 @@ class ConseilUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
         cpny_pk = self.kwargs.get('cpny_pk')
         if hasattr(self.request.user, 'manager'):
             manager = self.request.user.manager
-            if manager.company.id == cpny_pk and manager.role == 1:
+            if manager.company.id == cpny_pk and manager.role != 3:
                 return True
         elif hasattr(self.request.user, 'commercial'):
             contrat = get_object_or_404(Contract, pk=self.kwargs.get('contract_pk'))
@@ -102,6 +106,26 @@ class ConseilUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
             if commercial.company.id == cpny_pk and commercial.id == contrat.commercial.id:
                 return True
         return False
+
+    def form_valid(self, form):
+        if hasattr(form, 'servicelist'):
+            conseil = form.instance
+            for service in conseil.service_set.all():
+                service.delete()
+            for data in form.servicelist:
+                print(data)
+                service = Service(
+                    conseil=conseil,
+                    description=data[0],
+                    estimated_date=data[1],
+                    senior_day=data[2],
+                    junior_day=data[3],
+                )
+                print(service)
+                service.save()
+            conseil.__delattr__('servicelist')
+            conseil.save()
+        return super().form_valid(form)
 
     def get_success_url(self):
         messages.success(self.request, self.success_message)
@@ -153,6 +177,7 @@ def ConseilDetails(request, cpny_pk=None, contract_pk=None, conseil_pk=None):
 
     if contract.validated:
         context['content_heading'] = 'Détails du conseil'
+        context['services'] = context['object'].service_set.all() or None
         return render(request, 'mvp/views/conseil_details.html', context)
     form = ServiceForm(request.POST or None, user=request.user, company=contract.company, conseil=context['object'])
     if request.method == "POST" and ('delete_conseil' in request.POST):

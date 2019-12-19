@@ -52,7 +52,7 @@ def CreateAllCompanies(DATA):
         try:
             ceo_user = CreateCeoUser(data[0], data[1], data[2], DATA['Users'])
             company = CreateCompany(
-                ceo_user, data[3], data[4], data[4], data[6], DATA['Companies'], i)
+                ceo_user, data[3], data[4], data[5], data[6], DATA['Companies'], i)
             manager = CreateCeoManager(ceo_user, company, 1, DATA['Managers'], i)
             i += 1
         except Exception as e:

@@ -1,7 +1,7 @@
-from .dict_global import DATA
-from .companies import CreateAllCompanies
-from .commercials import CreateAllCommercials
 from .clients import CreateAllClients
+from .commercials import CreateAllCommercials
+from .companies import CreateAllCompanies
+from .dict_global import DATA
 from .managers import CreateAllManagers
 from .prestas import CreateAllPresta
 

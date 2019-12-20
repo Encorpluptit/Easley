@@ -4,10 +4,11 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.shortcuts import redirect, render, get_object_or_404
 from django.views.generic import UpdateView
+
 from mvp.controllers import CreateAllInvoice, redirectWorkspaceFail
 from mvp.forms import ClientForm, ContractForm
-from mvp.modelviews import PERMISSION_DENIED
 from mvp.models import Client, Company, Contract
+from mvp.modelviews import permissions as perm
 
 
 # @ TODO: Faire permissions
@@ -28,6 +29,8 @@ def CreateContractClient(request, **kwargs):
         context['client_list'] = request.user.manager.company.client_set.all()
         company = request.user.manager.company
         manager = True
+    if not perm.contractClient(request.user, company):
+        return redirectWorkspaceFail(request, perm.PERMISSION_DENIED)
     form = ClientForm(request.POST or None, user=request.user, company=company, manager=manager)
     if request.method == "POST":
         context['post'] = True
@@ -45,12 +48,13 @@ def CreateContractForm(request, cpny_pk=None, client_pk=None):
     context = {}
     client = get_object_or_404(Client, pk=client_pk)
     company = get_object_or_404(Company, pk=cpny_pk)
+    if not perm.contractCreate(request.user, company) or not perm.checkClient(request.user, client):
+        return redirectWorkspaceFail(request, perm.PERMISSION_DENIED)
     form = ContractForm(request.POST or None, user=request.user, client=client, company=company)
-    if request.method == "POST":
-        if form.is_valid():
-            contract = form.save()
-            messages.success(request, f'Contrat créé.')
-            return redirect('mvp-contract-details', company.id, contract.id, )
+    if request.method == "POST" and form.is_valid():
+        contract = form.save()
+        messages.success(request, f'Contrat créé.')
+        return redirect('mvp-contract-details', company.id, contract.id, )
     context['form'] = form
     return render(request, 'mvp/views/contract_form.html', context)
 
@@ -64,12 +68,11 @@ class ContractUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
     extra_context = {"update_contract": True, "button": "Modifier le contrat",
                      "page_title": "Easley - Update Contract", "page_heading": "Modifier des contrats",
                      "section": "contract", "content_heading": "Modifier le contrat"}
-    permission_denied_message = PERMISSION_DENIED
+    permission_denied_message = perm.PERMISSION_DENIED
     success_message = f'Contrat Modifié'
 
     def test_func(self):
-        # @ TODO: Faire permissions.
-        return True
+        return perm.contractUpdate(self.request.user, self.get_object())
 
     def get_success_url(self):
         messages.success(self.request, self.success_message)
@@ -105,14 +108,13 @@ def ContractDetails(request, cpny_pk=None, contract_pk=None, conseil_pk=None):
     date_now = today().date()
     if contract.start_date <= date_now:
         try:
-            context['progression'] = int((date_now - contract.start_date) / (contract.end_date - contract.start_date) * 100)
+            context['progression'] = int(
+                (date_now - contract.start_date) / (contract.end_date - contract.start_date) * 100)
         except ZeroDivisionError:
             pass
     if request.method == "POST" and ('delete_contract' in request.POST):
         contract.delete()
         return redirect('mvp-contract-list', cpny_pk=contract.company.id)
-    if contract.validated:
-        return render(request, 'mvp/views/contract_details.html', context)
     if request.method == "POST" and not contract.validated:
         if conseils.count() <= 0 and licenses.count() <= 0:
             messages.info(request, f"Le contrat est vide. Veuillez rentrer une license ou un conseil.")
@@ -128,6 +130,9 @@ def ContractDetails(request, cpny_pk=None, contract_pk=None, conseil_pk=None):
 # @ TODO: Faire permissions
 @login_required
 def ContractListView(request, cpny_pk=None):
+    company = get_object_or_404(Company, pk=cpny_pk)
+    if not perm.checkCompany(request.user, company):
+        return redirectWorkspaceFail(request, perm.PERMISSION_DENIED)
     context = {'validated_contracts': None, 'section': 'contract', 'list_contract': True}
     if hasattr(request.user, 'commercial'):
         contracts = request.user.commercial.contract_set.all()

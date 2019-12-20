@@ -1,4 +1,5 @@
 {% extends 'mvp/generic/content.html' %}
+{% load static %}
 {% load my_filters %}
 
 {% block content %}
@@ -36,11 +37,11 @@
                 </thead>
                 <tbody>
                 <tr>
-                    <td class="article-content">{{ object.price }}</td>
-                    <td class="col-md-1">{{ object.service_set.count }}</td>
-                    <td class="article-content">{{ object.start_date }}</td>
-                    <td class="article-content">{{ object.duration }}</td>
-                    <td class="article-content">{{ object.end_date }}</td>
+                    <td>{{ object.price }}</td>
+                    <td>{{ object.service_set.count }}</td>
+                    <td>{{ object.start_date }}</td>
+                    <td>{{ object.duration }}</td>
+                    <td>{{ object.end_date }}</td>
                 </tr>
                 </tbody>
             </table>
@@ -54,7 +55,7 @@
                         <th scope="col" style="width: 50px">#</th>
                         <th scope="col">Description</th>
                         <th scope="col">Date prévue</th>
-                        <th scope="col">Date effective</th>
+                        <th scope="col" style="width: 500px">Date effective</th>
                         <th scope="col">Prix</th>
                         <th scope="col" style="width: 200px">Jour-Hommes Senior</th>
                         <th scope="col" style="width: 200px">Jour-Hommes Junior</th>
@@ -64,19 +65,66 @@
                     {% for service in services %}
                         <tr>
                             <th scope="row">{{ forloop.counter }}</th>
-                            <td>{{ service.description }}</td>
+                            <td>
+                                {{ service.description }}
+                                {% if not object.contract.validated %}
+                                    <a href="#" class="btn btn-danger btn-circle btn-sm" title="Supprimer prestation"
+                                       data-toggle="modal" data-target="#ServiceDeleteModal"
+                                       onclick="PrepareDeleteService({{ service.id }})">
+                                        <i class="fas fa-trash"></i>
+                                    </a>
+                                {% endif %}
+                            </td>
                             <td>{{ service.estimated_date }}</td>
-                            {% if service.actual_date %}
-                                <td>
-                                    {{ service.done|ServiceStatusFilter }} le
-                                    : {{ service.actual_date }}
-                                </td>
+                            {% if service.done %}
+                                <th>{{ service.done|ServiceStatusFilter:service.actual_date }}</th>
                             {% else %}
-                                <th>
-                                    {{ service.done|ServiceStatusFilter }}
-                                </th>
+                                {% if user.manager and user.manager.role != 3 %}
+                                    <th>
+                                        <div class="row">
+                                            <div id="end_date_status" class="col">
+                                                {{ service.done|ServiceStatusFilter }}
+                                            </div>
+                                            <div id="end_date_status_{{ service.id }}" class="col">
+                                                <a class="btn btn-success btn-circle btn-sm"
+                                                   title="Entrer la date effective"
+                                                   onclick="showEndDate({{ service.id }})">
+                                                    <i class="far fa-calendar"></i>
+                                                </a>
+                                                <a href="#" class="btn btn-warning btn-circle btn-sm"
+                                                   title="ne sera jamais effectué"
+                                                   data-toggle="modal" data-target="#NeverDoneModal"
+                                                   onclick="PrepareneverDone({{ service.id }})">
+                                                    <i class="far fa-times-circle"></i>
+                                                </a>
+                                            </div>
+                                            <div id="end_date_form_container_{{ service.id }}" class="col" hidden>
+                                                <form method="post" id="end_date_form">
+                                                    {% csrf_token %}
+                                                    {#                                                    <input class="datepicker-dropdown">#}
+                                                    <input name="service_id" id="service_id" value="{{ service.id }}"
+                                                           hidden>
+                                                    <input name="end_date" id="end_date" title="Date Effective"
+                                                           data-toggle="datepicker" style="height: 10px; width: 65%">
+                                                    <button href="#" class="btn btn-success btn-circle btn-sm"
+                                                            type="submit"
+                                                            title="Confirmer">
+                                                        <i class="fas fa-check"></i>
+                                                    </button>
+                                                    <button href="#" class="btn btn-danger btn-circle btn-sm"
+                                                            title="Annuler" onclick="hideEndDate({{ service.id }})"
+                                                            type="reset">
+                                                        <i class="fas fa-times"></i>
+                                                    </button>
+                                                </form>
+                                            </div>
+                                        </div>
+                                    </th>
+                                {% else %}
+                                    <th>{{ service.done|ServiceStatusFilter }}</th>
+                                {% endif %}
                             {% endif %}
-                            <td>{{ service.price }}</td>
+                            <td>{{ service.price|currency }}</td>
                             <td>{{ service.senior_day }}</td>
                             <td>{{ service.junior_day }}</td>
                         </tr>
@@ -104,7 +152,7 @@
                         <div class="card-body">
                             <form method="post">
                                 {% csrf_token %}
-                                {% include 'mvp/generic/form.html' %}
+                                {% include 'mvp/generic/form.html' with form=serviceForm %}
                                 <button class="btn btn-success btn-icon-split" type="submit">
                                     <span class="icon text-white-50"><i class="fas fa-check"></i></span>
                                     <span class="text">Ajouter un Service</span>
@@ -120,10 +168,11 @@
                 <span class="text">Retour au Contrat</span>
             </a>
             <a class="btn btn-secondary btn-icon-split"
-               href= {{ request.META.HTTP_REFERER }}>
+               href= {% url 'mvp-contract-details' object.contract.company.id object.contract.id %}>
                 <span class="icon text-white-50"><i class="fas fa-arrow-right"></i></span>
-                <span class="text">Page Précédente</span>
-            </a><br>
+                <span class="text">Retour</span>
+            </a>
+            <br>
         </div>
     </article>
     <hr>
@@ -136,7 +185,7 @@
         <div class="modal-dialog modal-lg" role="document">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="ConseilDeleteModalLabel">Supprimer ce contrat ?</h5>
+                    <h5 class="modal-title" id="ConseilDeleteModalLabel">Supprimer ce conseil ?</h5>
                     <button class="close" type="button" data-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true">×</span>
                     </button>
@@ -167,6 +216,70 @@
         </div>
     </div>
 
+    <!-- Service Delete Modal-->
+    <div class="modal fade" id="ServiceDeleteModal" tabindex="-1" role="dialog"
+         aria-labelledby="ServiceDeleteModalLabel"
+         aria-hidden="true">
+        <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="ServiceDeleteModalLabel">Supprimer ce Service ?</h5>
+                    <button class="close" type="button" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">×</span>
+                    </button>
+                </div>
+                <div class="modal-body">Êtes-vous sûr de vouloir supprimer ce Service ?
+                    <span class="text-danger">(cette action est irréversible)</span>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-secondary" type="button" data-dismiss="modal">Annuler</button>
+                    <form id="delete_service_form" method="post">
+                        {% csrf_token %}
+                        <button class="btn btn-danger btn-icon-split" onclick="deleteService()">
+                            <input type="hidden" id="delete_service" name="delete_service" value="false">
+                            <input type="hidden" id="service_id_delete" name="service_id_delete">
+                            <span class="icon text-white-50"><i class="fas fa-trash"></i></span>
+                            <span class="text">Suprimer le service.</span>
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!--  NeverDone Modal-->
+    <div class="modal fade" id="NeverDoneModal" tabindex="-1" role="dialog"
+         aria-labelledby="NeverDoneModalLabel"
+         aria-hidden="true">
+        <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="NeverDoneModalLabel">Marquer ce service comme "Jamais Effectué" ?</h5>
+                    <button class="close" type="button" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">×</span>
+                    </button>
+                </div>
+                <div class="modal-body">Êtes-vous sûr de vouloir marquer ce service comme "Jamais Effectué" ?
+                    <span class="text-danger">(cette action est irréversible)</span>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-secondary" type="button" data-dismiss="modal">Annuler</button>
+                    <form id="never_end_service_form" method="post">
+                        {% csrf_token %}
+                        <button class="btn btn-warning btn-icon-split" onclick="neverDone()">
+                            <input type="hidden" id="never_end_service" name="never_end" value="false">
+                            <input type="hidden" id="service_id_never_end" name="service_id_end">
+                            <span class="icon text-white-50"><i class="fas fa-exclamation-triangle"></i></span>
+                            <span class="text">Ce service ne sera jamais effectué.</span>
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+
 {% endblock %}
 
 
@@ -185,6 +298,9 @@
     Rentrer les informations nécessaires à la création du conseil.
 {% endblock %}
 
+{% block links %}
+    <link rel="stylesheet" href={% static 'mvp/datepicker/datepicker.css' %}>
+{% endblock %}
 
 {% block scripts %}
     <script>
@@ -192,5 +308,52 @@
             document.getElementById("delete_conseil").value = true;
             document.getElementById("delete_form").submit();
         }
+    </script>
+    <script>
+        function PrepareneverDone(service_id) {
+            document.getElementById("service_id_never_end").value = service_id;
+        }
+    </script>
+    <script>
+        function neverDone() {
+            document.getElementById("never_end_service").value = "true";
+            document.getElementById("never_end_service_form").submit();
+        }
+    </script>
+    <script>
+        function PrepareDeleteService(service_id) {
+            document.getElementById("service_id_delete").value = service_id;
+        }
+    </script>
+    <script>
+        function deleteService() {
+            document.getElementById("delete_service").value = "true";
+            document.getElementById("delete_service_form").submit();
+        }
+    </script>
+    <script>
+        function showEndDate(service_id) {
+            let a = "end_date_form_container_" + service_id;
+            let b = "end_date_status_" + service_id;
+            document.getElementById(a).hidden = false;
+            document.getElementById(b).hidden = true;
+        }
+    </script>
+    <script>
+        function hideEndDate(service_id) {
+            let a = "end_date_form_container_" + service_id;
+            let b = "end_date_status_" + service_id;
+            document.getElementById(a).hidden = true;
+            document.getElementById(b).hidden = false;
+        }
+    </script>
+    <script src= {% static 'mvp/datepicker/datepicker.js' %}></script>
+    <script src= {% static 'mvp/datepicker/datepicker.fr-FR.js' %}></script>
+    <script>
+        $('[data-toggle="datepicker"]').datepicker({
+            language: 'fr-FR',
+            autoHide: true,
+            inline: true,
+        });
     </script>
 {% endblock %}

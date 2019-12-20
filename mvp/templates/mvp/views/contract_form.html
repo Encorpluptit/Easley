@@ -32,17 +32,19 @@
     Rentrer les informations nécessaires à la création du contrat.
 {% endblock %}
 
+{% block links %}
+    <link rel="stylesheet" href= {% static 'mvp/datepicker/datepicker.css' %}>
+{% endblock %}
 
 
 {% block scripts %}
-<link rel="stylesheet" href= {% static 'mvp/datepicker/datepicker.css' %} >
-<script src= {% static 'mvp/datepicker/datepicker.js' %}></script>
-<script src= {% static 'mvp/datepicker/datepicker.fr-FR.js' %}></script>
-<script>
-    $('[data-toggle="datepicker"]').datepicker({
-        language: 'fr-FR',
-        autoHide: true,
-        inline: true,
-    });
-</script>
+    <script src= {% static 'mvp/datepicker/datepicker.js' %}></script>
+    <script src= {% static 'mvp/datepicker/datepicker.fr-FR.js' %}></script>
+    <script>
+        $('[data-toggle="datepicker"]').datepicker({
+            language: 'fr-FR',
+            autoHide: true,
+            inline: true,
+        });
+    </script>
 {% endblock %}

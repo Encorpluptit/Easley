@@ -6,14 +6,14 @@ from django.shortcuts import get_object_or_404
 from django.urls import reverse
 from django.views.generic import CreateView, UpdateView, ListView, DetailView, DeleteView
 
-from mvp.forms import ClientForm
-from mvp.models import Client, License, Conseil, Manager, Commercial
-from mvp.modelviews import PERMISSION_DENIED
 from mvp.controllers import (
     redirectWorkspaceFail,
     routeListPermissions,
     routeDetailsPermissions,
 )
+from mvp.forms import ClientForm
+from mvp.models import Client, License, Conseil, Manager, Commercial
+from mvp.modelviews import permissions as perm
 
 
 def CreateClientPermissions(self, company_pk):
@@ -79,7 +79,7 @@ class ClientCreateView(LoginRequiredMixin, UserPassesTestMixin, CreateView):
     extra_context = {"create_client": True, "button": "Ajouter un client",
                      "page_title": "Easley - Create Client", "page_heading": "Gestion des clients",
                      "section": "client", "content_heading": "Créer un client"}
-    permission_denied_message = PERMISSION_DENIED
+    permission_denied_message = perm.PERMISSION_DENIED
     success_message = f'Client Créé !'
 
     def test_func(self):
@@ -106,7 +106,7 @@ class ClientUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
     extra_context = {"update_client": True, "button": "Modifier le client",
                      "page_title": "Easley - Update Client", "page_heading": "Gestion des clients",
                      "section": "client", "content_heading": "Modifier un client"}
-    permission_denied_message = PERMISSION_DENIED
+    permission_denied_message = perm.PERMISSION_DENIED
     success_message = f'Client Modifié !'
 
     def test_func(self):
@@ -130,7 +130,7 @@ class ClientListView(LoginRequiredMixin, UserPassesTestMixin, ListView):
     ordering = ['id']
     pk_url_kwarg = 'com_pk'
     extra_context = {"list_client": True, "section": "client", }
-    permission_denied_message = PERMISSION_DENIED
+    permission_denied_message = perm.PERMISSION_DENIED
 
     def get_queryset(self):
         if hasattr(self.request.user, 'commercial'):
@@ -154,7 +154,7 @@ class ClientDetailView(LoginRequiredMixin, UserPassesTestMixin, DetailView):
     extra_context = {"details": True,
                      "page_title": "Easley - Client Details", "page_heading": "Gestion des clients",
                      "section": "client", "content_heading": "Informations client"}
-    permission_denied_message = PERMISSION_DENIED
+    permission_denied_message = perm.PERMISSION_DENIED
 
     def get_queryset(self):
         return Client.objects.filter(id=self.kwargs.get(self.pk_url_kwarg))
@@ -180,7 +180,7 @@ class ClientDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
     extra_context = {"delete_client": True,
                      "page_title": "Easley - Delete Client", "page_heading": "Gestion des clients",
                      "section": "client", "content_heading": "Supprimer un client"}
-    permission_denied_message = PERMISSION_DENIED
+    permission_denied_message = perm.PERMISSION_DENIED
     success_message = f'Client Supprimé !'
 
     def test_func(self):

@@ -1,6 +1,7 @@
+from django.contrib.auth.models import User
+
 from mvp.models import Commercial
 from .dict_global import PASSWORD
-from django.contrib.auth.models import User
 
 
 def get_data(DATA):

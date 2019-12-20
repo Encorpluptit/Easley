@@ -1,14 +1,16 @@
-from os import path as _path, remove as remove_file
-import xlrd
 import datetime
+from os import path as _path, remove as remove_file
+
+import xlrd
+from dateutil.relativedelta import relativedelta
 from django import forms
 from django.contrib import messages
 from django.contrib.auth import authenticate, login
-from django.shortcuts import get_object_or_404, redirect
 from django.core.exceptions import ObjectDoesNotExist, ValidationError
-from dateutil.relativedelta import relativedelta
+from django.shortcuts import get_object_or_404, redirect
 from django.utils.formats import localize as loc
-from .models import Manager, Commercial, Contract, Invoice
+
+from .models import Manager, Commercial, Contract, Invoice, Service
 
 
 def customRegisterUser(request, form):
@@ -81,6 +83,26 @@ def FillConseilLicenseForm(self, model_view, *args, **kwargs):
         kwargs['company'] = self.request.user.commercial.company
     kwargs['contract'] = get_object_or_404(Contract, pk=self.kwargs.get('contract_pk'))
     return kwargs
+
+
+def createExcelServices(form):
+    if hasattr(form, 'servicelist'):
+        conseil = form.instance
+        for service in conseil.service_set.all():
+            service.delete()
+        for data in form.servicelist:
+            print(data)
+            service = Service(
+                conseil=conseil,
+                description=data[0],
+                estimated_date=data[1],
+                senior_day=data[2],
+                junior_day=data[3],
+            )
+            print(service)
+            service.save()
+        # conseil.__delattr__('servicelist')
+        conseil.save(update_fields=['price', ])
 
 
 def ManageExcelForm(self, data):

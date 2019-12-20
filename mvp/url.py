@@ -1,16 +1,10 @@
-from django.urls import path
 from django.conf import settings
 from django.conf.urls.static import static
 from django.contrib.auth import views as auth_views
+from django.urls import path
 
 import mvp.modelviews.conseil
 import mvp.modelviews.contract
-from . import views
-from mvp.modelviews.invoice import InvoiceListView, InvoiceDetailView
-from mvp.modelviews.contract import ContractUpdateView
-from mvp.modelviews.conseil import ConseilCreateView, ConseilUpdateView, ConseilDeleteView
-# from mvp.modelviews.license import LicenseCreateView, LicenseUpdateView, LicenseDetailView, LicenseDeleteView
-from mvp.modelviews.license import LicenseCreateView, LicenseUpdateView, LicenseDetails, LicenseDeleteView
 from mvp.modelviews.client import (
     ClientCreateView,
     ClientUpdateView,
@@ -18,6 +12,11 @@ from mvp.modelviews.client import (
     ClientDetailView,
     ClientDeleteView
 )
+from mvp.modelviews.conseil import ConseilCreateView, ConseilUpdateView
+from mvp.modelviews.contract import ContractUpdateView
+from mvp.modelviews.invoice import InvoiceListView, InvoiceDetailView
+from mvp.modelviews.license import LicenseCreateView, LicenseUpdateView, LicenseDetails
+from . import views
 
 urlpatterns = [
     path('', views.home, name='mvp-home'),
@@ -80,31 +79,11 @@ urlpatterns = [
 
     path('about/', views.about, name='mvp-about'),
     path('contact/', views.contact, name='mvp-contact'),
-    # path('client/new/', ClientCreateView.as_view(), name='mvp-client-new'),
-    # path('<int:cpny_pk>/client/new', views.clientCreation, name='mvp-client-new'),
-    # path('client/new/', views.clientCreation, name='mvp-client-new'),
-    # path('service/new/', views.serviceCreation, name='mvp-service-new'),
-    # path('service/<int:pk>/update', ConseilUpdateView.as_view(), name='mvp-service-update'),
-    # path('license/new/', views.licenseCreation, name='mvp-license-new'),
     path('<int:cpny_pk>/client/new/', ClientCreateView.as_view(), name='mvp-client-new'),
     path('<int:cpny_pk>/client/update/<int:client_pk>/', ClientUpdateView.as_view(), name='mvp-client-update'),
     path('<int:cpny_pk>/client/list/<int:com_pk>/', ClientListView.as_view(), name='mvp-client-list'),
     path('<int:cpny_pk>/client/details/<int:client_pk>/', ClientDetailView.as_view(), name='mvp-client-details'),
     path('<int:cpny_pk>/client/delete/<int:client_pk>/', ClientDeleteView.as_view(), name='mvp-client-delete'),
-    # path('<int:cpny_pk>/conseil/new/', ConseilCreateView.as_view(), name='mvp-conseil-new'),
-    # path('<int:cpny_pk>/conseil/update/<int:conseil_pk>/', ConseilUpdateView.as_view(), name='mvp-conseil-update'),
-    # path('<int:cpny_pk>/conseil/list/<int:com_pk>/', ConseilListView.as_view(), name='mvp-conseil-list'),
-    # path('<int:cpny_pk>/conseil/details/<int:conseil_pk>/', ConseilDetailView.as_view(), name='mvp-conseil-details'),
-    path('<int:cpny_pk>/conseil/delete/<int:conseil_pk>/', ConseilDeleteView.as_view(), name='mvp-conseil-delete'),
-    # path('<int:cpny_pk>/license/new/', LicenseCreateView.as_view(), name='mvp-license-new'),
-    # path('<int:cpny_pk>/license/update/<int:license_pk>/', LicenseUpdateView.as_view(), name='mvp-license-update'),
-    # path('<int:cpny_pk>/license/list/<int:com_pk>/', LicenseListView.as_view(), name='mvp-license-list'),
-    # path('<int:cpny_pk>/license/details/<int:license_pk>/', LicenseDetailView.as_view(), name='mvp-license-details'),
-    path('<int:cpny_pk>/license/delete/<int:license_pk>/', LicenseDeleteView.as_view(), name='mvp-license-delete'),
-    # path('<int:cpny_pk>/invoice/new/', InvoiceCreateView.as_view(), name='mvp-invoice-new'),
-    # path('<int:cpny_pk>/invoice/update/<int:invoice_pk>', InvoiceUpdateView.as_view(), name='mvp-invoice-update'),
-    # path('<int:cpny_pk>/invoice/delete/<int:invoice_pk>/', InvoiceDeleteView.as_view(), name='mvp-invoice-delete'),
-    # path('register/', .register, name='mvp-register'),
 ]
 
 if settings.DEBUG:

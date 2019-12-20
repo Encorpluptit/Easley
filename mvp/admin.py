@@ -1,6 +1,6 @@
 from django.contrib import admin
-from .models import Company, Commercial, Manager, Client, Conseil, License, Invoice, Service
 
+from .models import Company, Commercial, Manager, Client, Conseil, License, Invoice, Service
 
 # Register your models here.
 admin.site.register(Company)

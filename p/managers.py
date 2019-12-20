@@ -1,6 +1,7 @@
+from django.contrib.auth.models import User
+
 from mvp.models import Manager
 from .dict_global import PASSWORD
-from django.contrib.auth.models import User
 
 
 def CreateOthersManager(company, descr, role, dictio_user, dictio_manager, dictio_index):

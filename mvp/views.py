@@ -1,17 +1,18 @@
-from django.contrib import messages
-from django.shortcuts import render, redirect, get_object_or_404
-from django.contrib.auth.decorators import login_required
-from django.contrib.auth.models import User
-from django.forms import modelformset_factory
 from dateutil.relativedelta import relativedelta
 from dateutil.utils import today
+from django.contrib import messages
+from django.contrib.auth.decorators import login_required
+from django.contrib.auth.models import User
 from django.db.models import Sum
-from .models import Manager, Commercial, Service, Invite, InviteChoice
+from django.forms import modelformset_factory
+from django.shortcuts import render, redirect, get_object_or_404
+
 from .controllers import customRegisterUser
 from .forms import (
     UserRegisterForm,
     CompanyForm,
 )
+from .models import Manager, Commercial, Service, Invite, InviteChoice
 
 
 # Create your views here.

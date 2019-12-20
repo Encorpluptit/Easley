@@ -1,15 +1,13 @@
-from os import path as _path, remove as remove_file
-import xlrd
-from django import forms
-from django.contrib.auth.models import User
-from django.contrib.auth.forms import UserCreationForm
 from dateutil.relativedelta import relativedelta
+from django import forms
+from django.contrib.auth.forms import UserCreationForm
+from django.contrib.auth.models import User
 from django.utils.formats import localize
+
 from .controllers import ManageExcelForm
 from .models import (
     Company,
     Commercial,
-    Manager,
     Client,
     Conseil,
     License,

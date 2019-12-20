@@ -1,6 +1,7 @@
+from django.contrib.auth.models import User
+
 from mvp.models import Company
 from mvp.models import Manager
-from django.contrib.auth.models import User
 from .dict_global import PASSWORD
 
 

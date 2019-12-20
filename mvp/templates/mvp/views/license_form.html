@@ -10,11 +10,19 @@
                 <span class="icon text-white-50"><i class="fas fa-check"></i></span>
                 <span class="text">{% if button %}{{ button }}{% else %}Confirmer{% endif %}</span>
             </button>
-            <a class="btn btn-secondary btn-icon-split"
-               href= {{ request.META.HTTP_REFERER}}>
-                <span class="icon text-white-50"><i class="fas fa-arrow-right"></i></span>
-                <span class="text">Retour</span>
-            </a>
+            {% if update_license %}
+                <a class="btn btn-secondary btn-icon-split"
+                   href= {% url 'mvp-license-details' form.instance.contract.company.id form.instance.contract.id form.instance.id %}>
+                    <span class="icon text-white-50"><i class="fas fa-arrow-right"></i></span>
+                    <span class="text">Retour</span>
+                </a>
+            {% else %}
+                <a class="btn btn-secondary btn-icon-split"
+                   href= {% url 'mvp-contract-details' form.instance.contract.company.id form.instance.contract.id %}>
+                    <span class="icon text-white-50"><i class="fas fa-arrow-right"></i></span>
+                    <span class="text">Retour</span>
+                </a>
+            {% endif %}
         {% endif %}
     </form>
 {% endblock %}

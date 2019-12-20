@@ -2,9 +2,10 @@ from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.http import HttpResponseNotFound
 from django.shortcuts import get_object_or_404
 from django.views.generic import ListView, DetailView
+
 from mvp.controllers import redirectWorkspaceFail
-from mvp. modelviews import PERMISSION_DENIED
 from mvp.models import Invoice, Manager
+from mvp.modelviews import permissions as perm
 
 
 def routeCreateUpdateInvoicePermissions(self, cpny_pk):
@@ -31,7 +32,7 @@ class InvoiceListView(LoginRequiredMixin, UserPassesTestMixin, ListView):
     pk_url_kwarg = 'com_pk'
     ordering = ['contract__id']
     extra_context = {"list_invoice": True, "section": "invoice", }
-    permission_denied_message = PERMISSION_DENIED
+    permission_denied_message = perm.PERMISSION_DENIED
 
     def get_queryset(self):
         if hasattr(self.request.user, 'manager'):
@@ -53,7 +54,7 @@ class InvoiceDetailView(LoginRequiredMixin, UserPassesTestMixin, DetailView):
     extra_context = {"details": True,
                      "page_title": "Easley - Invoice Details", "page_heading": "Gestion des factures",
                      "section": "invoice", "content_heading": "Informations factures"}
-    permission_denied_message = PERMISSION_DENIED
+    permission_denied_message = perm.PERMISSION_DENIED
 
     def get_queryset(self):
         return Invoice.objects.filter(pk=self.kwargs.get(self.pk_url_kwarg))

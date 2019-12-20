@@ -2,44 +2,17 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.shortcuts import get_object_or_404, render, redirect
-from django.urls import reverse
-from django.views.generic import CreateView, UpdateView, DetailView, DeleteView
-from mvp.models import Conseil, Contract, Company, Service
+from datetime import datetime
+from django.views.generic import CreateView, UpdateView
+
 from mvp.forms import ConseilForm, ServiceForm
-from mvp.modelviews import PERMISSION_DENIED
-from mvp.controllers import redirectWorkspaceFail, FillConseilLicenseForm, routeDeletePermissions
-
-
-def CreateConseilPermissions(self, company_pk, contract_pk):
-    if hasattr(self.request.user, 'manager'):
-        manager = self.request.user.manager
-        if manager.company.id == company_pk and (manager.role == 1 or manager.role == 2):
-            return True
-    elif hasattr(self.request.user, 'commercial'):
-        contract = get_object_or_404(Contract, pk=contract_pk)
-        commercial = self.request.user.commercial
-        if not contract.validated and commercial.company.id == company_pk and commercial.id == contract.commercial.id:
-            return True
-    else:
-        return False
-
-
-def UpdateDeleteConseilPermissions(self, company_pk, contract_pk, license_pk):
-    contract = get_object_or_404(Contract, pk=contract_pk)
-    if hasattr(self.request.user, 'manager'):
-        manager = self.request.user.manager
-        if manager.company.id == company_pk and contract.company.id == manager.company.id \
-                and (manager.role == 1 or manager.role == 2):
-            return True
-    elif hasattr(self.request.user, 'commercial'):
-        conseil = get_object_or_404(Conseil, pk=license_pk)
-        if conseil.contract.validated:
-            return False
-        commercial = self.request.user.commercial
-        if not contract.validated and commercial.company.id == company_pk \
-                and commercial.id == conseil.contract.commercial.id:
-            return True
-    return False
+from mvp.models import Conseil, Contract, Service
+from mvp.modelviews import permissions as perm
+from mvp.controllers import (
+    redirectWorkspaceFail,
+    FillConseilLicenseForm,
+    createExcelServices,
+)
 
 
 class ConseilCreateView(LoginRequiredMixin, UserPassesTestMixin, CreateView):
@@ -51,24 +24,28 @@ class ConseilCreateView(LoginRequiredMixin, UserPassesTestMixin, CreateView):
     extra_context = {"create_conseil": True, "button": "Ajouter un conseil",
                      "page_title": "Easley - Create Conseil", "page_heading": "Gestion des conseils",
                      "section": "conseil", "content_heading": "Créer un conseil"}
-    permission_denied_message = PERMISSION_DENIED
+    permission_denied_message = perm.PERMISSION_DENIED
     success_message = f'Conseil Créé !'
 
     def test_func(self):
-        cpny_pk = self.kwargs.get('cpny_pk')
-        if hasattr(self.request.user, 'manager'):
-            manager = self.request.user.manager
-            if manager.company.id == cpny_pk and (manager.role == 1 or manager.role == 2):
-                return True
-        elif hasattr(self.request.user, 'commercial'):
-            contract = get_object_or_404(Contract, pk=self.kwargs.get(self.pk_url_kwarg))
-            commercial = self.request.user.commercial
-            if commercial.company.id == cpny_pk and commercial.id == contract.commercial.id:
-                return True
-        return False
+        contract = get_object_or_404(Contract, pk=self.kwargs.get(self.pk_url_kwarg))
+        return perm.createConseilLicense(self.request.user, contract)
+        # cpny_pk = self.kwargs.get('cpny_pk')
+        # if hasattr(self.request.user, 'manager'):
+        #     manager = self.request.user.manager
+        #     if manager.company.id == cpny_pk and (manager.role == 1 or manager.role == 2):
+        #         return True
+        # elif hasattr(self.request.user, 'commercial'):
+        #     contract = get_object_or_404(Contract, pk=self.kwargs.get(self.pk_url_kwarg))
+        #     commercial = self.request.user.commercial
+        #     if commercial.company.id == cpny_pk and commercial.id == contract.commercial.id:
+        #         return True
+        # return False
 
     def form_valid(self, form):
-        # print(form.instance)
+        form.instance.save()
+        createExcelServices(form)
+        form.instance.save(update_fields=['price', ])
         return super().form_valid(form)
 
     def get_success_url(self):
@@ -91,40 +68,17 @@ class ConseilUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
     extra_context = {"update_conseil": True, "button": "Modifier le conseil",
                      "page_title": "Easley - Update Conseil", "page_heading": "Gestion des conseils.",
                      "section": "conseil", "content_heading": "Modifier le conseil."}
-    permission_denied_message = PERMISSION_DENIED
+    permission_denied_message = perm.PERMISSION_DENIED
     success_message = f'Conseil Modifié'
 
     def test_func(self):
-        cpny_pk = self.kwargs.get('cpny_pk')
-        if hasattr(self.request.user, 'manager'):
-            manager = self.request.user.manager
-            if manager.company.id == cpny_pk and manager.role != 3:
-                return True
-        elif hasattr(self.request.user, 'commercial'):
-            contrat = get_object_or_404(Contract, pk=self.kwargs.get('contract_pk'))
-            commercial = self.request.user.commercial
-            if commercial.company.id == cpny_pk and commercial.id == contrat.commercial.id:
-                return True
-        return False
+        contract = get_object_or_404(Contract, pk=self.kwargs.get('contract_pk'))
+        return perm.updateConseilLicense(self.request.user, contract, self.get_object())
 
     def form_valid(self, form):
-        if hasattr(form, 'servicelist'):
-            conseil = form.instance
-            for service in conseil.service_set.all():
-                service.delete()
-            for data in form.servicelist:
-                print(data)
-                service = Service(
-                    conseil=conseil,
-                    description=data[0],
-                    estimated_date=data[1],
-                    senior_day=data[2],
-                    junior_day=data[3],
-                )
-                print(service)
-                service.save()
-            conseil.__delattr__('servicelist')
-            conseil.save()
+        createExcelServices(form)
+        if 'price' in form.changed_data:
+            form.instance.save(update_fields=['price', ])
         return super().form_valid(form)
 
     def get_success_url(self):
@@ -138,57 +92,41 @@ class ConseilUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
         return redirectWorkspaceFail(self.request, self.permission_denied_message)
 
 
-class ConseilDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
-    model = Conseil
-    template_name = 'mvp/views/conseil_details.html'
-    object = None
-    pk_url_kwarg = 'conseil_pk'
-    extra_context = {"delete_conseil": True,
-                     "page_title": "Easley - Delete Conseil", "page_heading": "Gestion des conseils",
-                     "section": "conseil", "content_heading": "Supprimer un conseil"}
-    permission_denied_message = PERMISSION_DENIED
-    success_message = f'Conseil Supprimé !'
-
-    def test_func(self):
-        return routeDeletePermissions(self, self.pk_url_kwarg, self.model)
-
-    def get_success_url(self):
-        if hasattr(self.request.user, 'commercial'):
-            messages.warning(self.request, self.success_message)
-            return reverse('mvp-conseil-list', args=[self.object.company.id, self.request.user.commercial.id])
-        elif hasattr(self.request.user, 'manager'):
-            messages.warning(self.request, self.success_message)
-            return reverse('mvp-conseil-list', args=[self.object.company.id, self.request.user.manager.id])
-        else:
-            return redirectWorkspaceFail('mvp-workspace', self.success_message)
-
-    def handle_no_permission(self):
-        return redirectWorkspaceFail(self.request, self.permission_denied_message)
-
-
 # @ TODO: Faire permissions, faire la gestion du changement d'excel
 @login_required
 def ConseilDetails(request, cpny_pk=None, contract_pk=None, conseil_pk=None):
     context = {
         'content_heading': 'Rentrer les informations nécessaires à la création du conseil.',
-        'object': get_object_or_404(Conseil, pk=conseil_pk)
+        'object': get_object_or_404(Conseil, pk=conseil_pk),
     }
     contract = get_object_or_404(Contract, pk=contract_pk)
+    context['services'] = context['object'].service_set.all() or None
 
+    serviceForm = ServiceForm(request.POST or None, user=request.user, company=contract.company, conseil=context['object'])
+    if request.method == "POST":
+        print(request.POST)
+        if ('delete_conseil' in request.POST):
+            context['object'].delete()
+            return redirect('mvp-contract-details', cpny_pk=contract.company.id, contract_pk=contract.id)
+        elif ('delete_service' in request.POST) and ('service_id_delete' in request.POST):
+            service = get_object_or_404(Service, id=request.POST['service_id_delete'])
+            service.delete()
+        elif 'never_end' in request.POST and 'service_id_end' in request.POST:
+            service = context['services'].get(id=request.POST['service_id_end'])
+            service.done = True
+            service.save()
+        elif 'end_date' in request.POST and 'service_id' in request.POST and request.POST['end_date'] != '':
+            service = context['services'].get(id=request.POST['service_id'])
+            service.actual_date = datetime.strptime(request.POST['end_date'], '%d/%m/%Y').date()
+            service.done = True
+            service.save()
+        elif serviceForm.is_valid():
+            service = serviceForm.save()
+            service.conseil.save(update_fields=['price', ])
     if contract.validated:
         context['content_heading'] = 'Détails du conseil'
-        context['services'] = context['object'].service_set.all() or None
-        return render(request, 'mvp/views/conseil_details.html', context)
-    form = ServiceForm(request.POST or None, user=request.user, company=contract.company, conseil=context['object'])
-    if request.method == "POST" and ('delete_conseil' in request.POST):
-        context['object'].delete()
-        return redirect('mvp-contract-details', cpny_pk=contract.company.id, contract_pk=contract.id)
-    if request.method == "POST" and form.is_valid():
-        # @ TODO faire excel management
-        form.save()
-        return render(request, 'mvp/views/conseil_details.html', context)
     context['services'] = context['object'].service_set.all() or None
-    context['form'] = form
+    context['serviceForm'] = serviceForm
     return render(request, 'mvp/views/conseil_details.html', context)
 
 

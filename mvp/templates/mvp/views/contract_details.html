@@ -136,7 +136,7 @@
                 <span class="icon text-white-50"><i class="fas fa-arrow-right"></i></span>
                 <span class="text">Retour à la liste des Contrats</span>
             </a>
-            {% if not object.validated and user.commercial or user.manager and user.manager.role == 1 %}
+            {% if not object.validated and user.commercial or user.manager and user.manager.role != 3 %}
                 <hr>
                 <form method="post">
                     {% if not object.validated %}

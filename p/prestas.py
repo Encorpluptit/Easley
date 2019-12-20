@@ -1,6 +1,8 @@
-from mvp.models import Contract, License, Conseil, Service, Client
-from dateutil.relativedelta import relativedelta
 from datetime import date
+
+from dateutil.relativedelta import relativedelta
+
+from mvp.models import Contract, License, Conseil, Service
 
 
 def GetDate():
@@ -94,8 +96,8 @@ def GetClient_1Data(nb_contract=1, lic=False, cons=False):
                                 'months': 0,
                                 'weeks': 0,
                                 'days': 0, },
-                            'junior_day': 1,
-                            'senior_day': 1,
+                            'junior_day': 3,
+                            'senior_day': 3,
                             'payed': False,
                             'done': 0},
                         {
@@ -116,8 +118,53 @@ def GetClient_1Data(nb_contract=1, lic=False, cons=False):
                                 'months': 1,
                                 'weeks': 2,
                                 'days': 0, },
-                            'junior_day': 3,
+                            'junior_day': 1,
+                            'senior_day': 1,
+                            'payed': False,
+                            'done': 0},
+                    ]},
+
+                {
+                    'description': "Conseil_3_Contrat_1",
+                    'start_date_offset': {
+                        'months': 6,
+                        'weeks': 0,
+                        'days': 0, },
+                    'duration': 2,
+                    'price': 5000,
+                    'payed': False,
+                    'Services': [
+                        {
+                            'descr': "début service",
+                            'price': 2000,
+                            'estimated_date_offset': {
+                                'months': 0,
+                                'weeks': 0,
+                                'days': 0, },
+                            'junior_day': 1,
                             'senior_day': 3,
+                            'payed': False,
+                            'done': 0},
+                        {
+                            'descr': "mileu service",
+                            'price': 2000,
+                            'estimated_date_offset': {
+                                'months': 0,
+                                'weeks': 2,
+                                'days': 0, },
+                            'junior_day': 5,
+                            'senior_day': 3,
+                            'payed': False,
+                            'done': 0},
+                        {
+                            'descr': "fin service",
+                            'price': 1000,
+                            'estimated_date_offset': {
+                                'months': 1,
+                                'weeks': 2,
+                                'days': 0, },
+                            'junior_day': 13,
+                            'senior_day': 1,
                             'payed': False,
                             'done': 0},
                     ]},
@@ -164,7 +211,7 @@ def GetClient_1Data(nb_contract=1, lic=False, cons=False):
                                 'weeks': 0,
                                 'days': 0, },
                             'junior_day': 1,
-                            'senior_day': 1,
+                            'senior_day': 3,
                             'payed': False,
                             'done': 0},
                         {
@@ -186,7 +233,7 @@ def GetClient_1Data(nb_contract=1, lic=False, cons=False):
                                 'weeks': 2,
                                 'days': 0, },
                             'junior_day': 3,
-                            'senior_day': 3,
+                            'senior_day': 1,
                             'payed': False,
                             'done': 0},
                     ]},
@@ -232,6 +279,51 @@ def GetClient_1Data(nb_contract=1, lic=False, cons=False):
                                 'days': 0, },
                             'junior_day': 3,
                             'senior_day': 3,
+                            'payed': False,
+                            'done': 0},
+                    ]},
+
+                {
+                    'description': "Conseil_3_Contrat_2",
+                    'start_date_offset': {
+                        'months': 6,
+                        'weeks': 0,
+                        'days': 0, },
+                    'duration': 5,
+                    'price': 5000,
+                    'payed': False,
+                    'Services': [
+                        {
+                            'descr': "début service",
+                            'price': 2000,
+                            'estimated_date_offset': {
+                                'months': 0,
+                                'weeks': 0,
+                                'days': 0, },
+                            'junior_day': 3,
+                            'senior_day': 1,
+                            'payed': False,
+                            'done': 0},
+                        {
+                            'descr': "mileu service",
+                            'price': 2000,
+                            'estimated_date_offset': {
+                                'months': 2,
+                                'weeks': 2,
+                                'days': 0, },
+                            'junior_day': 3,
+                            'senior_day': 5,
+                            'payed': False,
+                            'done': 0},
+                        {
+                            'descr': "fin service",
+                            'price': 1000,
+                            'estimated_date_offset': {
+                                'months': 4,
+                                'weeks': 2,
+                                'days': 0, },
+                            'junior_day': 1,
+                            'senior_day': 13,
                             'payed': False,
                             'done': 0},
                     ]},
@@ -604,6 +696,7 @@ def CreateAllPresta(DATA):
                             dictio_service=DATA['Services'],
                         )
                         # print(service)
+                    conseil.save()
         except ValueError:
             return
         except Exception as e:

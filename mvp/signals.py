@@ -1,13 +1,14 @@
 from decimal import Decimal
 
-from django.db.models.signals import post_delete, post_save, pre_save
-from django.db.models import Sum
-from django.dispatch import receiver
-from .models import Conseil, License, Contract, Invite
 from dateutil.relativedelta import relativedelta
-from django.core.mail import send_mail
 from django.conf import settings
+from django.core.mail import send_mail
+from django.db.models import Sum
+from django.db.models.signals import post_delete, post_save, pre_save
+from django.dispatch import receiver
 from django.urls import reverse
+
+from .models import Conseil, License, Contract, Invite
 
 
 # @receiver(post_delete, sender=Company)
@@ -38,7 +39,7 @@ def SmallTryExcept(num, denom):
 
 def UpdateServicesPrices(services, instance):
     context = services.aggregate(senior=Sum('senior_day'), junior=Sum('junior_day'))
-    seniority_ratio = instance.contract.company.senior_day / instance.contract.company.junior_day
+    seniority_ratio = SmallTryExcept(instance.contract.company.senior_day, instance.contract.company.junior_day)
     # print(context, type(context))
     total_junior_time, total_senior_time = context['junior'], context['senior']
     total_time = total_junior_time + total_senior_time
@@ -98,8 +99,11 @@ def ConseilDeleteContractPrice(sender, instance, **kwargs):
 
 
 @receiver(post_save, sender=Conseil)
-def ConseilUpdate(sender, instance, **kwargs):
+def ConseilUpdate(sender, instance, update_fields=None, **kwargs):
     UpdateContractPrice(instance.contract)
+    print(update_fields, type(update_fields))
+    if not update_fields or 'price' not in update_fields:
+        return
     print("SIGNALS: Faire pricing des services du conseil")
     services = instance.service_set.all() or None
     if services:

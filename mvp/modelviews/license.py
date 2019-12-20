@@ -1,13 +1,14 @@
 from django.contrib import messages
-from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
-from django.views.generic import CreateView, UpdateView, DetailView, DeleteView
-from mvp.models import License, Contract
-from mvp.forms import LicenseForm
-from mvp.modelviews import PERMISSION_DENIED
+from django.views.generic import CreateView, UpdateView, DeleteView
+
 from mvp.controllers import redirectWorkspaceFail, FillConseilLicenseForm
+from mvp.forms import LicenseForm
+from mvp.models import License, Contract
+from mvp.modelviews import permissions as perm
 
 
 def CreateLicensePermissions(self, company_pk, contract_pk):
@@ -51,7 +52,7 @@ class LicenseCreateView(LoginRequiredMixin, UserPassesTestMixin, CreateView):
     extra_context = {"create_license": True, "button": "Ajouter une licence",
                      "page_title": "Easley - Create License", "page_heading": "Gestion des licences",
                      "section": "license", "content_heading": "Créer une licence"}
-    permission_denied_message = PERMISSION_DENIED
+    permission_denied_message = perm.PERMISSION_DENIED
     success_message = f'Licence Créée !'
 
     def test_func(self):
@@ -78,7 +79,7 @@ class LicenseUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
     extra_context = {"update_license": True, "button": "Modifier la licence",
                      "page_title": "Easley - Update License", "page_heading": "Gestion des licences",
                      "section": "license", "content_heading": "Modifier la licence"}
-    permission_denied_message = PERMISSION_DENIED
+    permission_denied_message = perm.PERMISSION_DENIED
     success_message = f'Licence Modifiée'
 
     def test_func(self):
@@ -126,15 +127,12 @@ class LicenseUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
 @login_required
 def LicenseDetails(request, cpny_pk=None, contract_pk=None, license_pk=None):
     context = {
-        'content_heading': 'Rentrer les informations nécessaires à la création du licence.',
+        'content_heading': 'Détails de la licence.',
         'object': get_object_or_404(License, pk=license_pk)
     }
     contract = get_object_or_404(Contract, pk=contract_pk)
 
-    if contract.validated:
-        context['content_heading'] = 'Détails de la licence'
-        return render(request, 'mvp/views/license_details.html', context)
-    if request.method == "POST" and ('delete_license' in request.POST):
+    if not contract.validated and request.method == "POST" and ('delete_license' in request.POST):
         context['object'].delete()
         return redirect('mvp-contract-details', cpny_pk=contract.company.id, contract_pk=contract.id)
     return render(request, 'mvp/views/license_details.html', context)
@@ -148,7 +146,7 @@ class LicenseDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
     extra_context = {"delete_license": True,
                      "page_title": "Easley - Delete License", "page_heading": "Gestion des licenses",
                      "section": "license", "content_heading": "Supprimer une license"}
-    permission_denied_message = PERMISSION_DENIED
+    permission_denied_message = perm.PERMISSION_DENIED
     success_message = f'Licence Supprimée !'
 
     def test_func(self):

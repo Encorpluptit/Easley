@@ -12,7 +12,7 @@ from .forms import (
     UserRegisterForm,
     CompanyForm,
 )
-from .models import Manager, Commercial, Service, Invite, InviteChoice
+from .models import Manager, Commercial, Service, Invite, InviteChoice, Contract, Company, getInvoiceStorage
 
 
 # Create your views here.
@@ -106,21 +106,13 @@ def Employees(request):
                 form.fields['email'].widget.attrs.update({'class': 'form-control'})
                 break
     if request.method == "POST":
-        # print("POST\n", request.POST)
-        # print(formset.is_valid())
         instances = formset.save(commit=False)
-        # print(instances)
         for form in instances:
-            # print('form in instance', form, type(form))
             if (Invite.objects.filter(email=form.email) or None) or (User.objects.filter(email=form.email) or None):
                 messages.warning(request, f"Une invitation a déjà été envoyée pour cette adresse email ou\
                 un utilsateur avec cette adresse existe déjà.")
                 break
-            # print('save')
             form.save()
-            # formset.full_clean()
-            # formset._should_delete_form(form)
-            # formset.delete_existing(form)
     context['invites'] = invites
     context['invite_commercial'] = invites.filter(role=4) or None
     context['invite_factus'] = invites.filter(role=3) or None
@@ -152,6 +144,7 @@ def CommercialWorkspace(request):
     return render(request, 'mvp/workspace/bizdev.html', context)
 
 
+from django.db.models import F
 @login_required
 def FactuWorkspace(request):
     context = {
@@ -166,18 +159,16 @@ def FactuWorkspace(request):
         contract__factu_manager=factu, facturated=False,
         date__month__lte=date.month, date__year__lte=date.year
     ).order_by('contract__id', 'price', 'date',).distinct('contract')
-    # invoices = company.invoice_set.order_by('contract__id', 'date').distinct('contract')
-    # context['invoice_to_facture'] = invoices.filter(
-    #     contract__factu_manager=factu, facturated=False,
-    #     date__month__lte=date.month, date__year__lte=date.year)
+    # context['invoice_late'] = invoices.filter(
+    #     contract__factu_manager=factu, facturated=True, payed=False,
+    #     facturation_date=F('date') + relativedelta(days=company.facturation_delay)).order_by('price')
+    late_date = date + relativedelta(days=company.facturation_delay)
     context['invoice_late'] = invoices.filter(
         contract__factu_manager=factu, facturated=True, payed=False,
-        date__month__lte=date.month, date__year__lte=date.year).order_by('price')
+        date__month__lte=late_date.month, date__year__lte=late_date.year).order_by('price')
     for inv in context['invoice_to_facture']:
         qs = inv.contract.invoice_set.filter(
             facturated=False, date__month__lt=date.month, date__year__lte=date.year) or None
-        # print(inv)
-        # print(qs)
         if qs:
             inv.late = qs.count()
     return render(request, 'mvp/workspace/factu.html', context)
@@ -198,7 +189,6 @@ def AccountWorkspace(request):
         estimated_date__month__lte=date.month,
         estimated_date__year__lte=date.year,
     )
-    print(services)
     if services:
         context['nb_services_to_validate'] = services.count()
     context['services'] = services
@@ -220,91 +210,21 @@ def workspace(request):
     return redirect('mvp-company-register')
 
 
-
-
-
-
-
-
-
-
-
-
-# @login_required
-# def serviceCreation(request):
-#     form = ConseilForm(request.POST or None, user=request.user)
-#     # print(request.POST)
-#     if request.method == "POST" and form.is_valid():
-#         if hasattr(request.user, 'commercial'):
-#             # clean_form = form.save(commit=False)
-#             # clean_form.company = request.user.commercial.company
-#             # clean_form.commercial = request.user.commercial
-#             form.save()
-#             messages.success(request, f'service created!')
-#             return redirect('mvp-workspace')
-#         elif hasattr(request.user, 'manager'):
-#             # clean_form = form.save(commit=False)
-#             # clean_form.company = request.user.manager.company
-#             form.save()
-#             messages.success(request, f'service created!')
-#             return redirect('mvp-workspace')
-#     return render(request, 'mvp/service/service_form.html', {'form': form})
-#
-#
-# @login_required
-# def licenseCreation(request):
-#     form = LicenseForm(request.POST or None, user=request.user)
-#     if request.method == "POST" and form.is_valid():
-#         if hasattr(request.user, 'commercial'):
-#             clean_form = form.save(commit=False)
-#             clean_form.company = request.user.commercial.company
-#             clean_form.commercial = request.user.commercial
-#             form.save()
-#             messages.success(request, f'license created!')
-#             return redirect('mvp-workspace')
-#     return render(request, 'mvp/license/license_form.html', {'form': form})
-
-
-# class ContractDetailView(LoginRequiredMixin, UserPassesTestMixin, DetailView):
-#     model = Contract
-#     template_name = 'mvp/views/contract_details.html'
-#     pk_url_kwarg = 'contract_pk'
-#     extra_context = {"details": True,
-#                      "page_title": "Easley - Contrat Details", "page_heading": "Gestion des Contrats",
-#                      "section": "contrat", "content_heading": "Détail Contrat"}
-#     permission_denied_message = PERMISSION_DENIED
-#
-#     def get_queryset(self):
-#         return Contract.objects.filter(id=self.kwargs.get(self.pk_url_kwarg))
-#
-#     def test_func(self):
-#         return routeDetailsPermissions(self, self.pk_url_kwarg, self.model)
-#
-#     def handle_no_permission(self):
-#         return redirectWorkspaceFail(self.request, self.permission_denied_message)
-#
-#     def get_context_data(self, **kwargs):
-#         context = super().get_context_data(**kwargs)
-#         context['licenses'] = self.object.license_set.all()
-#         context['conseils'] = self.object.conseil_set.all()
-#         return context
-
-
-# @login_required
-# def LicenseUpdate(request,  cpny_pk=None, contract_pk=None, license_pk=None):
-#     context = {
-#         'content_heading': 'Modifier la license.',
-#     }
-#     license = get_object_or_404(License, pk=license_pk)
-#     contract = license.contract
-#     form = LicenseForm(instance=license, company=contract.company, contract=contract)
-#     # form.fields['duration'].initial = license.duration
-#     print(request.POST, form.is_valid())
-#     if request.method == "POST" and form.is_valid():
-#         new_license = form.save()
-#         contract.price += (new_license.price - license.price)
-#         print("VALID")
-#         contract.save()
-#         return redirect('mvp-license-details', contract.company.id, contract.id, license.id)
-#     context['form'] = form
-#     return render(request, 'mvp/views/license_form.html', context)
+@login_required
+def doFacturation(request, cpny_pk=None, contract_pk=None):
+    context = {}
+    contract = get_object_or_404(Contract, pk=contract_pk)
+    company = contract.company
+    date = today()
+    invoices = contract.invoice_set.filter(
+        facturated=False,
+        date__month__lte=date.month, date__year__lte=date.year
+    ).order_by('price', 'date',)
+    if invoices.count() > 1:
+        print("SERVERAL INVOICES")
+    else:
+        print("1  INVOICE")
+    if request.method == "POST":
+        print(request.POST)
+    # context['invoice']=
+    return render(request, 'mvp/views/invoice_details.html', )

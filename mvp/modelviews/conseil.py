@@ -30,17 +30,6 @@ class ConseilCreateView(LoginRequiredMixin, UserPassesTestMixin, CreateView):
     def test_func(self):
         contract = get_object_or_404(Contract, pk=self.kwargs.get(self.pk_url_kwarg))
         return perm.createConseilLicense(self.request.user, contract)
-        # cpny_pk = self.kwargs.get('cpny_pk')
-        # if hasattr(self.request.user, 'manager'):
-        #     manager = self.request.user.manager
-        #     if manager.company.id == cpny_pk and (manager.role == 1 or manager.role == 2):
-        #         return True
-        # elif hasattr(self.request.user, 'commercial'):
-        #     contract = get_object_or_404(Contract, pk=self.kwargs.get(self.pk_url_kwarg))
-        #     commercial = self.request.user.commercial
-        #     if commercial.company.id == cpny_pk and commercial.id == contract.commercial.id:
-        #         return True
-        # return False
 
     def form_valid(self, form):
         form.instance.save()

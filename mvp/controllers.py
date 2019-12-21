@@ -32,10 +32,7 @@ def CreateAllInvoice(contract, licenses, conseils):
     invoice_delta = int(contract.duration / contract.facturation)
     if invoice_delta * contract.facturation < contract.duration:
         invoice_delta += 1
-    # @TODO: factu par mois ?
     total_price, unity_price = 0, int(contract.price / invoice_delta)
-    # print(invoice_delta)
-    # print(unity_price)
 
     while invoice_next_date < contract.end_date:
         invoice_date = invoice_next_date
@@ -55,13 +52,10 @@ def CreateAllInvoice(contract, licenses, conseils):
         if invoice_conseils:
             for conseil in invoice_conseils:
                 invoice.conseils.add(conseil)
-        # print("%s\t%s\n%s" % (invoice, invoice.price, loc(invoice.date)))
-        # print(invoice.conseils.all(), invoice.licenses.all())
         total_price += unity_price
     if total_price != contract.price:
         invoice.price = contract.price - (total_price - unity_price)
         invoice.save()
-        # print("invoice amount correction", contract.price - (total_price - unity_price))
 
 
 def customCompanyRegister(request, form):

@@ -2,6 +2,7 @@ from django.contrib.auth.models import User
 from django.db import models
 from django.urls import reverse
 from django.utils import timezone
+from django.conf import settings
 
 # Create your models here.
 InviteChoice = {
@@ -29,6 +30,10 @@ CompanyFactuDelayChoice = {
 
 def GetDate():
     return timezone.now().date()
+
+
+def getInvoiceStorage(instance, filename):
+    return 'Facture_{0}/{1}_{2}'.format(instance.company.id, instance.id, filename)
 
 
 class Company(models.Model):
@@ -462,6 +467,19 @@ class Invoice(models.Model):
         verbose_name="Si la facture est facturée.",
         help_text="Précisez si la facture est facturée",
     )
+    # pdf = models.FileField(
+    #     default=None,
+    #     verbose_name="PDF de la facture.",
+    #     help_text="PDF de la facture.",
+    #     null=True,
+    #     upload_to=getInvoiceStorage,
+    # )
+    # facturated_date = models.DateField(
+    #     default=None,
+    #     verbose_name="Date de facturation",
+    #     help_text="Précisez la date de facturation",
+    #     null=True,
+    # )
     payed = models.BooleanField(
         default=False,
         verbose_name="Si la facture est payée.",

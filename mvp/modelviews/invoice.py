@@ -73,6 +73,8 @@ class InvoiceDetailView(LoginRequiredMixin, UserPassesTestMixin, DetailView):
             context['conseils'] = self.object.conseils.all()
         return context
 
+
+
 # class InvoiceDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
 #     model = Invoice
 #     template_name = 'mvp/views/invoice_details.html'

@@ -284,7 +284,7 @@ def doFacturation(request, cpny_pk=None, invoice_pk=None):
 
     if invoices_late:
         amount_late = invoices_late.aggregate(price=Sum('price'))['price'] + invoice.price
-        context['invoices_late_amount'] = amount_late
+        context['late_amount'] = amount_late
     if request.method == "POST":
         # print(request.POST)
         if 'delete_invoice' in request.POST and request.POST['delete_invoice'] != '':

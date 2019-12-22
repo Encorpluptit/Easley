@@ -95,7 +95,6 @@ def createExcelServices(form):
             )
             print(service)
             service.save()
-        # conseil.__delattr__('servicelist')
         conseil.save(update_fields=['price', ])
 
 
@@ -125,7 +124,6 @@ def ManageExcelForm(self, data):
         values_list = []
         for colInd in range(1, 5):
             cell = sheet.cell(rowInd, colInd)
-            # print(cell.value)
             if not cell.value and cell.value != 0:
                 if colInd > 1 and len(values_list):
                     raise forms.ValidationError(
@@ -142,7 +140,6 @@ def ManageExcelForm(self, data):
             if colInd == 2:
                 date = datetime.datetime(*xlrd.xldate.xldate_as_tuple(cell.value, excel.datemode)).date()
                 values_list.append(date)
-                # print(date)
             else:
                 values_list.append(cell.value)
         length = len(values_list)
@@ -155,51 +152,12 @@ def ManageExcelForm(self, data):
                     "\nLigne: %d\tColonne: %c\n" % (rowInd + 1, chr(64 + 2)))
 
 
-# def validateCompanyInFormCreateUpdateView(self, form):
-#     try:
-#         if hasattr(self.request.user, 'commercial'):
-#             form.instance.company = self.request.user.commercial.company
-#         elif hasattr(self.request.user, 'manager'):
-#             form.instance.company = self.request.user.manager.company
-#     except ObjectDoesNotExist:
-#         return redirectWorkspaceFail(self.request, f"Une erreur est survenue.")
-#     try:
-#         self.object = form.save()
-#     except ValidationError:
-#         return redirectWorkspaceFail(self.request, f"Une erreur est survenue.")
-#     else:
-#         return redirect(self.get_success_url())
-
-
-# def routeCreatePermissions(self, cpny_pk, base_class):
-#     try:
-#         manager = Manager.objects.get(user=self.request.user)
-#         if manager.company.id == cpny_pk:
-#             if manager.role == 3:
-#                 return False
-#             return True
-#     except ObjectDoesNotExist:
-#         commercial = get_object_or_404(Commercial, user=self.request.user)
-#         if commercial.company.id == cpny_pk:
-#             return True
-#         else:
-#             return False
-
-
-# def routeUpdatePermissions(self, key_pk, base_class):
-#     try:
-#         manager = Manager.objects.get(user=self.request.user)
-#         if manager.company.id == self.kwargs.get('cpny_pk') and manager.company == base_class.objects.get(
-#                 pk=self.kwargs.get(key_pk)).company:
-#             if manager.role == 3:
-#                 return False
-#             return True
-#     except ObjectDoesNotExist:
-#         base_class = get_object_or_404(base_class, pk=self.kwargs.get(key_pk))
-#         if base_class.commercial == self.request.user.commercial:
-#             return True
-#         else:
-#             return False
+def CleanInvoicesLate(invoice, invoices_late, invoice_amount):
+    for late in invoices_late:
+        late.delete()
+    invoices_late = None
+    invoice.price = invoice_amount
+    return invoice, invoices_late
 
 
 def routeDeletePermissions(self, key_pk, base_class):

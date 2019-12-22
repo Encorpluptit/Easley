@@ -37,7 +37,8 @@ urlpatterns = [
     path('company/join/<str:invite_email>/', views.join_company, name='mvp-join-company'),
     path('company/register', views.companyCreation, name='mvp-company-register'),
     path('workspace/', views.workspace, name="mvp-workspace"),
-    path('<int:cpny_pk>/facturation/<int:contract_pk>/validate/', views.doFacturation, name="mvp-do-facturation"),
+    path('<int:cpny_pk>/facturation/<int:invoice_pk>/validate/', views.doFacturation,
+         name="mvp-do-facturation"),
     path('company/employees', views.Employees, name="mvp-employees"),
     path('<int:cpny_pk>/client/new/', ClientCreateView.as_view(), name='mvp-client-new'),
     path('<int:cpny_pk>/client/update/<int:client_pk>/', ClientUpdateView.as_view(), name='mvp-client-update'),
@@ -67,6 +68,8 @@ urlpatterns = [
          LicenseUpdateView.as_view(), name='mvp-license-update'),
     path('<int:cpny_pk>/invoice/list/', InvoiceListView.as_view(), name='mvp-invoice-list'),
     path('<int:cpny_pk>/invoice/details/<int:invoice_pk>/', InvoiceDetailView.as_view(), name='mvp-invoice-details'),
+    path('<int:cpny_pk>/invoice/pdf/<int:invoice_pk>/view/', views.pdf_view, name='mvp-invoice-pdf-view'),
+    path('<int:cpny_pk>/invoice/pdf/<int:invoice_pk>/download/', views.pdf_download, name='mvp-invoice-pdf-download'),
     path('about/', views.about, name='mvp-about'),
     path('contact/', views.contact, name='mvp-contact'),
 ]

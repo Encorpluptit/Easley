@@ -1,26 +1,266 @@
 {% extends 'mvp/generic/blank.html' %}
-{#{% extends 'mvp/generic/content.html' %}#}
-{% load static %}
+{% load static my_filters%}
 
-{#{% block content_heading %}#}
-{#    lol#}
-{#{% endblock %}#}
-{##}
-{#{% block content %}#}
-{#    Faire le workpace de bizdev#}
-{#{% endblock %}#}
 
 {% block page %}
-    Faire le workpace de manager
-    <hr>
-    <h5>Code Entreprise : {{ user.manager.company.id }}</h5>
-{% endblock %}
+    <!-- Content Row -->
+    <div class="row">
 
-{% block page_title %}
-    Easley - Tableau de Bord
+        <!-- To Factu Amount Card -->
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-primary shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">Montant à Facturer
+                            </div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ to_facture_amount }}</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-dollar-sign fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- To Factu Count Card -->
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-success shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-success text-uppercase mb-1">Factures à Facturer
+                            </div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ to_facture_count }}</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-dollar-sign fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Créances amount (par année) Card -->
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-danger shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-danger text-uppercase mb-1">Créances
+                            </div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">Lol</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-dollar-sign fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Pending Requests Card Example -->
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-warning shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">Créances ce mois-ci
+                            </div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">LOL</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-comments fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="card shadow mb-4 bg-gray-300">
+        <div class="card-body">
+
+            <!-- Collapsable Card À Facturer -->
+            <div class="card shadow mb-4">
+                <!-- Card Header - Accordion -->
+                <a href="#collapseCardToFacture" class="d-block card-header py-3" data-toggle="collapse" role="button"
+                   aria-expanded="true" aria-controls="collapseCardtoFacture">
+                    <h6 class="m-0 font-weight-bold text-primary">À Facturer</h6>
+                </a>
+
+                <!-- Card Content À Facturer - Collapse -->
+                <div class="collapse show" id="collapseCardToFacture">
+                    <div class="card-body">
+                        {% if not invoices_to_facture %}
+                            Vous n'avez actuellement aucune Facture à facturer.
+                        {% else %}
+                            <div class="table-responsive">
+                                <table class="table table-bordered table-hover text-center" id="dataTable" style="width: 100%">
+                                    <thead class="thead-dark">
+                                    <tr>
+                                        <th scope="col">#</th>
+                                        <th scope="col">Facture</th>
+                                        <th scope="col">Client</th>
+                                        <th scope="col">Prix</th>
+                                        <th scope="col">Conseils</th>
+                                        <th scope="col">Licenses</th>
+                                        <th scope="col">Date de Facturation</th>
+                                        <th scope="col">Facturer</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                    {% for invoice in invoices_to_facture %}
+                                        <tr>
+                                            <th scope="row">{{ forloop.counter }}</th>
+                                            <td>
+                                                <a href= {% url 'mvp-invoice-details' invoice.company.id invoice.id %}>{{ invoice.description }}</a>
+                                            </td>
+                                            <td>{{ invoice.contract.client|truncatechars:30 }}</td>
+                                            <td>
+                                                {{ invoice.price|currency }}
+                                                {% if invoice.late %}
+                                                    <span class="icon text-danger text-center" title="Montant des factures en retard">
+                                                        (+ {{ invoice.late_amount|currency }})
+                                                    </span>
+                                                {% endif %}
+                                            </td>
+                                            <td>
+                                                {% if invoice.conseils.all %}
+                                                    {% for conseil in  invoice.conseils.all %}
+                                                        <a href= {% url 'mvp-conseil-details' invoice.contract.company.id invoice.contract.id conseil.id %}>{{ conseil.description }}</a>
+                                                        <br>
+                                                    {% endfor %}
+                                                {% else %}
+                                                    Aucun Conseil associé.
+                                                {% endif %}
+                                            </td>
+                                            <td>
+                                                {% if invoice.licenses.all %}
+                                                    {% for license in  invoice.licenses.all %}
+                                                        <a href= {% url 'mvp-license-details' invoice.contract.company.id invoice.contract.id license.id %}>{{ license.description }}</a>
+                                                        <br>
+                                                    {% endfor %}
+                                                {% else %}
+                                                    Aucune License associée.
+                                                {% endif %}
+                                            </td>
+                                            <td>{{ invoice.date }}</td>
+                                            <th class="text-center">
+                                                <a class="btn btn-success btn-icon-split"
+                                                   href= {% url 'mvp-do-facturation' invoice.contract.company.id invoice.id%}>
+                                                    <span class="icon text-white-50"><i
+                                                            class="fas fa-file-invoice-dollar"></i></span>
+                                                    <span class="text">Facturer</span>
+                                                    {% if invoice.late %}
+                                                        <span class="icon text-danger"
+                                                              title="Nombre de factures en retard">
+                                                        <i class="fas fa-exclamation-triangle">
+                                                            {{ invoice.late }}
+                                                        </i>
+                                                    </span>
+                                                    {% endif %}
+                                                </a>
+                                            </th>
+                                        </tr>
+                                    {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            faire factu workspace
+
+            <!-- Collapsable Card À la bourre -->
+            <div class="card shadow mb-4">
+                <!-- Card Header - Accordion -->
+                <a href="#collapseCardLate" class="d-block card-header py-3" data-toggle="collapse" role="button"
+                   aria-expanded="true" aria-controls="collapseCardLate">
+                    <h6 class="m-0 font-weight-bold text-danger">Créances</h6>
+                </a>
+
+                <!-- Card Content À Facturer - Collapse -->
+                <div class="collapse show" id="collapseCardLate">
+                    <div class="card-body">
+                        {% if not invoices_late %}
+                            Vous n'avez actuellement aucune Facture en retard.
+                        {% else %}
+                            <div class="table-responsive">
+                                <table class="table table-bordered table-hover" id="dataTable" style="width: 100%">
+                                    <thead class="thead-dark">
+                                    <tr>
+                                        <th scope="col">#</th>
+                                        <th scope="col">Facture</th>
+                                        <th scope="col">Client</th>
+                                        <th scope="col">Prix</th>
+                                        <th scope="col">Conseils</th>
+                                        <th scope="col">Licenses</th>
+                                        <th scope="col">Date de Facturation</th>
+                                        <th scope="col">Facturer</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                    {% for invoice in invoices_late %}
+                                        <tr>
+                                            <th scope="row">{{ forloop.counter }}</th>
+                                            <td>
+                                                <a href= {% url 'mvp-invoice-details' invoice.company.id invoice.id %}>{{ invoice.description }}</a>
+                                            </td>
+                                            <td>{{ invoice.contract.client|truncatechars:30 }}</td>
+                                            <td>{{ invoice.price|safe }}</td>
+                                            <td>
+                                                {% if invoice.conseils.all %}
+                                                    {% for conseil in  invoice.conseils.all %}
+                                                        <a href= {% url 'mvp-conseil-details' invoice.contract.company.id invoice.contract.id conseil.id %}>{{ conseil.description }}</a>
+                                                        <br>
+                                                    {% endfor %}
+                                                {% else %}
+                                                    Aucun Conseil associé.
+                                                {% endif %}
+                                            </td>
+                                            <td>
+                                                {% if invoice.licenses.all %}
+                                                    {% for license in  invoice.licenses.all %}
+                                                        <a href= {% url 'mvp-license-details' invoice.contract.company.id invoice.contract.id license.id %}>{{ license.description }}</a>
+                                                        <br>
+                                                    {% endfor %}
+                                                {% else %}
+                                                    Aucune License associée.
+                                                {% endif %}
+                                            </td>
+                                            <td>{{ invoice.date }}</td>
+                                            <th>
+                                                <a class="btn btn-success btn-icon-split"
+                                                   href= {% url 'mvp-invoice-details' invoice.contract.company.id invoice.id %}>
+                                                    <span class="icon text-white-50"><i
+                                                            class="fas fa-file-invoice-dollar"></i></span>
+                                                    <span class="text">Facturer</span>
+                                                </a>
+                                            </th>
+                                        </tr>
+                                    {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+
+        </div>
+    </div>
 {% endblock %}
 
 {% block page_heading %}
     Votre Tableau de bord
+{% endblock %}
+
+
+{% block page_title %}
+    Easley - Tableau de Bord
 {% endblock %}
 

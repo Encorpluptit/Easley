@@ -11,11 +11,6 @@ from django.urls import reverse
 from .models import Conseil, License, Contract, Invite
 
 
-# @receiver(post_delete, sender=Company)
-# def auto_delete_ceo_with_company(sender, instance, **kwargs):
-#     instance.manager.delete()
-
-
 def UpdateContractPrice(contract):
     contract.price = 0
     licenses_price = contract.license_set.aggregate(Sum('price'))
@@ -33,7 +28,6 @@ def SmallTryExcept(num, denom):
     try:
         return Decimal(num / denom)
     except:
-        print("ERROR")
         return 0
 
 
@@ -101,10 +95,8 @@ def ConseilDeleteContractPrice(sender, instance, **kwargs):
 @receiver(post_save, sender=Conseil)
 def ConseilUpdate(sender, instance, update_fields=None, **kwargs):
     UpdateContractPrice(instance.contract)
-    print(update_fields, type(update_fields))
     if not update_fields or 'price' not in update_fields:
         return
-    print("SIGNALS: Faire pricing des services du conseil")
     services = instance.service_set.all() or None
     if services:
         UpdateServicesPrices(services, instance)

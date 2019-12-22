@@ -123,8 +123,6 @@ def ManagerWorkspace(request):
         context['late_amount'] = invoices_late.aggregate(Sum('price'))['price__sum']
     context['invoices_to_facture'] = invoices_to_facture
     context['invoices_late'] = invoices_late
-    invoice = invoices.first()
-    print(invoice.date, invoice.facturated_date, invoice.payed)
     return render(request, 'mvp/workspace/manager.html', context)
 
 

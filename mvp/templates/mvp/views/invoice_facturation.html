@@ -173,7 +173,7 @@
                             {{ invoice.description }}<br>
                         {% endfor %}
                         <hr>
-                        <span class="text-danger">Le montant de cette facture deviendra: {{ amount_late|currency }}</span>
+                        <span class="text-danger">Le montant de cette facture deviendra: {{ late_amount|currency }}</span>
                     </div>
                 {% endif %}
                 <div class="modal-footer">

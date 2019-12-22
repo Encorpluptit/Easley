@@ -97,33 +97,6 @@ class LicenseUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
         return redirectWorkspaceFail(self.request, self.permission_denied_message)
 
 
-# class LicenseDetailView(LoginRequiredMixin, UserPassesTestMixin, DetailView):
-#     model = License
-#     template_name = 'mvp/views/license_details.html'
-#     pk_url_kwarg = 'license_pk'
-#     extra_context = {"details": True,
-#                      "page_title": "Easley - License Details", "page_heading": "Détail de la licence.",
-#                      "section": "license", "content_heading": "Informations licence"}
-#     permission_denied_message = PERMISSION_DENIED
-#
-#     def get_queryset(self):
-#         return License.objects.filter(pk=self.kwargs.get(self.pk_url_kwarg))
-#
-#     def test_func(self):
-#         cpny_pk = self.kwargs.get('cpny_pk')
-#         if hasattr(self.request.user, 'manager'):
-#             if self.request.user.manager.company.id == cpny_pk:
-#                 return True
-#         elif hasattr(self.request.user, 'commercial'):
-#             licence = get_object_or_404(License, pk=self.kwargs.get(self.pk_url_kwarg))
-#             commercial = self.request.user.commercial
-#             if commercial.company.id == cpny_pk and commercial.id == licence.contract.commercial.id:
-#                 return True
-#         return False
-#
-#     def handle_no_permission(self):
-#         return redirectWorkspaceFail(self.request, self.permission_denied_message)
-
 @login_required
 def LicenseDetails(request, cpny_pk=None, contract_pk=None, license_pk=None):
     context = {

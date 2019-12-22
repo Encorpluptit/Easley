@@ -1,13 +1,15 @@
 {% extends 'mvp/generic/content.html' %}
-{% load static %}
+{% load static my_filters %}
 
 {% block content %}
     <article class="media content-section">
         <div class="media-body">
-            <h2><a class="article-title" href="#">{{ object.name }}</a></h2>
+            <h2><a class="article-title" href="#">{{ object.description }}</a></h2>
             <hr>
             <div class="article-metadata">
                 <h4 class="mr-2">{{ object.email }}</h4>
+                <h4 class="mr-2">{{ object.date }}</h4>
+                <h4 class="mr-2">Facturé le :  {{ object.facturated_date|FactuEndDate }}</h4>
                 <small class="text-muted">{{ object.company }}</small>
             </div>
         </div>
@@ -22,10 +24,10 @@
                     <h6 class="m-0 font-weight-bold text-primary">Conseil (a modif)</h6>
                 </div>
                 <div class="card-body">
-                    {% if not conseil %}
-                        Ce client n'a pas de conseil.
+                    {% if not conseils %}
+                        Cette facture ne porte sur aucune prestation en cours.
                     {% else %}
-                        {% for conseil in conseil %}
+                        {% for conseil in conseils %}
                             {{ conseil }}<br>
                         {% endfor %}
                     {% endif %}

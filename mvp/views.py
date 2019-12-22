@@ -1,4 +1,5 @@
 from dateutil.relativedelta import relativedelta
+from datetime import timedelta
 from dateutil.utils import today
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
@@ -6,13 +7,15 @@ from django.contrib.auth.models import User
 from django.db.models import Sum
 from django.forms import modelformset_factory
 from django.shortcuts import render, redirect, get_object_or_404
+from django.http import FileResponse, Http404
 
-from .controllers import customRegisterUser
+from .pdfCreateInvoice import CreatePDFInvoice
+from .controllers import customRegisterUser, CleanInvoicesLate
 from .forms import (
     UserRegisterForm,
     CompanyForm,
 )
-from .models import Manager, Commercial, Service, Invite, InviteChoice, Contract, Company, getInvoiceStorage
+from .models import Manager, Commercial, Service, Invite, InviteChoice, Contract, Company, getInvoiceStorage, Invoice
 
 
 # Create your views here.
@@ -80,6 +83,48 @@ def ManagerWorkspace(request):
     context = {
         'section': 'workspace',
     }
+
+    date = today().date()
+    factu = request.user.manager
+    company = factu.company
+    invoices = company.invoice_set.all()
+    invoices_to_facture = invoices.filter(
+        facturated_date=None,
+        date__month__lte=date.month, date__year__lte=date.year
+    ).order_by('contract__id', 'price', 'date',).distinct('contract') or None
+    # invoices_to_facture = invoices.filter(
+    #     facturated_date=None,
+    #     date__month__lte=date.month, date__year__lte=date.year
+    # ).order_by('contract__id', '-id', 'price', 'date',).distinct('contract') or None
+    # invoices_late = invoices.filter(
+    #     payed=False,
+    #     facturated_date__lte=F('date') + timedelta(days=0)).order_by('price') or None
+    invoices_late = invoices.filter(
+        payed=False,
+        facturated_date__lte=date - timedelta(days=company.facturation_delay)).order_by('price') or None
+    # invoices_late = invoices.filter(
+    #     payed=False,
+    #     facturated_date=F('date') + timedelta(days=company.facturation_delay)).order_by('price') or None
+    if invoices_to_facture:
+        for inv in invoices_to_facture:
+            qs = inv.contract.invoice_set.filter(
+                facturated_date=None,
+                date__month__lt=date.month,
+                date__year__lte=date.year).exclude(pk=inv.pk) or None
+            if qs:
+                inv.late = qs.count()
+                inv.late_amount = qs.aggregate(Sum('price'))['price__sum']
+        invoices_to_facture.query.distinct_fields = ()
+        context['to_facture_count'] = invoices_to_facture.count()
+        context['to_facture_amount'] = invoices_to_facture.aggregate(Sum('price'))['price__sum']
+    if invoices_late:
+        invoices_late.query.distinct_fields = ()
+        context['late_count'] = invoices_late.count()
+        context['late_amount'] = invoices_late.aggregate(Sum('price'))['price__sum']
+    context['invoices_to_facture'] = invoices_to_facture
+    context['invoices_late'] = invoices_late
+    invoice = invoices.first()
+    print(invoice.date, invoice.facturated_date, invoice.payed)
     return render(request, 'mvp/workspace/manager.html', context)
 
 
@@ -151,26 +196,40 @@ def FactuWorkspace(request):
         'section': 'workspace',
     }
 
-    date = today()
+    date = today().date()
     factu = request.user.manager
     company = factu.company
-    invoices = company.invoice_set.all()
-    context['invoice_to_facture'] = invoices.filter(
-        contract__factu_manager=factu, facturated=False,
+    invoices = company.invoice_set.filter(contract__factu_manager=request.user.manager)
+    invoices_to_facture = invoices.filter(
+        facturated_date=None,
         date__month__lte=date.month, date__year__lte=date.year
-    ).order_by('contract__id', 'price', 'date',).distinct('contract')
-    # context['invoice_late'] = invoices.filter(
-    #     contract__factu_manager=factu, facturated=True, payed=False,
-    #     facturation_date=F('date') + relativedelta(days=company.facturation_delay)).order_by('price')
-    late_date = date + relativedelta(days=company.facturation_delay)
-    context['invoice_late'] = invoices.filter(
-        contract__factu_manager=factu, facturated=True, payed=False,
-        date__month__lte=late_date.month, date__year__lte=late_date.year).order_by('price')
-    for inv in context['invoice_to_facture']:
-        qs = inv.contract.invoice_set.filter(
-            facturated=False, date__month__lt=date.month, date__year__lte=date.year) or None
-        if qs:
-            inv.late = qs.count()
+    ).order_by('contract__id', 'price', 'date',).distinct('contract') or None
+    # invoices_to_facture = invoices.filter(
+    #     facturated_date=None,
+    #     date__month__lte=date.month, date__year__lte=date.year
+    # ).order_by('contract__id', '-id', 'price', 'date',).distinct('contract') or None
+    invoices_late = invoices.filter(
+        payed=False,
+        facturated_date=F('date') + timedelta(days=0)).order_by('price') or None
+    # invoices_late = invoices.filter(
+    #     payed=False,
+    #     facturated_date=F('date') + timedelta(days=company.facturation_delay)).order_by('price') or None
+    if invoices_to_facture:
+        for inv in invoices_to_facture:
+            qs = inv.contract.invoice_set.filter(
+                facturated_date=None, date__month__lt=date.month, date__year__lte=date.year) or None
+            if qs:
+                inv.late = qs.count()
+                inv.late_amount = qs.aggregate(Sum('price'))['price__sum']
+        invoices_to_facture.query.distinct_fields = ()
+        context['to_facture_count'] = invoices_to_facture.count()
+        context['to_facture_amount'] = invoices_to_facture.aggregate(Sum('price'))['price__sum']
+    if invoices_late:
+        invoices_late.query.distinct_fields = ()
+        context['late_count'] = invoices_late.count()
+        context['late_amount'] = invoices_late.aggregate(Sum('price'))['price__sum']
+    context['invoices_to_facture'] = invoices_to_facture
+    context['invoice_late'] = invoices_late
     return render(request, 'mvp/workspace/factu.html', context)
 
 
@@ -211,20 +270,62 @@ def workspace(request):
 
 
 @login_required
-def doFacturation(request, cpny_pk=None, contract_pk=None):
-    context = {}
-    contract = get_object_or_404(Contract, pk=contract_pk)
-    company = contract.company
-    date = today()
-    invoices = contract.invoice_set.filter(
-        facturated=False,
+def doFacturation(request, cpny_pk=None, invoice_pk=None):
+    context = {
+        'section': 'invoice',
+        'content_heading': 'Valider la facture',
+    }
+    invoice = get_object_or_404(Invoice, pk=invoice_pk)
+    company = invoice.contract.company
+    date = today().date()
+    invoices_late = invoice.contract.invoice_set.exclude(pk=invoice.pk).filter(
+        facturated_date=None,
         date__month__lte=date.month, date__year__lte=date.year
-    ).order_by('price', 'date',)
-    if invoices.count() > 1:
-        print("SERVERAL INVOICES")
-    else:
-        print("1  INVOICE")
+    ).order_by('price', 'date',) or None
+    amount_late = 0
+
+    if invoices_late:
+        amount_late = invoices_late.aggregate(price=Sum('price'))['price'] + invoice.price
+        context['invoices_late_amount'] = amount_late
     if request.method == "POST":
-        print(request.POST)
-    # context['invoice']=
-    return render(request, 'mvp/views/invoice_details.html', )
+        # print(request.POST)
+        if 'delete_invoice' in request.POST and request.POST['delete_invoice'] != '':
+            invoice.delete()
+            return redirect('mvp-workspace')
+        if 'validate_invoice' in request.POST:
+            # print("VALIDATE")
+            if invoices_late:
+                invoice, invoices_late = CleanInvoicesLate(invoice, invoices_late, amount_late)
+            company.refresh_from_db(fields=['invoice_nb', ])
+            company.invoice_nb += 1
+            company.save()
+            invoice.facturated_date = today().date()
+            invoice.pdf = CreatePDFInvoice(invoice, company.invoice_nb, date, date + timedelta(days=company.facturation_delay))
+            invoice.save()
+    context['object'] = invoice
+    context['invoices_late'] = invoices_late
+    return render(request, 'mvp/views/invoice_facturation.html', context)
+
+
+@login_required
+def pdf_download(request, cpny_pk, invoice_pk):
+    invoice = get_object_or_404(Invoice, pk=invoice_pk)
+    try:
+        return FileResponse(open(invoice.pdf.path, 'rb'),
+                            content_type='application/pdf',
+                            as_attachment=True,
+                            filename='Facture.pdf')
+    except FileNotFoundError:
+        raise Http404()
+
+@login_required
+def pdf_view(request, cpny_pk, invoice_pk):
+    invoice = get_object_or_404(Invoice, pk=invoice_pk)
+    try:
+        return FileResponse(open(invoice.pdf.path, 'rb'),
+                            content_type='application/pdf',
+                            filename='Facture.pdf')
+    except FileNotFoundError:
+        raise Http404()
+
+

@@ -1,0 +1,224 @@
+{% extends 'mvp/generic/content.html' %}
+{% load static my_filters %}
+
+{% block content %}
+    <article class="media content-section">
+        <div class="media-body">
+            <h2 class="article-title">{{ object.description }}</h2>
+            <hr>
+            {#            {% if user.manager and user.manager.role == 1 %}#}
+            {% if user.manager and user.manager.role == 3 %}
+                <a class="btn btn-warning btn-icon-split"
+                   href= {% url 'mvp-conseil-update' object.contract.company.id object.contract.id object.id %}>
+                    <span class="icon text-white-50"><i class="fas fa-exclamation-triangle"></i></span>
+                    <span class="text">Modifier</span>
+                </a>
+                <a class="btn btn-danger btn-icon-split" href="#" data-toggle="modal"
+                   data-target="#InvoiceDeleteModal">
+                    <span class="icon text-white-50"><i class="fas fa-trash"></i></span>
+                    <span class="text">Supprimer</span>
+                </a>
+                <hr>
+            {% endif %}
+
+            <div class="article-metadata">
+                <b class="text-gray-900">Client: {{ object.contract.client }}</b><br>
+                <b class="text-gray-900">Contrat: {{ object.contract }}</b><br>
+                <b class="text-gray-900">Responsable Clientèle: {{ object.contract.client.account_manager }}</b><br>
+                <b class="text-gray-900">Responsable Facturation: {{ object.contract.factu_manager }}</b><br>
+            </div>
+            <hr>
+            <table class="table table-hover table-bordered text-center">
+                <thead class="thead-dark">
+                <tr>
+                    <th scope="col">Prix</th>
+                    <th scope="col">Start Date</th>
+                    <th scope="col">End Date</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr>
+                    <td class="article-content">{{ object.price|currency }}</td>
+                    <td class="article-content">{{ object.date }}</td>
+                    <td class="article-content">{{ object.facturated_date|FactuEndDate }}</td>
+                </tr>
+                </tbody>
+            </table>
+            <hr>
+            {% if invoices_late %}
+                <h5 class="text-danger font-weight-bold">Facture(s) en retard</h5>
+                <div class="table-responsive">
+                    <table class="table table-bordered table-hover text-center" id="dataTable" style="width: 100%">
+                        <thead class="thead-dark">
+                        <tr>
+                            <th scope="col">#</th>
+                            <th scope="col">Facture</th>
+                            <th scope="col">Client</th>
+                            <th scope="col">Prix</th>
+                            <th scope="col">Conseils</th>
+                            <th scope="col">Licenses</th>
+                            <th scope="col">Date de Facturation</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {% for invoice in invoices_late %}
+                            <tr>
+                                <th scope="row">{{ forloop.counter }}</th>
+                                <td>{{ invoice.description }}</td>
+                                <td>{{ invoice.contract.client|truncatechars:30 }}</td>
+                                <td>{{ invoice.price|currency }}</td>
+                                <td>
+                                    {% if invoice.conseils.all %}
+                                        {% for conseil in  invoice.conseils.all %}
+                                            <a href= {% url 'mvp-conseil-details' invoice.contract.company.id invoice.contract.id conseil.id %}>{{ conseil.description }}</a>
+                                            <br>
+                                        {% endfor %}
+                                    {% else %}
+                                        Aucun Conseil associé.
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if invoice.licenses.all %}
+                                        {% for license in  invoice.licenses.all %}
+                                            <a href= {% url 'mvp-license-details' invoice.contract.company.id invoice.contract.id license.id %}>{{ license.description }}</a>
+                                            <br>
+                                        {% endfor %}
+                                    {% else %}
+                                        Aucune License associée.
+                                    {% endif %}
+                                </td>
+                                <td>{{ invoice.date }}</td>
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                <hr>
+            {% endif %}
+            {% if object.pdf %}
+                <a target="_new" href= {% url 'mvp-invoice-pdf-view' object.company.id object.id %}>
+                    <button class="btn btn-facebook btn-icon-split btn-lg">
+                        <span class="icon text-white-50"><i class="fas fa-check"></i></span>
+                        <span class="text">Voir la facture.</span>
+                    </button>
+                </a>
+                <a target="_new" href= {% url 'mvp-invoice-pdf-download' object.company.id object.id %}>
+                    <button class="btn btn-dark btn-icon-split btn-lg">
+                        <span class="icon text-white-50"><i class="fas fa-check"></i></span>
+                        <span class="text">Télécharger la facture.</span>
+                    </button>
+                </a>
+            {% endif %}
+            {% if not object.facturated_date %}
+                <hr>
+                <button class="btn btn-success btn-icon-split btn-lg" href="#" data-toggle="modal"
+                        data-target="#InvoiceValidateModal">
+                    <span class="icon text-white-50"><i class="fas fa-check"></i></span>
+                    <span class="text">Valider la facture.</span>
+                </button>
+            {% endif %}
+
+        </div>
+    </article>
+
+    <!-- Contract Delete Modal-->
+    <div class="modal fade" id="InvoiceDeleteModal" tabindex="-1" role="dialog"
+         aria-labelledby="InvoiceDeleteModalLabel"
+         aria-hidden="true">
+        <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="InvoiceDeleteModalLabel">Supprimer cette Facture ?</h5>
+                    <button class="close" type="button" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">×</span>
+                    </button>
+                </div>
+                <div class="modal-body">Êtes-vous sûr de vouloir supprimer cette Facture ?
+                    <span class="text-danger">(cette action est irréversible)</span>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-secondary" type="button" data-dismiss="modal">Annuler</button>
+                    <form id="validate_invoice_form" method="post">
+                        {% csrf_token %}
+                        <button class="btn btn-danger btn-icon-split" onclick="delete_invoice()" type="submit">
+                            <input type="hidden" id="delete_invoice" name="delete_invoice" value="false">
+                            <span class="icon text-white-50"><i class="fas fa-trash"></i></span>
+                            <span class="text">Suprimer</span>
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Validate Invoice Modal-->
+    <div class="modal fade" id="InvoiceValidateModal" tabindex="-1" role="dialog"
+         aria-labelledby="InvoiceValidateModalLabel"
+         aria-hidden="true">
+        <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="InvoiceValidateModalLabel">Valider cette Facture ?</h5>
+                    <button class="close" type="button" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">×</span>
+                    </button>
+                </div>
+                <div class="modal-body">Êtes-vous sûr de vouloir valider cette Facture ?
+                    <span class="text-danger">(cette action est irréversible)</span>
+                </div>
+                {% if invoices_late %}
+                    <div class="modal-content modal-body">
+                        <h5>Cette facture intègrera le retard de paiement de ces factures :</h5>
+                        {% for invoice in invoices_late %}
+                            {{ invoice.description }}<br>
+                        {% endfor %}
+                        <hr>
+                        <span class="text-danger">Le montant de cette facture deviendra: {{ amount_late|currency }}</span>
+                    </div>
+                {% endif %}
+                <div class="modal-footer">
+                    <button class="btn btn-secondary" type="button" data-dismiss="modal">Annuler</button>
+                    <form method="post">
+                        {% csrf_token %}
+                        <button class="btn btn-success btn-icon-split" type="submit">
+                            <input type="hidden" id="validate_invoice" name="validate_invoice">
+                            <span class="icon text-white-50"><i class="fas fa-check"></i></span>
+                            <span class="text">Valider</span>
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+{% endblock %}
+
+{% block scripts %}
+    <script>
+        function delete_invoice() {
+            document.getElementById("delete_invoice").value = true;
+            document.getElementById("delete_form").submit();
+        }
+    </script>
+
+    <script>
+        function submitValidateInvoice() {
+            document.getElementById("validate_invoice").click();
+        }
+    </script>
+{% endblock %}
+
+{##}
+{#{% block content_heading %}#}
+{#    Valider la facture#}
+{#{% endblock %}#}
+
+
+{% block page_title %}
+    Easley - Facturation
+{% endblock %}
+
+{% block page_heading %}
+    Factures
+{% endblock %}
+

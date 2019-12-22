@@ -33,7 +33,12 @@ def GetDate():
 
 
 def getInvoiceStorage(instance, filename):
-    return 'Facture_{0}/{1}_{2}'.format(instance.company.id, instance.id, filename)
+    return 'Factures/{0}_{1}/{2}_{3}'.format(
+        instance.company.name,
+        instance.company.id,
+        instance.id,
+        instance.date
+    )
 
 
 class Company(models.Model):
@@ -462,24 +467,24 @@ class Invoice(models.Model):
         verbose_name="Date de la facture",
         help_text="Date de la facture."
     )
-    facturated = models.BooleanField(
-        default=False,
-        verbose_name="Si la facture est facturée.",
-        help_text="Précisez si la facture est facturée",
+    # facturated = models.BooleanField(
+    #     default=False,
+    #     verbose_name="Si la facture est facturée.",
+    #     help_text="Précisez si la facture est facturée",
+    # )
+    pdf = models.FileField(
+        default=None,
+        verbose_name="PDF de la facture.",
+        help_text="PDF de la facture.",
+        null=True,
+        upload_to=getInvoiceStorage,
     )
-    # pdf = models.FileField(
-    #     default=None,
-    #     verbose_name="PDF de la facture.",
-    #     help_text="PDF de la facture.",
-    #     null=True,
-    #     upload_to=getInvoiceStorage,
-    # )
-    # facturated_date = models.DateField(
-    #     default=None,
-    #     verbose_name="Date de facturation",
-    #     help_text="Précisez la date de facturation",
-    #     null=True,
-    # )
+    facturated_date = models.DateField(
+        default=None,
+        verbose_name="Date de facturation",
+        help_text="Précisez la date de facturation",
+        null=True,
+    )
     payed = models.BooleanField(
         default=False,
         verbose_name="Si la facture est payée.",

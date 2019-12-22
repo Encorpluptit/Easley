@@ -20,6 +20,13 @@ def Fduration(facturation):
     return "N/A"
 
 
+@register.filter(name='FactuEndDate')
+def EndDateNone(date):
+    if date:
+        return date
+    return "Pas encore facturé."
+
+
 @register.filter(name='ServiceStatusFilter')
 def ServiceStatusFilter(status, actual_date=None):
     if status and not actual_date:

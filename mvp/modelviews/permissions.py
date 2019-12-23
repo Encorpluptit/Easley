@@ -41,7 +41,7 @@ def contractClient(user, company):
 
 
 def contractCreate(user, company):
-    if is_commercial(user) and company == user.manager.company:
+    if is_commercial(user) and company == user.commercial.company:
         return True
     elif is_manager(user) and user.manager.role != 3 and company == user.manager.company:
         return True

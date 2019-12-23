@@ -35,7 +35,7 @@ def contractClient(user, company):
     if is_commercial(user):
         return True
     elif is_manager(user) and user.manager.role != 3:
-        return checkCompany(user, contract.company)
+        return checkCompany(user, company)
     else:
         return False
 

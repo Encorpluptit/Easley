@@ -82,6 +82,10 @@ def join_company(request, invite_email):
 def ManagerWorkspace(request):
     context = {
         'section': 'workspace',
+        'to_facture_count': 0,
+        'to_facture_amount': 0,
+        'late_count': 0,
+        'late_amount': 0,
     }
 
     date = today().date()
@@ -109,7 +113,7 @@ def ManagerWorkspace(request):
         for inv in invoices_to_facture:
             qs = inv.contract.invoice_set.filter(
                 facturated_date=None,
-                date__month__lt=date.month,
+                date__month__lte=date.month,
                 date__year__lte=date.year).exclude(pk=inv.pk) or None
             if qs:
                 inv.late = qs.count()
@@ -282,7 +286,6 @@ def doFacturation(request, cpny_pk=None, invoice_pk=None):
     ).order_by('price', 'date',) or None
     amount_late = 0
 
-    invoice.facturated_date = None
     if invoices_late:
         amount_late = invoices_late.aggregate(price=Sum('price'))['price'] + invoice.price
         context['late_amount'] = amount_late
@@ -316,6 +319,7 @@ def pdf_download(request, cpny_pk, invoice_pk):
                             filename='Facture.pdf')
     except FileNotFoundError:
         raise Http404()
+
 
 @login_required
 def pdf_view(request, cpny_pk, invoice_pk):

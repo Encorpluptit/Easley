@@ -38,11 +38,15 @@ def CreatePDFInvoice(invoice, invoice_nb, facture_date, due_date):
         street='27 rue Bleue',
         country='France',
     )
+    for licence in (invoice.contract.license_set.all() or None):
+        doc.add_item(Item('Prestation', licence.description, 1, '1.1'))
+    for conseil in (invoice.contract.conseil_set.all() or None):
+        doc.add_item(Item('Prestation', conseil.description, 1, '1.1'))
 
     # Add Item
-    doc.add_item(Item('Item', 'Item desc', 1, '1.1'))
-    doc.add_item(Item('Item', 'Item desc', 2, '2.2'))
-    doc.add_item(Item('Item', 'Item desc', 3, '3.3'))
+    # doc.add_item(Item('Item', 'Item desc', 1, '1.1'))
+    # doc.add_item(Item('Item', 'Item desc', 2, '2.2'))
+    # doc.add_item(Item('Item', 'Item desc', 3, '3.3'))
 
     # Tax rate, optional
     doc.set_item_tax_rate(20)  # 20%

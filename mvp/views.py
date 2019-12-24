@@ -282,6 +282,7 @@ def doFacturation(request, cpny_pk=None, invoice_pk=None):
     ).order_by('price', 'date',) or None
     amount_late = 0
 
+    invoice.facturated_date = None
     if invoices_late:
         amount_late = invoices_late.aggregate(price=Sum('price'))['price'] + invoice.price
         context['late_amount'] = amount_late

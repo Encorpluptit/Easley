@@ -5,8 +5,6 @@ from .pyinvoice.models import InvoiceInfo, ServiceProviderInfo, ClientInfo, Item
 from .pyinvoice.templates import SimpleInvoice
 import os
 
-print(os.getcwd())
-
 
 def CreatePDFInvoice(invoice, invoice_nb, facture_date, due_date):
     doc = SimpleInvoice('invoice.pdf')
@@ -38,10 +36,17 @@ def CreatePDFInvoice(invoice, invoice_nb, facture_date, due_date):
         street='27 rue Bleue',
         country='France',
     )
+
+    # Add Item
+    all_licenses = invoice.contract.license_set.all()
+    all_conseils = invoice.contract.conseil_set.all()
+    percent = invoice.price / invoice.contract.price
     for licence in (invoice.contract.license_set.all() or None):
-        doc.add_item(Item('Prestation', licence.description, 1, '1.1'))
+        doc.add_item(Item('License', licence.description, 1,
+                          int(percent * licence.price)))
     for conseil in (invoice.contract.conseil_set.all() or None):
-        doc.add_item(Item('Prestation', conseil.description, 1, '1.1'))
+        doc.add_item(Item('Prestation', conseil.description, 1,
+                          int(percent * conseil.price)))
 
     # Add Item
     # doc.add_item(Item('Item', 'Item desc', 1, '1.1'))

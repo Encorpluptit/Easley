@@ -2,7 +2,7 @@ from django import template
 from django.utils.formats import localize as loc
 
 from mvp.forms import CONTRACT_FACTURATION
-from mvp.models import InviteChoice, ServiceStatusChoice
+from mvp.models import InviteChoice
 
 register = template.Library()
 

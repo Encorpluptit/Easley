@@ -71,7 +71,6 @@ urlpatterns = [
     path('<int:cpny_pk>/invoice/pdf/<int:invoice_pk>/view/', views.pdf_view, name='mvp-invoice-pdf-view'),
     path('<int:cpny_pk>/invoice/pdf/<int:invoice_pk>/download/', views.pdf_download, name='mvp-invoice-pdf-download'),
     path('about/', views.about, name='mvp-about'),
-    path('contact/', views.contact, name='mvp-contact'),
 ]
 
 if settings.DEBUG:

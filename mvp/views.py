@@ -278,6 +278,9 @@ def AccountWorkspace(request):
     context = {
         'section': 'workspace',
         'nb_services_to_validate': 0,
+        'to_facture_amount': 0,
+        'late_count': 0,
+        'late_amount': 0,
     }
     manager = request.user.manager
     date = today()
@@ -291,6 +294,42 @@ def AccountWorkspace(request):
     if services:
         context['nb_services_to_validate'] = services.count()
     context['services'] = services
+
+    date = today().date()
+    factu = request.user.manager
+    company = factu.company
+    invoices = company.invoice_set.filter(contract__client__account_manager=request.user.manager)
+    invoices_to_facture = invoices.filter(
+        facturated_date=None,
+        date__month__lte=date.month, date__year__lte=date.year
+    ).order_by('contract__id', 'price', 'date',).distinct('contract') or None
+    # invoices_to_facture = invoices.filter(
+    #     facturated_date=None,
+    #     date__month__lte=date.month, date__year__lte=date.year
+    # ).order_by('contract__id', '-id', 'price', 'date',).distinct('contract') or None
+    # invoices_late = invoices.filter(
+    #     payed=False,
+    #     facturated_date__lte=F('date') + timedelta(days=0)).order_by('price') or None
+    invoices_late = invoices.filter(
+        payed=False,
+        facturated_date__lte=date - timedelta(days=company.facturation_delay)).order_by('price') or None
+    if invoices_to_facture:
+        for inv in invoices_to_facture:
+            qs = inv.contract.invoice_set.filter(
+                facturated_date=None,
+                date__month__lte=date.month,
+                date__year__lte=date.year).exclude(pk=inv.pk) or None
+            if qs:
+                inv.late = qs.count()
+                inv.late_amount = qs.aggregate(Sum('price'))['price__sum']
+        invoices_to_facture.query.distinct_fields = ()
+        context['to_facture_amount'] = invoices_to_facture.aggregate(Sum('price'))['price__sum']
+    if invoices_late:
+        invoices_late.query.distinct_fields = ()
+        context['late_count'] = invoices_late.count()
+        context['late_amount'] = invoices_late.aggregate(Sum('price'))['price__sum']
+    context['invoices_to_facture'] = invoices_to_facture
+    context['invoices_late'] = invoices_late
     return render(request, 'mvp/workspace/account.html', context)
 
 

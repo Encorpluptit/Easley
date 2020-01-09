@@ -30,10 +30,6 @@ def about(request):
     return render(request, 'mvp/misc/about.html')
 
 
-def contact(request):
-    return render(request, 'mvp/misc/contact.html')
-
-
 def register(request):
     form = UserRegisterForm(request.POST or None)
     if request.method == "POST" and form.is_valid():
@@ -107,9 +103,6 @@ def ManagerWorkspace(request):
     invoices_late = invoices.filter(
         payed=False,
         facturated_date__lte=date - timedelta(days=company.facturation_delay)).order_by('price') or None
-    # invoices_late = invoices.filter(
-    #     payed=False,
-    #     facturated_date=F('date') + timedelta(days=company.facturation_delay)).order_by('price') or None
     if invoices_to_facture:
         for inv in invoices_to_facture:
             qs = inv.contract.invoice_set.filter(
@@ -197,6 +190,10 @@ from django.db.models import F
 def FactuWorkspace(request):
     context = {
         'section': 'workspace',
+        'to_facture_count': 0,
+        'to_facture_amount': 0,
+        'late_count': 0,
+        'late_amount': 0,
     }
 
     date = today().date()
@@ -211,16 +208,18 @@ def FactuWorkspace(request):
     #     facturated_date=None,
     #     date__month__lte=date.month, date__year__lte=date.year
     # ).order_by('contract__id', '-id', 'price', 'date',).distinct('contract') or None
-    invoices_late = invoices.filter(
-        payed=False,
-        facturated_date=F('date') + timedelta(days=0)).order_by('price') or None
     # invoices_late = invoices.filter(
     #     payed=False,
-    #     facturated_date=F('date') + timedelta(days=company.facturation_delay)).order_by('price') or None
+    #     facturated_date__lte=F('date') + timedelta(days=0)).order_by('price') or None
+    invoices_late = invoices.filter(
+        payed=False,
+        facturated_date__lte=date - timedelta(days=company.facturation_delay)).order_by('price') or None
     if invoices_to_facture:
         for inv in invoices_to_facture:
             qs = inv.contract.invoice_set.filter(
-                facturated_date=None, date__month__lt=date.month, date__year__lte=date.year) or None
+                facturated_date=None,
+                date__month__lte=date.month,
+                date__year__lte=date.year).exclude(pk=inv.pk) or None
             if qs:
                 inv.late = qs.count()
                 inv.late_amount = qs.aggregate(Sum('price'))['price__sum']
@@ -232,8 +231,47 @@ def FactuWorkspace(request):
         context['late_count'] = invoices_late.count()
         context['late_amount'] = invoices_late.aggregate(Sum('price'))['price__sum']
     context['invoices_to_facture'] = invoices_to_facture
-    context['invoice_late'] = invoices_late
+    context['invoices_late'] = invoices_late
     return render(request, 'mvp/workspace/factu.html', context)
+    # context = {
+    #     'section': 'workspace',
+    # }
+    #
+    # date = today().date()
+    # factu = request.user.manager
+    # company = factu.company
+    # invoices = company.invoice_set.filter(contract__factu_manager=request.user.manager)
+    # invoices_to_facture = invoices.filter(
+    #     facturated_date=None,
+    #     date__month__lte=date.month, date__year__lte=date.year
+    # ).order_by('contract__id', 'price', 'date',).distinct('contract') or None
+    # # invoices_to_facture = invoices.filter(
+    # #     facturated_date=None,
+    # #     date__month__lte=date.month, date__year__lte=date.year
+    # # ).order_by('contract__id', '-id', 'price', 'date',).distinct('contract') or None
+    # invoices_late = invoices.filter(
+    #     payed=False,
+    #     facturated_date=F('date') + timedelta(days=0)).order_by('price') or None
+    # # invoices_late = invoices.filter(
+    # #     payed=False,
+    # #     facturated_date=F('date') + timedelta(days=company.facturation_delay)).order_by('price') or None
+    # if invoices_to_facture:
+    #     for inv in invoices_to_facture:
+    #         qs = inv.contract.invoice_set.filter(
+    #             facturated_date=None, date__month__lt=date.month, date__year__lte=date.year) or None
+    #         if qs:
+    #             inv.late = qs.count()
+    #             inv.late_amount = qs.aggregate(Sum('price'))['price__sum']
+    #     invoices_to_facture.query.distinct_fields = ()
+    #     context['to_facture_count'] = invoices_to_facture.count()
+    #     context['to_facture_amount'] = invoices_to_facture.aggregate(Sum('price'))['price__sum']
+    # if invoices_late:
+    #     invoices_late.query.distinct_fields = ()
+    #     context['late_count'] = invoices_late.count()
+    #     context['late_amount'] = invoices_late.aggregate(Sum('price'))['price__sum']
+    # context['invoices_to_facture'] = invoices_to_facture
+    # context['invoice_late'] = invoices_late
+    # return render(request, 'mvp/workspace/factu.html', context)
 
 
 @login_required
@@ -291,12 +329,10 @@ def doFacturation(request, cpny_pk=None, invoice_pk=None):
         amount_late = invoices_late.aggregate(price=Sum('price'))['price'] + invoice.price
         context['late_amount'] = amount_late
     if request.method == "POST":
-        # print(request.POST)
         if 'delete_invoice' in request.POST and request.POST['delete_invoice'] != '':
             invoice.delete()
             return redirect('mvp-workspace')
         if 'validate_invoice' in request.POST:
-            # print("VALIDATE")
             if invoices_late:
                 invoice, invoices_late = CleanInvoicesLate(invoice, invoices_late, amount_late)
             company.refresh_from_db(fields=['invoice_nb', ])

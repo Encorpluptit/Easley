@@ -21,7 +21,6 @@ def CreatePDFInvoice(invoice, invoice_nb, facture_date, due_date):
         name=invoice.company.name,
         street='My Street',
         city='My City',
-        # state='My State',
         country='My Country',
         post_code=' 75009',
         vat_tax_number=invoice.company.siret
@@ -38,8 +37,6 @@ def CreatePDFInvoice(invoice, invoice_nb, facture_date, due_date):
     )
 
     # Add Item
-    all_licenses = invoice.contract.license_set.all()
-    all_conseils = invoice.contract.conseil_set.all()
     percent = invoice.price / invoice.contract.price
     for licence in (invoice.contract.license_set.all() or None):
         doc.add_item(Item('License', licence.description, 1,
@@ -48,17 +45,8 @@ def CreatePDFInvoice(invoice, invoice_nb, facture_date, due_date):
         doc.add_item(Item('Prestation', conseil.description, 1,
                           int(percent * conseil.price)))
 
-    # Add Item
-    # doc.add_item(Item('Item', 'Item desc', 1, '1.1'))
-    # doc.add_item(Item('Item', 'Item desc', 2, '2.2'))
-    # doc.add_item(Item('Item', 'Item desc', 3, '3.3'))
-
     # Tax rate, optional
     doc.set_item_tax_rate(20)  # 20%
-
-    # Transactions detail, optional
-    # doc.add_transaction(Transaction('Paypal', 111, datetime.now(), 1))
-    # doc.add_transaction(Transaction('Stripe', 222, date.today(), 2))
 
     # Optional
     doc.set_bottom_tip("<br /><br /><br />N'hésitez pas à nous contacter.<br /> Email: %s" %

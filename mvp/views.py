@@ -1,22 +1,21 @@
-from datetime import timedelta
-
 from dateutil.relativedelta import relativedelta
+from datetime import timedelta
 from dateutil.utils import today
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.db.models import Sum
 from django.forms import modelformset_factory
-from django.http import FileResponse, Http404
 from django.shortcuts import render, redirect, get_object_or_404
+from django.http import FileResponse, Http404
 
+from .pdfCreateInvoice import CreatePDFInvoice
 from .controllers import customRegisterUser, CleanInvoicesLate
 from .forms import (
     UserRegisterForm,
     CompanyForm,
 )
-from .models import Manager, Commercial, Service, Invite, InviteChoice, Invoice
-from .pdfCreateInvoice import CreatePDFInvoice
+from .models import Manager, Commercial, Service, Invite, InviteChoice, Contract, Company, getInvoiceStorage, Invoice
 
 
 # Create your views here.

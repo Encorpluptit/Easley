@@ -1,19 +1,18 @@
-from datetime import datetime
-
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.shortcuts import get_object_or_404, render, redirect
+from datetime import datetime
 from django.views.generic import CreateView, UpdateView
 
+from mvp.forms import ConseilForm, ServiceForm
+from mvp.models import Conseil, Contract, Service
+from mvp.modelviews import permissions as perm
 from mvp.controllers import (
     redirectWorkspaceFail,
     FillConseilLicenseForm,
     createExcelServices,
 )
-from mvp.forms import ConseilForm, ServiceForm
-from mvp.models import Conseil, Contract, Service
-from mvp.modelviews import permissions as perm
 
 
 class ConseilCreateView(LoginRequiredMixin, UserPassesTestMixin, CreateView):

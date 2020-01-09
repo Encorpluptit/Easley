@@ -1,9 +1,9 @@
-import os
-
+from datetime import datetime, date
 from django.core.files import File
 
-from .pyinvoice.models import InvoiceInfo, ServiceProviderInfo, ClientInfo, Item
+from .pyinvoice.models import InvoiceInfo, ServiceProviderInfo, ClientInfo, Item, Transaction
 from .pyinvoice.templates import SimpleInvoice
+import os
 
 
 def CreatePDFInvoice(invoice, invoice_nb, facture_date, due_date):

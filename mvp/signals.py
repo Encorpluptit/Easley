@@ -8,7 +8,7 @@ from django.db.models.signals import post_delete, post_save, pre_save
 from django.dispatch import receiver
 from django.urls import reverse
 
-from .models import Conseil, License, Contract, Invite
+from .models import Conseil, License, Contract, Invite, Service
 
 
 def UpdateContractPrice(contract):
@@ -34,35 +34,16 @@ def SmallTryExcept(num, denom):
 def UpdateServicesPrices(services, instance):
     context = services.aggregate(senior=Sum('senior_day'), junior=Sum('junior_day'))
     seniority_ratio = SmallTryExcept(instance.contract.company.senior_day, instance.contract.company.junior_day)
-    # print(context, type(context))
     total_junior_time, total_senior_time = context['junior'], context['senior']
     total_time = total_junior_time + total_senior_time
-    # print("seniority ratio:\t", seniority_ratio)
-    # print("total_price:\t", instance.price)
-    # print("TOTAL_time:\t", total_time)
-    # print("total_JUNIOR_time:\t", total_junior_time)
-    # print("total_SENIOR_time:\t", total_senior_time)
     temp = total_senior_time * Decimal(seniority_ratio)
-    # total_time_senior_ratio = temp / (temp + total_junior_time)
     total_time_senior_ratio = SmallTryExcept(temp, temp + total_junior_time)
     total_time_junior_ratio = 1 - total_time_senior_ratio
-    # print("total senior time :\t%.3f" % total_time_senior_ratio)
-    # print("total junior time:\t", total_time_junior_ratio)
-    # total_price_senior = instance.price * total_time_senior_ratio
-    # total_price_junior = instance.price * total_time_junior_ratio
-    # print("total senior price :\t%.3f" % total_price_senior)
-    # print("total junior price:\t", total_price_junior)
     unity_price_senior = SmallTryExcept(instance.price * total_time_senior_ratio, total_senior_time)
     unity_price_junior = SmallTryExcept(instance.price * total_time_junior_ratio, total_junior_time)
-    # unity_price_senior = (instance.price * total_time_senior_ratio) / total_senior_time
-    # unity_price_junior = (instance.price * total_time_junior_ratio) / total_junior_time
-    # print("unity senior price :\t%.3f" % unity_price_senior)
-    # print("unity junior price:\t%d" % unity_price_junior)
     for service in services:
         junior_cost = service.junior_day * unity_price_junior
-        # print(junior_cost)
         senior_cost = service.senior_day * unity_price_senior
-        # print(senior_cost)
         service.price = int(junior_cost + senior_cost)
         service.save()
 
@@ -90,6 +71,13 @@ def LicenseUpdateContractPrice(sender, instance, **kwargs):
 @receiver(post_delete, sender=Conseil)
 def ConseilDeleteContractPrice(sender, instance, **kwargs):
     UpdateContractPrice(instance.contract)
+
+
+@receiver(post_delete, sender=Service)
+def ServiceDeleteConseilPrice(sender, instance, **kwargs):
+    services = instance.conseil.service_set.all() or None
+    if services:
+        UpdateServicesPrices(services, instance.conseil)
 
 
 @receiver(post_save, sender=Conseil)

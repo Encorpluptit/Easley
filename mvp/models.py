@@ -402,8 +402,8 @@ class Service(models.Model):
 class License(models.Model):
     description = models.CharField(
         max_length=150,
-        verbose_name="Description de la license.",
-        help_text="Description de la license."
+        verbose_name="Description de la licence.",
+        help_text="Description de la licence."
     )
     contract = models.ForeignKey(
         Contract,

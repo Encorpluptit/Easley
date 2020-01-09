@@ -219,19 +219,28 @@ class SimpleInvoice(SimpleDocTemplate):
         sum_end_x_index = -1 - 1
         sum_start_x_index = len(item_data_title) - abs(sum_end_x_index)
 
-        # ##### Subtotal #####
-        rounditem_subtotal = self.getroundeddecimal(item_subtotal, self.precision)
-        item_data.append(
-            ('Sous-Total (€)', '', '', '', rounditem_subtotal,)
-        )
-
-        style.append(('SPAN', (0, sum_start_y_index), (sum_start_x_index, sum_start_y_index)))
-        style.append(('ALIGN', (0, sum_start_y_index), (sum_end_x_index, -1), 'RIGHT'))
+        # # ##### Subtotal #####
+        # rounditem_subtotal = self.getroundeddecimal(item_subtotal, self.precision)
+        # item_data.append(
+        #     ('Sous-Total (€)', '', '', '', rounditem_subtotal,)
+        # )
+        #
+        # style.append(('SPAN', (0, sum_start_y_index), (sum_start_x_index, sum_start_y_index)))
+        # style.append(('ALIGN', (0, sum_start_y_index), (sum_end_x_index, -1), 'RIGHT'))
 
         # Tax total
         if self._item_tax_rate is not None:
             tax_total = item_subtotal * (Decimal(str(self._item_tax_rate)) / Decimal('100'))
             roundtax_total = self.getroundeddecimal(tax_total, self.precision)
+
+            # ##### Subtotal #####
+            rounditem_subtotal = self.getroundeddecimal(item_subtotal, self.precision)
+            item_data.append(
+                ('Sous-Total (€)', '', '', '', rounditem_subtotal - tax_total,)
+            )
+            style.append(('SPAN', (0, sum_start_y_index), (sum_start_x_index, sum_start_y_index)))
+            style.append(('ALIGN', (0, sum_start_y_index), (sum_end_x_index, -1), 'RIGHT'))
+
             item_data.append(
                 ('TVA ({0}%)'.format(self._item_tax_rate), '', '', '', roundtax_total)
             )
@@ -242,8 +251,7 @@ class SimpleInvoice(SimpleDocTemplate):
             tax_total = None
 
         # Total
-        total = item_subtotal + (tax_total if tax_total else Decimal('0'))
-        roundtotal = self.getroundeddecimal(total, self.precision)
+        roundtotal = self.getroundeddecimal(item_subtotal, self.precision)
         item_data.append(('Total (€)', '', '', '', roundtotal))
         sum_start_y_index += 1
         style.append(('SPAN', (0, sum_start_y_index), (sum_start_x_index, sum_start_y_index)))

@@ -383,7 +383,6 @@ class Service(models.Model):
         help_text="Précisez le Jour homme senior nécessaire pour ce service.",
     )
     done = models.SmallIntegerField(
-        # @TODO: si non mettre la date du jour dans acual date et si oui permettre de rentrer la date à la main
         default=0,
         choices=ServiceStatusChoice,
         verbose_name="Si le service est effectué.",
@@ -466,11 +465,6 @@ class Invoice(models.Model):
         verbose_name="Date de la facture",
         help_text="Date de la facture."
     )
-    # facturated = models.BooleanField(
-    #     default=False,
-    #     verbose_name="Si la facture est facturée.",
-    #     help_text="Précisez si la facture est facturée",
-    # )
     pdf = models.FileField(
         default=None,
         verbose_name="PDF de la facture.",
@@ -555,58 +549,3 @@ class Invite(models.Model):
     def __str__(self):
         return self.email
 
-# - invoices
-# - company_id
-# - client_id
-# - commercial(le
-# commercial)
-# manytomany Conseil
-# manytomany or OneToOne or Foreignkey(peut être pas ici la foreign key)
-# contract_type
-# contract_
-
-
-# class Profile(models.Model):
-#     user = models.OneToOneField(User, null=True, default=None, on_delete=models.CASCADE)
-#     type = models.PositiveSmallIntegerField(
-#         verbose_name="user's type",
-#         default=4,
-#         choices={
-#             (1, 'DEV'),
-#             (2, 'STAFF'),
-#             (3, 'CEO'),
-#             (4, 'Commercial')
-#         },
-#     )
-#     # company2 = models.ManyToOneRel()
-#     company = models.ForeignKey(
-#         Companies,
-#         default=None,
-#         on_delete=models.CASCADE,
-#         null=True
-#     )
-#
-#     class Meta:
-#         verbose_name = "profile"
-#         verbose_name_plural = "profiles"
-#         ordering = ['user_id']
-#
-#     def __str__(self):
-#         if self.user.first_name:
-#             return self.user.first_name
-#         else:
-#             return self.user.username
-
-# from django.dispatch import receiver
-# from django.db.models.signals import post_save
-#
-# @receiver(post_save, sender=User)
-# def create_user_profile(sender, instance, created, **kwargs):
-#     if created:
-#         Profile.objects.create(user=instance)
-#
-#
-# @receiver(post_save, sender=User)
-# def save_user_profile(sender, instance, **kwargs):
-#     instance.profile.save()
-#

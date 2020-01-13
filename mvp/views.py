@@ -22,7 +22,7 @@ from .models import Manager, Commercial, Service, Invite, InviteChoice, Contract
 
 
 def home(request):
-    return render(request, 'mvp/misc/home.html')
+    return render(request, 'mvp/misc/index.php')
 
 
 def about(request):
@@ -153,6 +153,8 @@ def Employees(request):
                 un utilsateur avec cette adresse existe déjà.")
                 break
             form.save()
+            invites = company.invite_set.all()
+            formset = inviteformset(request.POST or None, queryset=Invite.objects.none())
     context['invites'] = invites
     context['invite_commercial'] = invites.filter(role=4) or None
     context['invite_factus'] = invites.filter(role=3) or None

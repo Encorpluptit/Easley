@@ -550,3 +550,20 @@ class Invite(models.Model):
     def __str__(self):
         return self.email
 
+
+class EmailDatabase(models.Model):
+    email = models.EmailField(
+        max_length=150,
+        default=None,
+        verbose_name="Email du destinataire.",
+        help_text="L'email du destinataire.",
+    )
+
+    class Meta:
+        verbose_name = "email database"
+        verbose_name_plural = "emails database"
+        ordering = ['email', ]
+
+    def __str__(self):
+        return self.email
+

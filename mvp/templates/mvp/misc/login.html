@@ -9,58 +9,55 @@
             <div class="card o-hidden border-0 shadow-lg my-5">
                 <div class="card-body p-0">
                     <!-- Nested Row within Card Body -->
-                    <div class="row">
-                        <div class="col-lg-6 d-none d-lg-block">
-                            <img class="center" width="125%" src="../../../static/mvp/weasley.jpg">
+                    {#                    <div class="row">#}
+                    {#                        <div class="col-lg-6 d-none d-lg-block">#}
+                    {#                            <img class="center" width="125%" src="../../../static/mvp/weasley.jpg">#}
+                    {#                        </div>#}
+                    {#                        <div class="col-lg-6">#}
+                    <div class="p-5">
+                        <div class="text-center">
+                            <h1 class="h4 text-gray-900 mb-4">Connectez-vous !</h1>
                         </div>
-                        <div class="col-lg-6">
-                            <div class="p-5">
-                                <div class="text-center">
-                                    <h1 class="h4 text-gray-900 mb-4">Connectez-vous !</h1>
-                                </div>
-                                <form method="post" class="user">
-                                    {% csrf_token %}
-                                    <div class="form-group">
-                                        <span class="text-danger">{{ form.non_field_errors }}</span>
-                                        <label for="id_username">Nom d'utilisateur:<span
-                                                class="text-danger">*</span></label>
-                                        <input type="text" class="form-control form-control-user"
-                                               name="username"
-                                               maxlength="150"
-                                               placeholder="Entrez votre nom d'utilisateur ..."
-                                               autofocus required id="id_username">
-                                        <span class="text-danger">{{ form.username.errors }}</span>
-                                    </div>
-                                    <div class="form-group">
-                                        <label for="id_password">Mot de passe:<span
-                                                class="text-danger">*</span></label>
-                                        <input type="password" class="form-control form-control-user"
-                                               name="password" maxlength="150"
-                                               placeholder="Entrez votre mot de passe ..."
-                                               autofocus required id="id_password">
-                                        <span class="text-danger">{{ form.username.errors }}</span>
-                                    </div>
-                                    <div class="form-group">
-                                        <div class="custom-control custom-checkbox small">
-                                            <input type="checkbox" class="custom-control-input"
-                                                   id="customCheck">
-                                            <label class="custom-control-label" for="customCheck">Se
-                                                souvenir de moi</label>
-                                        </div>
-                                    </div>
-                                    <button class="btn btn-primary btn-user btn-block" type="submit">
-                                        Se connecter
-                                    </button>
-                                </form>
-                                <hr>
-                                <div class="text-center">
-                                    <a class="small" href= {% url 'mvp_password_reset' %}>Forgot Password?</a>
-                                </div>
-                                <div class="text-center">
-                                    <a class="small" href= {% url 'mvp-register' %}>Create an
-                                        Account!</a>
+                        <form method="post" class="user">
+                            {% csrf_token %}
+                            <div class="form-group">
+                                <span class="text-danger">{{ form.non_field_errors }}</span>
+                                <label for="id_username">Nom d'utilisateur:<span
+                                        class="text-danger">*</span></label>
+                                <input type="text" class="form-control form-control-user"
+                                       name="username"
+                                       maxlength="150"
+                                       placeholder="Entrez votre nom d'utilisateur ..."
+                                       autofocus required id="id_username">
+                                <span class="text-danger">{{ form.username.errors }}</span>
+                            </div>
+                            <div class="form-group">
+                                <label for="id_password">Mot de passe:<span
+                                        class="text-danger">*</span></label>
+                                <input type="password" class="form-control form-control-user"
+                                       name="password" maxlength="150"
+                                       placeholder="Entrez votre mot de passe ..."
+                                       autofocus required id="id_password">
+                                <span class="text-danger">{{ form.username.errors }}</span>
+                            </div>
+                            <div class="form-group">
+                                <div class="custom-control custom-checkbox small">
+                                    <input type="checkbox" class="custom-control-input"
+                                           id="customCheck">
+                                    <label class="custom-control-label" for="customCheck">Se
+                                        souvenir de moi</label>
                                 </div>
                             </div>
+                            <button class="btn btn-primary btn-user btn-block" type="submit">
+                                Se connecter
+                            </button>
+                        </form>
+                        <hr>
+                        <div class="text-center">
+                            <a class="small" href= {% url 'mvp_password_reset' %}>Mot de passe oublié ?</a>
+                        </div>
+                        <div class="text-center">
+                            <a class="small" href= {% url 'mvp-register' %}>Créer un compte !</a>
                         </div>
                     </div>
                 </div>
@@ -76,12 +73,12 @@
 {% endblock %}
 
 {% block scripts %}
-<script>
-    $(document).ready(function () {
-        // messages timeout for 10 sec
-        setTimeout(function () {
-            $('.alert').fadeOut('slow');
-        }, 5000); // <-- time in milliseconds, 1000 =  1 sec
-    });
-</script>
+    <script>
+        $(document).ready(function () {
+            // messages timeout for 10 sec
+            setTimeout(function () {
+                $('.alert').fadeOut('slow');
+            }, 5000); // <-- time in milliseconds, 1000 =  1 sec
+        });
+    </script>
 {% endblock %}

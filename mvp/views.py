@@ -15,14 +15,16 @@ from .forms import (
     UserRegisterForm,
     CompanyForm,
 )
-from .models import Manager, Commercial, Service, Invite, InviteChoice, Contract, Company, getInvoiceStorage, Invoice
+from .models import Manager, Commercial, Service, Invite, InviteChoice, Invoice, EmailDatabase
 
 
 # Create your views here.
 
 
 def home(request):
-    return render(request, 'mvp/misc/index.php')
+    if request.method == "POST":
+        EmailDatabase.objects.create(email=request.POST['email'])
+    return render(request, 'mvp/misc/index.html')
 
 
 def about(request):
@@ -155,6 +157,7 @@ def Employees(request):
             form.save()
             invites = company.invite_set.all()
             formset = inviteformset(request.POST or None, queryset=Invite.objects.none())
+    print(invites)
     context['invites'] = invites
     context['invite_commercial'] = invites.filter(role=4) or None
     context['invite_factus'] = invites.filter(role=3) or None

@@ -15,6 +15,7 @@ from .models import (
     Service,
     Contract,
     Invite,
+    EmailDatabase
 )
 
 # Create your forms here.
@@ -254,6 +255,19 @@ class InviteForm(forms.ModelForm):
     class Meta:
         model = Invite
         exclude = ('company', 'role')
+
+
+# class EmailForm(forms.ModelForm):
+#     def __init__(self, *args, user=None, role=4, **kwargs):
+#         super().__init__(*args, **kwargs)
+#         # for key in self.fields:
+#         #     self.fields[key].widget.attrs.update({'class': 'form-control'})
+#         #     self.fields[key].widget.attrs.update({'placeholder': key})
+#         #     self.fields[key].widget.attrs.update({'title': self.fields[key].help_text})
+#
+#     class Meta:
+#         model = EmailDatabase
+#         fields = "__all__"
 
 # class ClientForm(forms.ModelForm):
 #     def __init__(self, *args, user=None, company=None, **kwargs):

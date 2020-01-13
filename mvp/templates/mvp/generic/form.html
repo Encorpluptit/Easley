@@ -2,24 +2,6 @@
 {% for hidden in form.hidden_fields %}
     {{ hidden }}
 {% endfor %}
-{# Include the visible fields #}
-{#{% for field in form.visible_fields %}#}
-{#    <span class="text-danger">{{ field.non_field_errors }}</span>#}
-{#    <div class="fieldWrapper">#}
-{#        <div class="top-margin">#}
-{#            {{ field.label_tag }}#}
-{#            {{ field }}#}
-{#        </div>#}
-{#    </div>#}
-{#    <br>#}
-{#    {% if field.help_text %}#}
-{#        <ul>#}
-{#            <li><p class="help">{{ field.help_text|safe }}</p></li>#}
-{#        </ul>#}
-{#    {% endif %}#}
-{#    <span class="text-danger">{{ field.errors }}</span>#}
-{#    <br>#}
-{#{% endfor %}#}
 
 {# Include the visible fields #}
 {% for field in form.visible_fields %}

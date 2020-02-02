@@ -1,0 +1,135 @@
+{#{% extends 'mvp/generic/content.html' %}#}
+{% extends 'mvp/generic/blank.html' %}
+{% load static my_filters %}
+
+
+{% block page %}
+    <div class="card shadow mb-4 bg-gray-300">
+        <div class="card-body">
+
+            <!-- Collapsable Card À Facturer -->
+            <div class="card shadow mb-4">
+                <!-- Card Header - Accordion -->
+                <a href="#collapseCardToFacture" class="d-block card-header py-3" data-toggle="collapse" role="button"
+                   aria-expanded="true" aria-controls="collapseCardtoFacture">
+                    <h6 class="m-0 font-weight-bold text-primary">MMR</h6>
+                </a>
+
+                <!-- Card Content À Facturer - Collapse -->
+                <div class="collapse show" id="collapseCardToFacture">
+                    <div class="card-body">
+                        <div class="row">
+
+                            <!-- To Factu Amount Card -->
+                            <div class="col-xl-5 col-md-6 mb-4">
+                                <div class="card border-left-primary shadow h-100 py-2">
+                                    <div class="card-body">
+                                        <div class="row no-gutters align-items-center">
+                                            <div class="col mr-2">
+                                                <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+                                                    Ce mois-ci
+                                                </div>
+                                                <div class="h5 mb-0 font-weight-bold text-gray-800">{{ mmr|currency }}</div>
+                                            </div>
+                                            <div class="col-auto">
+                                                <i class="fas fa-dollar-sign fa-2x text-gray-300"></i>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- To Factu Count Card -->
+                            <div class="col-xl-5 col-md-6 mb-4">
+                                <div class="card border-left-success shadow h-100 py-2">
+                                    <div class="card-body">
+                                        <div class="row no-gutters align-items-center">
+                                            <div class="col mr-2">
+                                                <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
+                                                    Cette année
+                                                </div>
+                                                <div class="h5 mb-0 font-weight-bold text-gray-800">{{ amr|currency }}</div>
+                                            </div>
+                                            <div class="col-auto">
+                                                <i class="fas fa-dollar-sign fa-2x text-gray-300"></i>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+
+            <!-- Collapsable Card À la bourre -->
+            <div class="card shadow mb-4">
+                <!-- Card Header - Accordion -->
+                <a href="#collapseCardLate" class="d-block card-header py-3" data-toggle="collapse" role="button"
+                   aria-expanded="true" aria-controls="collapseCardLate">
+                    <h6 class="m-0 font-weight-bold text-danger">Chiffre d'Affaire</h6>
+                </a>
+
+                <!-- Card Content À Facturer - Collapse -->
+                <div class="collapse show" id="collapseCardLate">
+                    <div class="card-body">
+                        <div class="row">
+
+                            <!-- To Factu Amount Card -->
+                            <div class="col-xl-5 col-md-6 mb-4">
+                                <div class="card border-left-primary shadow h-100 py-2">
+                                    <div class="card-body">
+                                        <div class="row no-gutters align-items-center">
+                                            <div class="col mr-2">
+                                                <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+                                                    Ce mois-ci
+                                                </div>
+                                                <div class="h5 mb-0 font-weight-bold text-gray-800">{{ ca_m|currency }}</div>
+                                            </div>
+                                            <div class="col-auto">
+                                                <i class="fas fa-dollar-sign fa-2x text-gray-300"></i>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- To Factu Count Card -->
+                            <div class="col-xl-5 col-md-6 mb-4">
+                                <div class="card border-left-success shadow h-100 py-2">
+                                    <div class="card-body">
+                                        <div class="row no-gutters align-items-center">
+                                            <div class="col mr-2">
+                                                <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
+                                                    Cette année
+                                                </div>
+                                                <div class="h5 mb-0 font-weight-bold text-gray-800">{{ ca_y|currency }}</div>
+                                            </div>
+                                            <div class="col-auto">
+                                                <i class="fas fa-dollar-sign fa-2x text-gray-300"></i>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
+        </div>
+    </div>
+{% endblock %}
+
+
+{% block page_heading %}
+    Vos KPI
+{% endblock %}
+
+
+{% block page_title %}
+    Easley - Kpi
+{% endblock %}
+

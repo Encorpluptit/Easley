@@ -25,9 +25,9 @@
     {% if user.manager.role == 1 %}
 
         <!-- Nav Item - Mes KPI -->
-        <li {% if section == "client" %}class="nav-item active" {% else %}class="nav-item"{% endif %}>
+        <li {% if section == 'KPI' %}class="nav-item active" {% else %}class="nav-item"{% endif %}>
             <a class="nav-link"
-               href= {% url 'mvp-workspace' %}>
+               href= {% url 'mvp-kpi' %}>
                 <i class="fas fa-chart-line"></i>
                 <span>Mes KPI</span></a>
         </li>

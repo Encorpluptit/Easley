@@ -9,6 +9,7 @@ register = template.Library()
 
 @register.filter(name='currency')
 def currency(money):
+    # return "lol"
     return "{0:2,.2f} €".format(money).replace(",", " ")
 
 

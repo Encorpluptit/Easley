@@ -11,6 +11,7 @@ from django.http import FileResponse, Http404
 
 from .pdfCreateInvoice import CreatePDFInvoice
 from .controllers import customRegisterUser, CleanInvoicesLate
+from .models import License, Service
 from .forms import (
     UserRegisterForm,
     CompanyForm,
@@ -93,7 +94,7 @@ def ManagerWorkspace(request):
     invoices_to_facture = invoices.filter(
         facturated_date=None,
         date__month__lte=date.month, date__year__lte=date.year
-    ).order_by('contract__id', 'price', 'date',).distinct('contract') or None
+    ).order_by('contract__id', 'price', 'date', ).distinct('contract') or None
     # invoices_to_facture = invoices.filter(
     #     facturated_date=None,
     #     date__month__lte=date.month, date__year__lte=date.year
@@ -126,6 +127,75 @@ def ManagerWorkspace(request):
 
 
 @login_required
+def Kpi(request):
+    context = {
+        'section': 'KPI',
+        'mmr': 0,
+        'amr': 0,
+        'ca_a': 0,
+        'ca_m': 0,
+    }
+    if not hasattr(request.user, 'manager') or request.user.manager.role != 1:
+        return Http404
+    company = request.user.manager.company
+    contracts = company.contract_set.all()
+    date = today()
+    date_month = date - relativedelta(months=4)
+    date_year = date - relativedelta(years=1)
+    print("date:", date_month, date_year)
+    contracts_year = contracts.filter(start_date__gte=date_year, validated=True)
+    contracts_month = contracts.filter(start_date__gte=date_month, validated=True)
+    # print(contracts_month)
+    # print(contracts_year)
+    license_year = License.objects.filter(
+        contract__company=company,
+        start_date__gte=date_year,
+        contract__validated=True,
+    )
+    license_month = License.objects.filter(
+        contract__company=company,
+        start_date__gte=date_month,
+        contract__validated=True,
+    )
+    service_year = Service.objects.filter(
+        conseil__contract__company=company,
+        actual_date__gte=date_year,
+        conseil__contract__validated=True,
+        done__gt=0,
+    )
+    service_month = Service.objects.filter(
+        conseil__contract__company=company,
+        actual_date__gte=date_month,
+        conseil__contract__validated=True,
+        done__gt=0,
+    )
+    # print("MONTH License", license_month)
+    # print("MONTH Service", service_month)
+    # print("YEAR License", license_year)
+    # print("YEAR Service", service_year)
+    mmr = license_month.aggregate(Sum('price'))['price__sum'] or 0
+    mmr += service_month.aggregate(Sum('price'))['price__sum'] or 0
+    # print("mmr total: ", mmr)
+    amr = license_year.aggregate(Sum('price'))['price__sum'] or 0
+    # print(amr)
+    amr += service_year.aggregate(Sum('price'))['price__sum'] or 0
+
+    print("MONTH Contracts :", contracts_month)
+    ca_m = contracts_month.aggregate(Sum('price'))['price__sum'] or 0
+    print("ca_m total: ", ca_m)
+    print("YEAR Contracts :", contracts_year)
+    ca_y = contracts_year.aggregate(Sum('price'))['price__sum'] or 0
+    print("ca_y total: ", ca_y)
+
+    # print(amr)
+    # license_year = contracts.filter(license__invoice__date__gte=date, validated=True).aggregate(Sum('license__price'))['price__sum'] or 0
+    # year_prime = contracts.filter(start_date__year=date.year, validated=True).aggregate(Sum('price'))['price__sum']
+    context['mmr'], context['amr'] = mmr, amr
+    context['ca_m'], context['ca_y'] = ca_m, ca_y
+    return render(request, 'mvp/workspace/kpi.html', context)
+
+
+@login_required
 def Employees(request):
     company = request.user.manager.company
     managers = company.manager_set.all()
@@ -138,7 +208,7 @@ def Employees(request):
         'managers': managers.filter(role=1) or None,
     }
 
-    inviteformset = modelformset_factory(Invite, extra=4, exclude=('company', 'role'),)
+    inviteformset = modelformset_factory(Invite, extra=4, exclude=('company', 'role'), )
     formset = inviteformset(request.POST or None, queryset=Invite.objects.none())
     for index, form in enumerate(formset):
         for nb, string in InviteChoice:
@@ -157,7 +227,6 @@ def Employees(request):
             form.save()
             invites = company.invite_set.all()
             formset = inviteformset(request.POST or None, queryset=Invite.objects.none())
-    print(invites)
     context['invites'] = invites
     context['invite_commercial'] = invites.filter(role=4) or None
     context['invite_factus'] = invites.filter(role=3) or None
@@ -185,11 +254,14 @@ def CommercialWorkspace(request):
         context['year_prime'] = year_prime / 10
     context['unfinished_contracts'] = contracts.filter(validated=False).count()
     context['finished_contracts'] = contracts.filter(validated=True).count()
-    context['new_clients'] = commercial.client_set.filter(created_at__gte=today().date() - relativedelta(months=1)).count()
+    context['new_clients'] = commercial.client_set.filter(
+        created_at__gte=today().date() - relativedelta(months=1)).count()
     return render(request, 'mvp/workspace/bizdev.html', context)
 
 
 from django.db.models import F
+
+
 @login_required
 def FactuWorkspace(request):
     context = {
@@ -207,14 +279,7 @@ def FactuWorkspace(request):
     invoices_to_facture = invoices.filter(
         facturated_date=None,
         date__month__lte=date.month, date__year__lte=date.year
-    ).order_by('contract__id', 'price', 'date',).distinct('contract') or None
-    # invoices_to_facture = invoices.filter(
-    #     facturated_date=None,
-    #     date__month__lte=date.month, date__year__lte=date.year
-    # ).order_by('contract__id', '-id', 'price', 'date',).distinct('contract') or None
-    # invoices_late = invoices.filter(
-    #     payed=False,
-    #     facturated_date__lte=F('date') + timedelta(days=0)).order_by('price') or None
+    ).order_by('contract__id', 'price', 'date', ).distinct('contract') or None
     invoices_late = invoices.filter(
         payed=False,
         facturated_date__lte=date - timedelta(days=company.facturation_delay)).order_by('price') or None
@@ -237,45 +302,6 @@ def FactuWorkspace(request):
     context['invoices_to_facture'] = invoices_to_facture
     context['invoices_late'] = invoices_late
     return render(request, 'mvp/workspace/factu.html', context)
-    # context = {
-    #     'section': 'workspace',
-    # }
-    #
-    # date = today().date()
-    # factu = request.user.manager
-    # company = factu.company
-    # invoices = company.invoice_set.filter(contract__factu_manager=request.user.manager)
-    # invoices_to_facture = invoices.filter(
-    #     facturated_date=None,
-    #     date__month__lte=date.month, date__year__lte=date.year
-    # ).order_by('contract__id', 'price', 'date',).distinct('contract') or None
-    # # invoices_to_facture = invoices.filter(
-    # #     facturated_date=None,
-    # #     date__month__lte=date.month, date__year__lte=date.year
-    # # ).order_by('contract__id', '-id', 'price', 'date',).distinct('contract') or None
-    # invoices_late = invoices.filter(
-    #     payed=False,
-    #     facturated_date=F('date') + timedelta(days=0)).order_by('price') or None
-    # # invoices_late = invoices.filter(
-    # #     payed=False,
-    # #     facturated_date=F('date') + timedelta(days=company.facturation_delay)).order_by('price') or None
-    # if invoices_to_facture:
-    #     for inv in invoices_to_facture:
-    #         qs = inv.contract.invoice_set.filter(
-    #             facturated_date=None, date__month__lt=date.month, date__year__lte=date.year) or None
-    #         if qs:
-    #             inv.late = qs.count()
-    #             inv.late_amount = qs.aggregate(Sum('price'))['price__sum']
-    #     invoices_to_facture.query.distinct_fields = ()
-    #     context['to_facture_count'] = invoices_to_facture.count()
-    #     context['to_facture_amount'] = invoices_to_facture.aggregate(Sum('price'))['price__sum']
-    # if invoices_late:
-    #     invoices_late.query.distinct_fields = ()
-    #     context['late_count'] = invoices_late.count()
-    #     context['late_amount'] = invoices_late.aggregate(Sum('price'))['price__sum']
-    # context['invoices_to_facture'] = invoices_to_facture
-    # context['invoice_late'] = invoices_late
-    # return render(request, 'mvp/workspace/factu.html', context)
 
 
 @login_required
@@ -307,7 +333,7 @@ def AccountWorkspace(request):
     invoices_to_facture = invoices.filter(
         facturated_date=None,
         date__month__lte=date.month, date__year__lte=date.year
-    ).order_by('contract__id', 'price', 'date',).distinct('contract') or None
+    ).order_by('contract__id', 'price', 'date', ).distinct('contract') or None
     # invoices_to_facture = invoices.filter(
     #     facturated_date=None,
     #     date__month__lte=date.month, date__year__lte=date.year
@@ -365,7 +391,7 @@ def doFacturation(request, cpny_pk=None, invoice_pk=None):
     invoices_late = invoice.contract.invoice_set.exclude(pk=invoice.pk).filter(
         facturated_date=None,
         date__month__lte=date.month, date__year__lte=date.year
-    ).order_by('price', 'date',) or None
+    ).order_by('price', 'date', ) or None
     amount_late = 0
 
     if invoices_late:
@@ -382,7 +408,8 @@ def doFacturation(request, cpny_pk=None, invoice_pk=None):
             company.invoice_nb += 1
             company.save()
             invoice.facturated_date = today().date()
-            invoice.pdf = CreatePDFInvoice(invoice, company.invoice_nb, date, date + timedelta(days=company.facturation_delay))
+            invoice.pdf = CreatePDFInvoice(invoice, company.invoice_nb, date,
+                                           date + timedelta(days=company.facturation_delay))
             invoice.save()
     context['object'] = invoice
     context['invoices_late'] = invoices_late
@@ -410,5 +437,3 @@ def pdf_view(request, cpny_pk, invoice_pk):
                             filename='Facture.pdf')
     except FileNotFoundError:
         raise Http404()
-
-

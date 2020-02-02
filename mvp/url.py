@@ -40,6 +40,7 @@ urlpatterns = [
     path('<int:cpny_pk>/facturation/<int:invoice_pk>/validate/', views.doFacturation,
          name="mvp-do-facturation"),
     path('company/employees', views.Employees, name="mvp-employees"),
+    path('company/kpi', views.Kpi, name="mvp-kpi"),
     path('<int:cpny_pk>/client/new/', ClientCreateView.as_view(), name='mvp-client-new'),
     path('<int:cpny_pk>/client/update/<int:client_pk>/', ClientUpdateView.as_view(), name='mvp-client-update'),
     path('<int:cpny_pk>/client/list/<int:com_pk>/', ClientListView.as_view(), name='mvp-client-list'),

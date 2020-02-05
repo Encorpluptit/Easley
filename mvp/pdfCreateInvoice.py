@@ -38,10 +38,10 @@ def CreatePDFInvoice(invoice, invoice_nb, facture_date, due_date):
 
     # Add Item
     percent = invoice.price / invoice.contract.price
-    for licence in (invoice.contract.license_set.all() or None):
+    for licence in (invoice.contract.license_set.all()):
         doc.add_item(Item('License', licence.description, 1,
                           int(percent * licence.price)))
-    for conseil in (invoice.contract.conseil_set.all() or None):
+    for conseil in (invoice.contract.conseil_set.all()):
         doc.add_item(Item('Prestation', conseil.description, 1,
                           int(percent * conseil.price)))
 

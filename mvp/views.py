@@ -24,7 +24,8 @@ from .models import Manager, Commercial, Service, Invite, InviteChoice, Invoice,
 
 def home(request):
     if request.method == "POST":
-        EmailDatabase.objects.create(email=request.POST['email'])
+        if EmailDatabase.objects.filter(email=request.POST['email']) or None:
+            EmailDatabase.objects.create(email=request.POST['email'])
     return render(request, 'mvp/misc/index.html')
 
 

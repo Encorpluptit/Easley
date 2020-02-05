@@ -97,8 +97,8 @@ def ContractDetails(request, cpny_pk=None, contract_pk=None, conseil_pk=None):
         "section": "contract", "content_heading": "Détail Contrat",
     }
     contract = get_object_or_404(Contract, pk=contract_pk)
-    conseils = contract.conseil_set.all().order_by('start_date', '-price') or None
-    licenses = contract.license_set.all().order_by('start_date', '-price') or None
+    conseils = contract.conseil_set.all().order_by('start_date', '-price')
+    licenses = contract.license_set.all().order_by('start_date', '-price')
 
     context['object'] = contract
     context['licenses'] = licenses

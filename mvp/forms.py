@@ -15,7 +15,6 @@ from .models import (
     Service,
     Contract,
     Invite,
-    EmailDatabase
 )
 
 # Create your forms here.
@@ -256,64 +255,3 @@ class InviteForm(forms.ModelForm):
         model = Invite
         exclude = ('company', 'role')
 
-
-# class EmailForm(forms.ModelForm):
-#     def __init__(self, *args, user=None, role=4, **kwargs):
-#         super().__init__(*args, **kwargs)
-#         # for key in self.fields:
-#         #     self.fields[key].widget.attrs.update({'class': 'form-control'})
-#         #     self.fields[key].widget.attrs.update({'placeholder': key})
-#         #     self.fields[key].widget.attrs.update({'title': self.fields[key].help_text})
-#
-#     class Meta:
-#         model = EmailDatabase
-#         fields = "__all__"
-
-# class ClientForm(forms.ModelForm):
-#     def __init__(self, *args, user=None, company=None, **kwargs):
-#         super().__init__(*args, **kwargs)
-#         self.instance.company = company
-#         if hasattr(user, 'commercial'):
-#             self.fields['commercial'].widget = forms.HiddenInput()
-#             self.fields['account_manager'].queryset = Manager.objects.filter(company=user.commercial.company, role=2)
-#         if hasattr(user, 'manager'):
-#             self.fields['commercial'].queryset = Commercial.objects.filter(company=user.manager.company)
-#             self.fields['account_manager'].queryset = Manager.objects.filter(company=user.manager.company, role=2)
-#         for key in self.fields:
-#             self.fields[key].widget.attrs.update({'class': 'form-control'})
-#             self.fields[key].widget.attrs.update({'placeholder': key})
-#             self.fields[key].widget.attrs.update({'title': self.fields[key].help_text})
-#         self.user = user
-#
-#     class Meta:
-#         model = Client
-#         exclude = ('company',)
-#
-#     def is_valid(self):
-#         if hasattr(self.user, 'commercial'):
-#             self.data._mutable = True
-#             self.data['commercial'] = self.user.commercial.pk
-#             self.data._mutable = False
-#         return super().is_valid()
-
-
-# from django.core.validators import validate_email
-# class Exemple(forms.BaseModelForm):
-#     email = forms.EmailField(validators=[validate_email])
-#     first_name = forms.CharField(max_length=150, widget=forms.CharField.widget(attrs={'placeholder': 'first_name'}))
-#     required_css_class = 'form-control'
-#
-#     def __init__(self, *args, **kwargs):
-#         super().__init__(*args, **kwargs)
-#         # self.fields['name'].widget.attrs.update({'placeholder': "Nom de l'entreprise"})
-#         for key in self.fields:
-#             self.fields[key].widget.attrs.update({'class': 'form-control'})
-#             self.fields[key].widget.attrs.update({'placeholder': key})
-#
-#     class Meta:
-#         model = User
-#         fields = ['first_name', 'last_name', 'email', 'username', 'password1', 'password2']
-#         exclude = ('first_name',)
-#         fields = '__all__'
-#         success_url = reverse_lazy('authors')
-#         initial = {'date_of_death': '12/10/2016', }

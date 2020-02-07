@@ -37,6 +37,7 @@ urlpatterns = [
     path('company/join/<str:invite_email>/', views.join_company, name='mvp-join-company'),
     path('company/register', views.companyCreation, name='mvp-company-register'),
     path('workspace/', views.workspace, name="mvp-workspace"),
+    path('workspace/csv/', views.viewCsv, name='mvp-csv'),
     path('<int:cpny_pk>/facturation/<int:invoice_pk>/validate/', views.doFacturation,
          name="mvp-do-facturation"),
     path('company/employees', views.Employees, name="mvp-employees"),

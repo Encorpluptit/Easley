@@ -7,11 +7,13 @@ from django.contrib.auth.models import User
 from django.db.models import Sum
 from django.forms import modelformset_factory
 from django.shortcuts import render, redirect, get_object_or_404
-from django.http import FileResponse, Http404
+from django.http import FileResponse, Http404, HttpResponse
+from mvp.forms import CONTRACT_FACTURATION
+import csv
 
 from .pdfCreateInvoice import CreatePDFInvoice
 from .controllers import customRegisterUser, CleanInvoicesLate
-from .models import License, Service
+from .models import License, Service, Contract
 from .forms import (
     UserRegisterForm,
     CompanyForm,
@@ -77,6 +79,31 @@ def join_company(request, invite_email):
             return redirect(request, 'mvp-home')
     return render(request, 'mvp/misc/register.html', {'form': form})
 
+@login_required
+def viewCsv(request):
+    if hasattr(request.user, 'commercial') or request.user.manager.role != 1:
+        return Http404
+    qs = Contract.objects.filter(company=request.user.manager.company)
+    print(qs)
+    response = HttpResponse(content_type='text/csv')
+    response['Content-Disposition'] = 'attachment; filename="somefilename.csv"'
+    writer = csv.writer(response)
+    writer.writerow(['Licence / Conseil', 'Contract', 'Client', 'Date de début', 'Date de fin', 'Periodicité',
+                     'Commercial', 'Account manager', 'Montant Total'])
+    writer.writerow([])
+    for contract in qs:
+        for license in contract.license_set.all():
+            writer.writerow([license.description, contract.description, contract.client,
+                             license.start_date.strftime("%d/%m/%Y"), license.end_date.strftime("%d/%m/%Y"),
+                             [x[1] for x in CONTRACT_FACTURATION if x[0] == license.contract.facturation][0], contract.commercial,
+                             contract.client.account_manager, str(license.price) + " €"])
+        for conseil in contract.conseil_set.all():
+            writer.writerow([conseil.description, contract.description, contract.client,
+                             conseil.start_date.strftime("%d/%m/%Y"), conseil.end_date.strftime("%d/%m/%Y"),
+                             [x[1] for x in CONTRACT_FACTURATION if x[0] == conseil.contract.facturation][0], contract.commercial,
+                             contract.client.account_manager, str(conseil.price) + " €"])
+    return response
+
 
 @login_required
 def ManagerWorkspace(request):
@@ -96,13 +123,6 @@ def ManagerWorkspace(request):
         facturated_date=None,
         date__month__lte=date.month, date__year__lte=date.year
     ).order_by('contract__id', 'price', 'date', ).distinct('contract') or None
-    # invoices_to_facture = invoices.filter(
-    #     facturated_date=None,
-    #     date__month__lte=date.month, date__year__lte=date.year
-    # ).order_by('contract__id', '-id', 'price', 'date',).distinct('contract') or None
-    # invoices_late = invoices.filter(
-    #     payed=False,
-    #     facturated_date__lte=F('date') + timedelta(days=0)).order_by('price') or None
     invoices_late = invoices.filter(
         payed=False,
         facturated_date__lte=date - timedelta(days=company.facturation_delay)).order_by('price') or None
@@ -143,11 +163,8 @@ def Kpi(request):
     date = today()
     date_month = date - relativedelta(months=4)
     date_year = date - relativedelta(years=1)
-    print("date:", date_month, date_year)
     contracts_year = contracts.filter(start_date__gte=date_year, validated=True)
     contracts_month = contracts.filter(start_date__gte=date_month, validated=True)
-    # print(contracts_month)
-    # print(contracts_year)
     license_year = License.objects.filter(
         contract__company=company,
         start_date__gte=date_year,
@@ -170,27 +187,14 @@ def Kpi(request):
         conseil__contract__validated=True,
         done__gt=0,
     )
-    # print("MONTH License", license_month)
-    # print("MONTH Service", service_month)
-    # print("YEAR License", license_year)
-    # print("YEAR Service", service_year)
     mmr = license_month.aggregate(Sum('price'))['price__sum'] or 0
     mmr += service_month.aggregate(Sum('price'))['price__sum'] or 0
-    # print("mmr total: ", mmr)
     amr = license_year.aggregate(Sum('price'))['price__sum'] or 0
-    # print(amr)
     amr += service_year.aggregate(Sum('price'))['price__sum'] or 0
 
-    print("MONTH Contracts :", contracts_month)
     ca_m = contracts_month.aggregate(Sum('price'))['price__sum'] or 0
-    print("ca_m total: ", ca_m)
-    print("YEAR Contracts :", contracts_year)
     ca_y = contracts_year.aggregate(Sum('price'))['price__sum'] or 0
-    print("ca_y total: ", ca_y)
 
-    # print(amr)
-    # license_year = contracts.filter(license__invoice__date__gte=date, validated=True).aggregate(Sum('license__price'))['price__sum'] or 0
-    # year_prime = contracts.filter(start_date__year=date.year, validated=True).aggregate(Sum('price'))['price__sum']
     context['mmr'], context['amr'] = mmr, amr
     context['ca_m'], context['ca_y'] = ca_m, ca_y
     return render(request, 'mvp/workspace/kpi.html', context)
@@ -258,10 +262,6 @@ def CommercialWorkspace(request):
     context['new_clients'] = commercial.client_set.filter(
         created_at__gte=today().date() - relativedelta(months=1)).count()
     return render(request, 'mvp/workspace/bizdev.html', context)
-
-
-from django.db.models import F
-
 
 @login_required
 def FactuWorkspace(request):
@@ -335,13 +335,6 @@ def AccountWorkspace(request):
         facturated_date=None,
         date__month__lte=date.month, date__year__lte=date.year
     ).order_by('contract__id', 'price', 'date', ).distinct('contract') or None
-    # invoices_to_facture = invoices.filter(
-    #     facturated_date=None,
-    #     date__month__lte=date.month, date__year__lte=date.year
-    # ).order_by('contract__id', '-id', 'price', 'date',).distinct('contract') or None
-    # invoices_late = invoices.filter(
-    #     payed=False,
-    #     facturated_date__lte=F('date') + timedelta(days=0)).order_by('price') or None
     invoices_late = invoices.filter(
         payed=False,
         facturated_date__lte=date - timedelta(days=company.facturation_delay)).order_by('price') or None

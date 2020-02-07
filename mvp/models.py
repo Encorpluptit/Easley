@@ -224,7 +224,7 @@ class Contract(models.Model):
     )
     facturation = models.PositiveSmallIntegerField(
         default=1,
-        verbose_name="Fréquance de la facturation.",
+        verbose_name="Fréquence de la facturation.",
         help_text="Fréquence de la facturation.",
     )
     price = models.PositiveIntegerField(

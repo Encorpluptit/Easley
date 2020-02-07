@@ -86,7 +86,7 @@ def viewCsv(request):
     qs = Contract.objects.filter(company=request.user.manager.company)
     print(qs)
     response = HttpResponse(content_type='text/csv')
-    response['Content-Disposition'] = 'attachment; filename="somefilename.csv"'
+    response['Content-Disposition'] = 'attachment; filename="Détails Contrats.csv"'
     writer = csv.writer(response)
     writer.writerow(['Licence / Conseil', 'Contract', 'Client', 'Date de début', 'Date de fin', 'Periodicité',
                      'Commercial', 'Account manager', 'Montant Total'])

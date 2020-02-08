@@ -111,9 +111,7 @@ def viewContractCsv(request):
 def viewInvoiceCsv(request):
     if hasattr(request.user, 'commercial') or request.user.manager.role != 1:
         return Http404
-    date = today().date()
     qs = Invoice.objects.filter(company=request.user.manager.company).order_by('contract__start_date', 'date')
-    print(qs)
     response = HttpResponse(content_type='text/csv')
     response['Content-Disposition'] = 'attachment; filename="Détails Invoice.csv"'
     writer = csv.writer(response)

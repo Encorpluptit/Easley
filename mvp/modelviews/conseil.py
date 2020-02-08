@@ -93,7 +93,6 @@ def ConseilDetails(request, cpny_pk=None, contract_pk=None, conseil_pk=None):
 
     serviceForm = ServiceForm(request.POST or None, user=request.user, company=contract.company, conseil=context['object'])
     if request.method == "POST":
-        print(request.POST)
         if ('delete_conseil' in request.POST):
             context['object'].delete()
             return redirect('mvp-contract-details', cpny_pk=contract.company.id, contract_pk=contract.id)

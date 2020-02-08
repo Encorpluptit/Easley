@@ -234,10 +234,10 @@
                                             <td>{{ invoice.date }}</td>
                                             <th>
                                                 <a class="btn btn-success btn-icon-split"
-                                                   href= {% url 'mvp-invoice-details' invoice.contract.company.id invoice.id %}>
+                                                   href= {% url 'mvp-do-payed' invoice.id %}>
                                                     <span class="icon text-white-50"><i
                                                             class="fas fa-file-invoice-dollar"></i></span>
-                                                    <span class="text">Facturer</span>
+                                                    <span class="text">Encaisser</span>
                                                 </a>
                                             </th>
                                         </tr>
@@ -250,9 +250,13 @@
                 </div>
             </div>
 
-            <a class="btn btn-warning btn-icon-split" href= {% url 'mvp-csv' %}>
+            <a class="btn btn-warning btn-icon-split" href= {% url 'mvp-contract-csv' %}>
                 <span class="icon text-white-50"><i class="fas fa-arrow-alt-circle-down"></i></span>
-                <span class="text">Télécharger mes contrats</span>
+                <span class="text">Détails des contrats</span>
+            </a>
+            <a class="btn btn-warning btn-icon-split" href= {% url 'mvp-invoice-csv' %}>
+                <span class="icon text-white-50"><i class="fas fa-arrow-alt-circle-down"></i></span>
+                <span class="text">Détail des factures</span>
             </a>
 
         </div>

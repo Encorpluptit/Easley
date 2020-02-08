@@ -37,6 +37,7 @@ def init():
     NfctTab = [
         ("c", create_database),
         ("w", wipe_database),
+        ("d", PrintGlobalDict),
     ]
     user_input = input()
     while user_input != "x":

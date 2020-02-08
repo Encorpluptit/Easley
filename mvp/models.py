@@ -60,7 +60,7 @@ class Company(models.Model):
         help_text="Numéro SIRET de l'entreprise.",
     )
     invoice_nb = models.PositiveIntegerField(
-        default=1,
+        default=0,
         verbose_name="Numéro de factures de l'entreprise.",
         help_text="Numéro de factures de l'entreprise.",
     )
@@ -509,6 +509,18 @@ class Invoice(models.Model):
         verbose_name="Le ou les licenses(s) relatif(s) à cette facture.",
         help_text="Préciser le ou les licenses(s) à facturer.",
     )
+    number = models.PositiveIntegerField(
+        default=0,
+        verbose_name="Numéro de la facture.",
+        help_text="Numéro de la facture.",
+    )
+    payed_date = models.DateField(
+        default=None,
+        verbose_name="Date d'encaissement",
+        help_text="Précisez la date d'encaissement",
+        null=True,
+    )
+
 
     class Meta:
         verbose_name = "facture"

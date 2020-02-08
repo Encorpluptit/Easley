@@ -232,10 +232,10 @@
                                             <td>{{ invoice.date }}</td>
                                             <th>
                                                 <a class="btn btn-success btn-icon-split"
-                                                   href= {% url 'mvp-invoice-details' invoice.contract.company.id invoice.id %}>
+                                                   href= {% url 'mvp-do-payed' invoice.id %}>
                                                     <span class="icon text-white-50"><i
                                                             class="fas fa-file-invoice-dollar"></i></span>
-                                                    <span class="text">Facturer</span>
+                                                    <span class="text"></span>
                                                 </a>
                                             </th>
                                         </tr>

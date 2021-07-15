@@ -33,7 +33,7 @@ requests-toolbelt==0.9.1
 six==1.14.0
 sqlparse==0.3.0
 unicodecsv==0.14.1
-urllib3==1.25.8
+urllib3==1.26.5
 whitenoise==5.0.1
 xlrd==1.2.0
 zope.component==4.6
